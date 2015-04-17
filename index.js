@@ -29,7 +29,7 @@ taxonomyGetter.get().then(function (taxonomy) {
     .data(nodes)
     .enter().append("g")
     .attr("class", "node")
-    .attr("transform", function (d) { return "translate(" + d.y + ", " + d.x + ")"; })
+    .attr("transform", function (d) { return "translate(" + d.y + ", " + d.x + ")"; });
 
   node.append("circle")
     .attr("r", 4.5);
@@ -37,7 +37,6 @@ taxonomyGetter.get().then(function (taxonomy) {
   node.append("text")
     .attr("dy", ".31em")
     .attr("text-anchor", "start")
-    //.attr("transform", function (d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
     .text(function (d) { return d.model.name; });
 });
 
