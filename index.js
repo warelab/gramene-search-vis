@@ -36,6 +36,7 @@ taxonomyGetter.get().then(function (taxonomy) {
 
   node.append("text")
     .attr("dy", ".31em")
+    .attr("dx", ".6em")
     .attr("text-anchor", "start")
     .text(function (d) { return d.model.name; });
 });
