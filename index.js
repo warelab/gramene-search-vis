@@ -57,7 +57,8 @@ Q.all([
     .data(nodes)
     .enter().append("g")
     .attr("class", "node")
-    .attr("transform", function (d) { return "translate(" + d.y + ", " + d.x + ")"; });
+    .attr("transform", function (d) { return "translate(" + d.y + ", " + d.x + ")"; })
+    .on("mouseover", function(d) { console.log(d) });
 
   node.append("circle")
     .attr("r", 4.5);
@@ -66,7 +67,15 @@ Q.all([
     .attr("dy", ".31em")
     .attr("dx", ".6em")
     .attr("text-anchor", "start")
-    .text(function (d) { return d.model.name; });
+    .text(function (d) {
+      var name = d.model.name;
+      if(d.model.genome) {
+        name += ' (' + d.model.genome.results.count +
+          ' results in ' + d.model.genome.results.bins +
+          ' bins)';
+      }
+      return name;
+    });
 }).catch(function (err) {
   console.error(err);
 });
