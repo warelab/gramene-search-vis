@@ -38,7 +38,7 @@ var svg = d3.select("body").append("svg")
   .append("g");
 
 Q.all([
-  taxonomyGetter.get(true), // FOR NOW, use local data
+  taxonomyGetter.get(), // FOR NOW, use local data
   search.geneSearch(exampleQuery)
 ]).spread(function (taxonomy, results) {
   taxonomy.setBinType('fixed', 200);
