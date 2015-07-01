@@ -3,8 +3,11 @@
 */
 
 var $ = require('jquery');
-require('./kbaseTreechart.js');
-require('./GeneDistribution.js');
+
+var jqElem = require('./jqElem');
+var KBWidget = require('./kbwidget');
+var KbaseTreechart = require('./kbaseTreechart.js');
+var GeneDistribution = require('./GeneDistribution.js');
 
 var calculateScore = function(node) {
     var score = 0;
@@ -32,8 +35,8 @@ var calculateScore = function(node) {
     return score;
 }
 
-    $.KBWidget({
 
+module.exports = KBWidget({
 	    name: "WareTreeGeneDistribution",
 
         version: "1.0.0",
@@ -66,7 +69,7 @@ var calculateScore = function(node) {
                 return d;
             }
 
-            this.$elem.kbaseTreechart(
+            KbaseTreechart.bind(this.$elem)(
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
@@ -102,7 +105,7 @@ var calculateScore = function(node) {
                             ;
 
                             if (d.$lgv == undefined) {
-                                d.$lgv = $.jqElem('div').GeneDistribution(
+                                d.$lgv = GeneDistribution.bind(jqElem('div'))(
                                     {
                                         scaleAxes   : true,
                                         customRegions : {

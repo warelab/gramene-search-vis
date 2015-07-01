@@ -5,7 +5,7 @@ var Q = require('q');
 
 var $ = require('jquery');
 
-require('./kb/WareTreeGeneDistribution.js');
+var WareTreeGeneDistribution = require('./kb/WareTreeGeneDistribution.js');
 
 // Example query object.
 // This is usually generated in code by gramoogle.
@@ -27,29 +27,14 @@ var exampleQuery = {
   }
 };
 
-//var height = 2000, width = 960;
-var width = 960;
+Q.all([
+  taxonomyGetter.get(), // FOR NOW, use local data
+  search.geneSearch(exampleQuery)
+]).spread(function (taxonomy, results) {
+  taxonomy.setBinType('fixed', 200);
+  taxonomy.setResults(results.fixed_200_bin);
 
-   var $div = $.jqElem('div')
-        .css({width : width})
-    ;
-
-   $('body').append($div);
-
-    Q.all([
-      taxonomyGetter.get(), // FOR NOW, use local data
-      search.geneSearch(exampleQuery)
-    ]).spread(function (taxonomy, results) {
-      taxonomy.setBinType('fixed', 200);
-      taxonomy.setResults(results.fixed_200_bin);
-
-taxonomy = taxonomy.children[0];
-//delete taxonomy.parent;
-
-
-$div.WareTreeGeneDistribution({ dataset : taxonomy });
-
-;
+  WareTreeGeneDistribution.bind($('#the-test-vis'))({dataset: taxonomy.children[0]});
 }).catch(function (err) {
   console.error(err);
 });

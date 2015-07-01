@@ -3,6 +3,7 @@
 */
 
 var $ = require('jquery');
+var KBWidget = require('./kbwidget');
 require('./kbaseVisWidget.js');
 var Point = require('./Point.js');
 var Size = require('./Size.js');
@@ -10,7 +11,7 @@ var Rectangle = require('./Rectangle.js');
 var RGBColor = require('./RGBColor.js');
 var d3 = require('d3');
 
-    $.KBWidget({
+module.exports = KBWidget({
 
 	    name: "kbaseTreechart",
 	  parent: "kbaseVisWidget",
@@ -474,7 +475,7 @@ var throttle = 0
                 }
             });
 
-            // Update the linksÉ
+            // Update the linksï¿½
             var link = chart.selectAll("path.link")
                 .data($tree.treeLayout.links($tree.nodes), function(d) { return d.target.id; });
 
