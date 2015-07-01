@@ -1,6 +1,5 @@
 var $ = require('jquery');
-var KBWidget = require('./kbwidget');
-require('./kbaseVisWidget.js');
+var KBWidget = require('./kbaseVisWidget.js');
 var d3 = require('d3');
 
 module.exports = KBWidget({

@@ -4,10 +4,9 @@ var KBWidget = require('./kbwidget.js');
 var Point = require('./Point.js');
 var Size = require('./Size.js');
 var Rectangle = require('./Rectangle.js');
-var RGBColor = require('./RGBColor.js');
 var d3 = require('d3');
 
-module.exports = KBWidget({
+KBWidget({
 
   name: "kbaseVisWidget",
 
@@ -1061,3 +1060,5 @@ module.exports = KBWidget({
       : undefined;
   }
 });
+
+module.exports = KBWidget;

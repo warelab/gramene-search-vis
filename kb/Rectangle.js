@@ -10,28 +10,28 @@ Rectangle = function(origin,size) {
     }
     this.origin = origin;
     this.size = size;
-}
+};
 
 Rectangle.prototype.invert = function() {
     return new Rectangle(
         this.height,
         this.width
     );
-}
+};
 
 Rectangle.prototype.lowerRight = function() {
     return new Point(
         this.origin.x + this.size.width,
         this.origin.y + this.size.height
     )
-}
+};
 
 Rectangle.prototype.insetRect = function(dx,dy) {
     return new Rectangle(
         new Point(this.origin.x + dx / 2, this.origin.y + dy / 2),
         new Size(this.size.width - dx, this.size.height - dy)
     );
-}
+};
 
 Rectangle.prototype.fromString = function (string) {
     var results;
@@ -43,22 +43,14 @@ Rectangle.prototype.fromString = function (string) {
     else {
         return undefined;
     }
-}
+};
 
 Rectangle.prototype.intersects = function (r2) {
-    if (
-        this.origin.x < r2.origin.x + r2.size.width
+    return this.origin.x < r2.origin.x + r2.size.width
         && this.origin.x + this.size.width > r2.origin.x
         && this.origin.y < r2.origin.y + r2.size.height
-        && this.origin.y + this.size.height > r2.origin.y
-        )
-        {
-            return true;
-    }
-    else {
-        return false;
-    }
-}
+        && this.origin.y + this.size.height > r2.origin.y;
+};
 
 Rectangle.prototype.unionRect = function (r2, padding) {
 
@@ -85,20 +77,14 @@ Rectangle.prototype.unionRect = function (r2, padding) {
 
     return union;
 
-}
+};
 
 Rectangle.prototype.isValidRect = function() {
-    if (
-           isNaN(this.origin.x)
+    return !(isNaN(this.origin.x)
         || isNaN(this.origin.y)
         || isNaN(this.size.width)
-        || isNaN(this.size.height) ) {
-            return false;
-    }
-    else {
-        return true;
-    }
-}
+        || isNaN(this.size.height) )
+};
 
 Rectangle.prototype.intersectRect = function(r2) {
 
@@ -126,19 +112,14 @@ Rectangle.prototype.intersectRect = function(r2) {
 
     return intersect;
 
-}
+};
 
 Rectangle.prototype.containsPoint = function (p) {
     var ux = this.origin.x + this.size.width;
     var uy = this.origin.y + this.size.height;
-    if (p.x >= this.origin.x && p.x <= ux
-        && p.y >= this.origin.y && p.y <= uy) {
-            return true;
-    }
-    else {
-        return false;
-    }
-}
+    return p.x >= this.origin.x && p.x <= ux
+        && p.y >= this.origin.y && p.y <= uy;
+};
 
 Rectangle.prototype.equals = function (r2) {
     if (this == undefined || r2 == undefined) {
@@ -150,10 +131,10 @@ Rectangle.prototype.equals = function (r2) {
             && this.size.width == r2.size.width
             && this.size.height == r2.size.height;
     }
-}
+};
 
 Rectangle.prototype.asString = function () {
     return "{" + this.origin.asString() + ", " + this.size.asString() + "}";
-}
+};
 
 module.exports = Rectangle;
