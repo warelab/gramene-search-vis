@@ -5,7 +5,7 @@ var Q = require('q');
 
 var $ = require('jquery');
 
-require('./kb/WareTreeGeneDistribution.js');
+var WareTreeGeneDistribution = require('./kb/WareTreeGeneDistribution.js');
 
 // Example query object.
 // This is usually generated in code by gramoogle.
@@ -34,7 +34,7 @@ Q.all([
   taxonomy.setBinType('fixed', 200);
   taxonomy.setResults(results.fixed_200_bin);
 
-  $('#the-test-vis').WareTreeGeneDistribution({dataset: taxonomy});
+  WareTreeGeneDistribution.bind($('#the-test-vis'))({dataset: taxonomy});
 }).catch(function (err) {
   console.error(err);
 });

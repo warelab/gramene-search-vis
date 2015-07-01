@@ -22,7 +22,8 @@
 var $ = require('jquery');
 var jqElem = require('./jqElem');
 
-var KBase;
+var KBase, KBWidget;
+
 var ucfirst = function (string) {
   if (string != undefined && string.length) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -80,7 +81,7 @@ function subclass(constructor, superConstructor) {
   constructor.prototype = prototypeObject;
 }
 
-$.KBWidget = function (def) {
+KBWidget = function (def) {
   def = (def || {});
   var name = def.name;
   var parent = def.parent;
@@ -205,21 +206,25 @@ $.KBWidget = function (def) {
     if ($.isFunction(defCopy[prop])) {
 
       Widget.prototype[prop] = (function (methodName, method) {
-        var _super = function () {
-          throw "No parent method defined! Play by the rules!";
-        }
-        var _superMethod = function () {
-          throw "No parent method defined! Play by the rules!";
-        }
+        var _super, _superMethod;
 
         if (parent) {
-          var _super = function () {
+          _super = function () {
             return widgetRegistry[parent].prototype[methodName].apply(this, arguments);
-          }
+          };
 
-          var _superMethod = function (superMethodName) {
+          _superMethod = function (superMethodName) {
             return widgetRegistry[parent].prototype[superMethodName].apply(this, Array.prototype.slice.call(arguments, 1));
-          }
+          };
+        }
+        else {
+          _super = function () {
+            throw "No parent method defined! Play by the rules!";
+          };
+
+          _superMethod = function () {
+            throw "No parent method defined! Play by the rules!";
+          };
         }
 
         return function () {
@@ -239,7 +244,6 @@ $.KBWidget = function (def) {
 
     }
     else {
-      //*/
       Widget.prototype[prop] = defCopy[prop];
     }
   }
@@ -249,14 +253,14 @@ $.KBWidget = function (def) {
   }
 
   if (asPlugin) {
-    var ctor = function (method, args) {
+    var widgetConstructor = function (method, args) {
 
       if (this.length > 1) {
         var methodArgs = arguments;
         $.each(
           this,
           function (idx, elem) {
-            ctor.apply($(elem), methodArgs);
+            widgetConstructor.apply($(elem), methodArgs);
           }
         );
         return this;
@@ -289,7 +293,7 @@ $.KBWidget = function (def) {
       return this;
 
     };
-    ctor.name = name;
+    widgetConstructor.name = name;
   }
 
   /**
@@ -324,14 +328,14 @@ $.KBWidget = function (def) {
 
   if (name !== undefined) {
     Widget.prototype[name] = function () {
-      return ctor.apply(this.$elem, arguments);
-    }
+      return widgetConstructor.apply(this.$elem, arguments);
+    };
 
-    return ctor;
+    return widgetConstructor;
   } else {
     return this;
   }
-}
+};
 
 /**
  * @method registry
@@ -341,7 +345,7 @@ $.KBWidget = function (def) {
  * @return {Object} return.value The widget
  * @static
  */
-$.KBWidget.registry = function () {
+KBWidget.registry = function () {
   var registry = {};
   for (var widget in widgetRegistry) {
     if (widget !== 'kbaseWidget') {
@@ -349,7 +353,7 @@ $.KBWidget.registry = function () {
     }
   }
   return registry;
-}
+};
 
 /**
  * @method resetRegistry
@@ -359,16 +363,18 @@ $.KBWidget.registry = function () {
  * @static
  * @chainable
  */
-$.KBWidget.resetRegistry = function () {
+KBWidget.resetRegistry = function () {
   for (var widget in widgetRegistry) {
     if (widget !== 'kbaseWidget') {
       delete widgetRegistry[widget];
     }
   }
   return this;
-}
+};
 
-$.KBWidget(
+// Create the root widget. This is added to the factory's registry and
+// is the implicit root of all KBase Widgets.
+KBWidget(
   {
     name: 'kbaseWidget',
 
@@ -391,7 +397,7 @@ $.KBWidget(
         else {
           setTimeout(recursion, 10);
         }
-      }
+      };
 
       delayer();
       return delayer;
@@ -498,7 +504,7 @@ $.KBWidget(
         triggerValues = {
           oldValue: oldVal,
           newValue: newVal
-        }
+        };
         this.trigger(willChangeNote, triggerValues);
 
         this._attributes[attribute] = triggerValues.newValue;
@@ -516,7 +522,7 @@ $.KBWidget(
 
       var objCopy = $.extend({}, obj);
 
-      for (attribute in this.__attributes) {
+      for (var attribute in this.__attributes) {
         if (objCopy[attribute] != undefined) {
           var setter = this.__attributes[attribute].setter;
           this[setter](objCopy[attribute]);
@@ -657,3 +663,5 @@ $.KBWidget(
     }
   }
 );
+
+module.exports = KBWidget;

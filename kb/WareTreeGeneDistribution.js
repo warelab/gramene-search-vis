@@ -4,10 +4,11 @@
 
 var $ = require('jquery');
 var jqElem = require('./jqElem');
-require('./kbaseTreechart.js');
-require('./GeneDistribution.js');
+var KBWidget = require('./kbwidget');
+var KbaseTreechart = require('./kbaseTreechart.js');
+var GeneDistribution = require('./GeneDistribution.js');
 
-$.KBWidget({
+module.exports = KBWidget({
 	    name: "WareTreeGeneDistribution",
 
         version: "1.0.0",
@@ -40,7 +41,7 @@ $.KBWidget({
                 return d;
             }
 
-            this.$elem.kbaseTreechart(
+            KbaseTreechart.bind(this.$elem)(
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
@@ -76,7 +77,7 @@ $.KBWidget({
                             ;
 
                             if (d.$lgv == undefined) {
-                                d.$lgv = jqElem('div').GeneDistribution(
+                                d.$lgv = GeneDistribution.bind(jqElem('div'))(
                                     {
                                         scaleAxes   : true,
                                         customRegions : {
