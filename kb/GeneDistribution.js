@@ -141,7 +141,11 @@ module.exports = KBWidget({
         else if (b.start && b.regionObj.name) {
           score = b.results ? b.results.count : 0;
           if (score) {
-            $gd.showToolTip({label: "bin starting at : " + b.start + ' for ' + b.regionObj.name + ' score is ' + score})
+            var units = (score > 1) ? ' genes' : ' gene';
+            $gd.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end + ' ' + score + units})
+          }
+          else {
+            $gd.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end})
           }
         }
       })

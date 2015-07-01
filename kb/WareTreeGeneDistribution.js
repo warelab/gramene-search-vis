@@ -10,29 +10,34 @@ var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 
 var calculateScore = function(node) {
-    var score = 0;
 
-    if (node.children) {
-        for (var i = 0; i < node.children.length; i++) {
-            score += calculateScore(node.children[i]);
+    if (node.score == undefined) {
+        var score = 0;
+
+        if (node.children) {
+            for (var i = 0; i < node.children.length; i++) {
+                score += calculateScore(node.children[i]);
+            }
         }
-    }
 
-    if (node._children) {
-        for (var i = 0; i < node._children.length; i++) {
-            score += calculateScore(node._children[i]);
+        if (node._children) {
+            for (var i = 0; i < node._children.length; i++) {
+                score += calculateScore(node._children[i]);
+            }
         }
-    }
 
-    if (node.model.genome) {
-        node.model.genome.eachRegion(function(region) {
-            region.eachBin(function(bin) {
-                score += bin.results ? bin.results.count : 0;
+        if (node.model.genome) {
+            node.model.genome.eachRegion(function(region) {
+                region.eachBin(function(bin) {
+                    score += bin.results ? bin.results.count : 0;
+                })
             })
-        })
+        }
+
+        node.score = score;
     }
 
-    return score;
+    return node.score;
 }
 
 
@@ -84,6 +89,8 @@ module.exports = KBWidget({
 
                             var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace;
 
+                            var labelDelta = 50;
+
 
                             var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
 
@@ -92,7 +99,7 @@ module.exports = KBWidget({
 
                             if ($tree.options.lgvTransform == undefined) {
                                 $tree.options.lgvTransform =
-                                    'translate(' + ($tree.options.labelWidth + $tree.options.labelSpace) + ',' + (0 - nodeHeight / 2) + ') , ' +
+                                    'translate(' + ($tree.options.labelWidth + labelDelta + 3) + ',' + (0 - nodeHeight / 2) + ') , ' +
                                     'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
                             }
 
@@ -102,6 +109,14 @@ module.exports = KBWidget({
                                     .append('g')
                                         .attr('class', lgvID)
                                         .attr('transform', $tree.options.lgvTransform)
+                            lgvSelection
+                              .enter()
+                                .append('text')
+                                    .attr('style', 'font-size : 11px;cursor : pointer;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;')
+                                    .attr("dy", ".35em")
+                                    .attr('dx', $tree.options.labelWidth + labelDelta)
+                                    .attr('text-anchor','end')
+                                    .text(d.model.genome.results.count)
                             ;
 
                             if (d.$lgv == undefined) {
@@ -142,16 +157,30 @@ module.exports = KBWidget({
                     layout          : d3.layout.cluster().separation(function(a,b){return 1}),
                     distance        : 10,
                     fixed           : true,
-                    labelWidth      : 250,
+                    labelWidth      : 100,
                     nodeHeight      : 7,
+
+                    strokeWidth : function(d) {
+
+                        var parent = d.source;
+
+                        while (parent.parent != undefined && (this.filterParent == undefined || parent.parent != this.filterParent[0])) {
+                            parent = parent.parent;
+                        }
+
+                        var rootScore = calculateScore(parent);
+
+                        var targetScore = calculateScore(d.target);
+
+                        var scale = d3.scale.linear()
+                            .domain([0, rootScore])
+                            .range([.5, 5]);
+
+                        return scale(targetScore);
+                    },
+
                     nameFunction    : function (d) {
-                      var name = d.model.name;
-                      if(d.model.genome) {
-                        name += ' (' + d.model.genome.results.count +
-                          ' results in ' + d.model.genome.results.bins +
-                          ' bins)';
-                      }
-                      return name;
+                      return d.model.name;
                     },
 
                     truncationFunction : function(d, elem, $tree) {
@@ -171,20 +200,6 @@ module.exports = KBWidget({
 
                     textClick : function(d) {
 
-                        var max = Math.floor(Math.random() * 10);
-
-                        var dataset = [];
-                        for (var i = 0; i <= max; i++) {
-                            dataset.push(
-                                {
-                                    start : i,
-                                    end : i + 1,
-                                    score : Math.random() * 100
-                                }
-                            )
-                        }
-
-                        $gd.setDataset(dataset);
                     },
 
                     textDblClick : function(d) {
@@ -218,9 +233,11 @@ module.exports = KBWidget({
 
                         if (d.children || d._children) {
 
-                            score = calculateScore(d);
+                            if (d.score == undefined) {
+                                d.score = calculateScore(d);
+                            }
 
-                            this.showToolTip({label : d.name + ' - ' + score + ' genes'})
+                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
                         }
 
                     },

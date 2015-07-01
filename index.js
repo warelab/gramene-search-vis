@@ -26,11 +26,12 @@ var exampleQuery = {
     "fixed_200_bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200_bin'}fixed_200_bin"}
   }
 };
-
+console.log("L1");
 Q.all([
   taxonomyGetter.get(), // FOR NOW, use local data
   search.geneSearch(exampleQuery)
 ]).spread(function (taxonomy, results) {
+console.log("HAS DATA");
   taxonomy.setBinType('fixed', 200);
   taxonomy.setResults(results.fixed_200_bin);
 

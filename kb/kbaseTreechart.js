@@ -305,7 +305,7 @@ var throttle = 0
 
             nodeEnter.append("circle")
                 .attr("r", 1e-6)
-                .attr('style', 'cursor : pointer; fill : #fff; stroke-width : 1.5px')
+                .attr('style', 'cursor : pointer;')
                 .attr('stroke', function(d) { return d.stroke || $tree.options.circleStroke})
                 .style("fill", function(d) { return d._children ? $tree.options.openCircleFill : $tree.options.closedCircleFill; })
                 .on("click", function(d) {
@@ -484,7 +484,6 @@ var throttle = 0
                 .attr("class", "link")
                 .attr('fill', 'none')
                 .attr('stroke', '#ccc')
-                .attr('stroke-width', function (d) { var weight = d.target.weight || $tree.options.strokeWidth; return weight + 'px'; } )
                 .attr("d", function(d) {
                   var o = {x: source.x0, y: source.y0};
                   return $tree.diagonal({source: o, target: o});
@@ -496,6 +495,14 @@ var throttle = 0
             // Transition links to their new position.
             link.transition()
                 .duration(duration)
+                .attr('stroke-width', function (d) {
+                    var weight = d.target.weight || $tree.options.strokeWidth;
+                    if (typeof(weight) === 'function') {
+                        weight = weight.call($tree, d);
+                    }
+
+                    return weight + 'px';
+                })
                 .attr("d", $tree.diagonal);
 
             // Transition exiting nodes to the parent's new position.
