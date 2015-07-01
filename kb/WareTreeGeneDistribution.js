@@ -6,6 +6,32 @@ var $ = require('jquery');
 require('./kbaseTreechart.js');
 require('./GeneDistribution.js');
 
+var calculateScore = function(node) {
+    var score = 0;
+
+    if (node.children) {
+        for (var i = 0; i < node.children.length; i++) {
+            score += calculateScore(node.children[i]);
+        }
+    }
+
+    if (node._children) {
+        for (var i = 0; i < node._children.length; i++) {
+            score += calculateScore(node._children[i]);
+        }
+    }
+
+    if (node.model.genome) {
+        node.model.genome.eachRegion(function(region) {
+            region.eachBin(function(bin) {
+                score += bin.results ? bin.results.count : 0;
+            })
+        })
+    }
+
+    return score;
+}
+
     $.KBWidget({
 
 	    name: "WareTreeGeneDistribution",
@@ -186,7 +212,14 @@ require('./GeneDistribution.js');
                     },
 
                     tooltip : function(d) {
-                        this.showToolTip({label : d.name})
+
+                        if (d.children || d._children) {
+
+                            score = calculateScore(d);
+
+                            this.showToolTip({label : d.name + ' - ' + score + ' genes'})
+                        }
+
                     },
                 }
             )
