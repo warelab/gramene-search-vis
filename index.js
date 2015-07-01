@@ -34,7 +34,7 @@ Q.all([
   taxonomy.setBinType('fixed', 200);
   taxonomy.setResults(results.fixed_200_bin);
 
-  WareTreeGeneDistribution.bind($('#the-test-vis'))({dataset: taxonomy});
+  WareTreeGeneDistribution.bind($('#the-test-vis'))({dataset: taxonomy.children[0]});
 }).catch(function (err) {
   console.error(err);
 });
