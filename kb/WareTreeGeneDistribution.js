@@ -54,17 +54,17 @@ module.exports = KBWidget({
                                 ? $tree.options.fixedDepth
                                 : d.y;
 
-                            var width = bounds.size.width - y - this.options.labelWidth - 10;
+                            var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace;
 
 
                             var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
 
                             var lgvID = 'lgv-' + $tree.uuid();
-                            var nodeHeight = node.getBBox().height;
+                            var nodeHeight = 0.7 * node.getBBox().height;
 
                             if ($tree.options.lgvTransform == undefined) {
                                 $tree.options.lgvTransform =
-                                    'translate(' + ($tree.options.labelWidth + 10) + ',' + (0 - nodeHeight / 2) + ') , ' +
+                                    'translate(' + ($tree.options.labelWidth + $tree.options.labelSpace) + ',' + (0 - nodeHeight / 2) + ') , ' +
                                     'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
                             }
 
@@ -107,14 +107,16 @@ module.exports = KBWidget({
                     },
 
 
-                    dataset : this.options.dataset,
-                    displayStyle : 'Nnt',
-                    lineStyle : 'square',
-                    layout : 'cluster',
-                    distance : 10,
-                    fixed : true,
-                    labelWidth : 250,
-                    nameFunction : function (d) {
+                    dataset         : this.options.dataset,
+                    displayStyle    : 'Nnt',
+                    circleRadius    : 2.5,
+                    lineStyle       : 'square',
+                    layout          : d3.layout.cluster().separation(function(a,b){return 1}),
+                    distance        : 10,
+                    fixed           : true,
+                    labelWidth      : 250,
+                    nodeHeight      : 7,
+                    nameFunction    : function (d) {
                       var name = d.model.name;
                       if(d.model.genome) {
                         name += ' (' + d.model.genome.results.count +
@@ -123,6 +125,7 @@ module.exports = KBWidget({
                       }
                       return name;
                     },
+
                     truncationFunction : function(d, elem, $tree) {
                         d3.select(elem)
                         .on('mouseover', function(d) {
@@ -133,9 +136,11 @@ module.exports = KBWidget({
                         });
                         return d.name_truncated + '...';
                     },
+
                     nodeDblClick : function(d) {
                         this.options.textDblClick.call(this, d);
                     },
+
                     textClick : function(d) {
 
                         var max = Math.floor(Math.random() * 10);
@@ -153,6 +158,7 @@ module.exports = KBWidget({
 
                         $gd.setDataset(dataset);
                     },
+
                     textDblClick : function(d) {
                         var parent;
                         if (this.filterParent == undefined) {
@@ -165,7 +171,7 @@ module.exports = KBWidget({
                         }
                         else {
                             var parent = d.parent;
-                            while (parent != undefined) {
+                            while (parent != undefined && parent.parent != undefined) {
                                 this.filterParent.unshift(parent);
                                 parent = parent.parent;
                             }
@@ -179,6 +185,7 @@ module.exports = KBWidget({
                         }
 
                     },
+
                     tooltip : function(d) {
                         this.showToolTip({label : d.name})
                     },
