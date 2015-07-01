@@ -11,6 +11,7 @@
   "dependencies": {
     "d3": "^3.5.5",
     "gramene-taxonomy-with-genomes": "git://github.com/warelab/gramene-taxonomy-with-genomes.git#master",
+    "jquery": "^2.1.4",
     "q": "^1.4.1",
     "search": "git://github.com/warelab/gramene-search-client.git#master"
   },
