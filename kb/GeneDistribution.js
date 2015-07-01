@@ -146,7 +146,7 @@ var d3 = require('d3');
                     else if (b.start && b.regionObj.name) {
                         score = b.results ? b.results.count : 0;
                         if (score) {
-                            $gd.showToolTip({label : "bin starting at : " + b.start + ' for ' + b.regionObj.name + ' score is ' + score})
+                            $gd.showToolTip({label : b.regionObj.name  + ':' + b.start + '-' + b.end + ' ' + score + ' genes'})
                         }
                     }
                 })

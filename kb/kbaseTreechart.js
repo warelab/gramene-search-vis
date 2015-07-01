@@ -40,6 +40,10 @@ var d3 = require('d3');
             fixed : 0,
             displayStyle : 'NTnt',
 
+            nodeHeight : 15,
+            labelSpace : 10,
+            circleRadius : 4.5,
+
         },
 
         _accessors : [
@@ -157,9 +161,9 @@ var d3 = require('d3');
                 .attr('style', 'visibility : hidden; font-size : 11px;cursor : pointer;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;')
                 .attr('class', 'fake')
                 .text(root.name);
-            rootOffset = rootText[0][0].getBBox().width + 10 + bounds.origin.x;
+            rootOffset = rootText[0][0].getBBox().width + $tree.options.labelSpace + bounds.origin.x;
 
-var newHeight = 15 * this.countVisibleNodes(this.dataset());
+var newHeight = this.options.nodeHeight * this.countVisibleNodes(this.dataset());
 //this.$elem.animate({'height' : newHeight + this.options.yGutter + this.options.yPadding}, 500);
 //            this.$elem.height(newHeight);
             this.height(this.$elem.height());
@@ -195,11 +199,11 @@ var chartOffset = 0;
             function findWidth(text, d) {
                     var box = text[0][0].getBBox();
                     var right = d.children || d._children
-                        ? d.y + 10
-                        : d.y + box.width + 10;
+                        ? d.y + $tree.options.labelSpace
+                        : d.y + box.width + $tree.options.labelSpace;
                     var left = d.children || d._children
-                        ? d.y + 10 - box.width
-                        : d.y + 10;
+                        ? d.y + $tree.options.labelSpace - box.width
+                        : d.y + $tree.options.labelSpace;
 
                     return [left, right, right - left];
             }
@@ -343,9 +347,7 @@ var throttle = 0
             nodeEnter.append("text")
                 //.attr('style', 'font-size : 11px')
                 .attr('style', 'font-size : 11px;cursor : pointer;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;')
-                .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
                 .attr("dy", ".35em")
-                .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
                 .text(function(d) {
                     var name = d.name;
                     if (d.width > $tree.options.labelWidth && $tree.options.truncationFunction) {
@@ -402,7 +404,7 @@ var throttle = 0
             ;
 
             nodeUpdate.select("circle")
-                .attr("r", 4.5)
+                .attr("r", $tree.options.circleRadius)
                 .attr('stroke', function(d) { return d.stroke || 'steelblue'})
                 .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
 
@@ -425,6 +427,8 @@ var throttle = 0
 
             nodeUpdate.select("text")
                 .style("fill-opacity", 1)
+                .attr("x", function(d) { return d.children  ? 0 - $tree.options.labelSpace : $tree.options.labelSpace; })
+                .attr("text-anchor", function(d) { return d.children ? "end" : "start"; })
                 .attr('visibility', function(d) {
                     var isLeaf = true;
                     if (d.children && d.children.length) {
@@ -512,8 +516,12 @@ var throttle = 0
             if (this.options.layout == 'cluster') {
                 return d3.layout.cluster()
             }
-            else {
+            else if (this.options.layout == undefined) {
                 return d3.layout.tree();
+            }
+            else {
+                console.log("RETURNS THIS ONE!");
+                return this.options.layout;
             }
         },
 

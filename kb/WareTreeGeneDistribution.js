@@ -53,17 +53,17 @@ require('./GeneDistribution.js');
                                 ? $tree.options.fixedDepth
                                 : d.y;
 
-                            var width = bounds.size.width - y - this.options.labelWidth - 10;
+                            var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace;
 
 
                             var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
 
                             var lgvID = 'lgv-' + $tree.uuid();
-                            var nodeHeight = node.getBBox().height;
+                            var nodeHeight = 0.7 * node.getBBox().height;
 
                             if ($tree.options.lgvTransform == undefined) {
                                 $tree.options.lgvTransform =
-                                    'translate(' + ($tree.options.labelWidth + 10) + ',' + (0 - nodeHeight / 2) + ') , ' +
+                                    'translate(' + ($tree.options.labelWidth + $tree.options.labelSpace) + ',' + (0 - nodeHeight / 2) + ') , ' +
                                     'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
                             }
 
@@ -108,11 +108,13 @@ require('./GeneDistribution.js');
 
                     dataset : this.options.dataset,
                     displayStyle : 'Nnt',
+                    circleRadius : 2.5,
                     lineStyle : 'square',
-                    layout : 'cluster',
+                    layout : d3.layout.cluster().separation(function(a,b){return 1}),
                     distance : 10,
                     fixed : true,
                     labelWidth : 250,
+                    nodeHeight : 7,
                     nameFunction : function (d) {
                       var name = d.model.name;
                       if(d.model.genome) {
