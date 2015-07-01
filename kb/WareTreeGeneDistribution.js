@@ -41,8 +41,7 @@ module.exports = KBWidget({
                 return d;
             }
 
-            KbaseTreechart.bind(this.$elem)(
-                {
+            KbaseTreechart.call(this.$elem, {
 
                     nodeEnterCallback : function(d, i, node, duration) {
                         if (d.model.genome) {
@@ -77,8 +76,7 @@ module.exports = KBWidget({
                             ;
 
                             if (d.$lgv == undefined) {
-                                d.$lgv = GeneDistribution.bind(jqElem('div'))(
-                                    {
+                                d.$lgv = GeneDistribution.call(jqElem('div'), {
                                         scaleAxes   : true,
                                         customRegions : {
                                             chart : lgvID
