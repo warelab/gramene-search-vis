@@ -106,16 +106,16 @@ require('./GeneDistribution.js');
                     },
 
 
-                    dataset : this.options.dataset,
-                    displayStyle : 'Nnt',
-                    circleRadius : 2.5,
-                    lineStyle : 'square',
-                    layout : d3.layout.cluster().separation(function(a,b){return 1}),
-                    distance : 10,
-                    fixed : true,
-                    labelWidth : 250,
-                    nodeHeight : 7,
-                    nameFunction : function (d) {
+                    dataset         : this.options.dataset,
+                    displayStyle    : 'Nnt',
+                    circleRadius    : 2.5,
+                    lineStyle       : 'square',
+                    layout          : d3.layout.cluster().separation(function(a,b){return 1}),
+                    distance        : 10,
+                    fixed           : true,
+                    labelWidth      : 250,
+                    nodeHeight      : 7,
+                    nameFunction    : function (d) {
                       var name = d.model.name;
                       if(d.model.genome) {
                         name += ' (' + d.model.genome.results.count +
@@ -124,6 +124,7 @@ require('./GeneDistribution.js');
                       }
                       return name;
                     },
+
                     truncationFunction : function(d, elem, $tree) {
                         d3.select(elem)
                         .on('mouseover', function(d) {
@@ -134,9 +135,11 @@ require('./GeneDistribution.js');
                         });
                         return d.name_truncated + '...';
                     },
+
                     nodeDblClick : function(d) {
                         this.options.textDblClick.call(this, d);
                     },
+
                     textClick : function(d) {
 
                         var max = Math.floor(Math.random() * 10);
@@ -154,6 +157,7 @@ require('./GeneDistribution.js');
 
                         $gd.setDataset(dataset);
                     },
+
                     textDblClick : function(d) {
                         var parent;
                         if (this.filterParent == undefined) {
@@ -180,6 +184,7 @@ require('./GeneDistribution.js');
                         }
 
                     },
+
                     tooltip : function(d) {
                         this.showToolTip({label : d.name})
                     },

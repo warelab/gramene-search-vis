@@ -43,6 +43,9 @@ var d3 = require('d3');
             nodeHeight : 15,
             labelSpace : 10,
             circleRadius : 4.5,
+            circleStroke : 'steelblue',
+            openCircleFill : 'lightsteelblue',
+            closedCircleFill : '#FFF',
 
         },
 
@@ -302,8 +305,8 @@ var throttle = 0
             nodeEnter.append("circle")
                 .attr("r", 1e-6)
                 .attr('style', 'cursor : pointer; fill : #fff; stroke-width : 1.5px')
-                .attr('stroke', function(d) { return d.stroke || 'steelblue'})
-                .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+                .attr('stroke', function(d) { return d.stroke || $tree.options.circleStroke})
+                .style("fill", function(d) { return d._children ? $tree.options.openCircleFill : $tree.options.closedCircleFill; })
                 .on("click", function(d) {
 
                     if ($tree.oneClick) {
@@ -405,8 +408,8 @@ var throttle = 0
 
             nodeUpdate.select("circle")
                 .attr("r", $tree.options.circleRadius)
-                .attr('stroke', function(d) { return d.stroke || 'steelblue'})
-                .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+                .attr('stroke', function(d) { return d.stroke || $tree.options.circleStroke})
+                .style("fill", function(d) { return d._children ? $tree.options.openCircleFill : $tree.options.closedCircleFill; })
 
                 .attr('visibility', function(d) {
                     var isLeaf = true;
@@ -520,7 +523,6 @@ var throttle = 0
                 return d3.layout.tree();
             }
             else {
-                console.log("RETURNS THIS ONE!");
                 return this.options.layout;
             }
         },
