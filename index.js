@@ -44,7 +44,8 @@ var width = 960;
       taxonomy.setResults(results.fixed_200_bin);
 
 taxonomy = taxonomy.children[0];
-delete taxonomy.parent;
+//delete taxonomy.parent;
+
 
 $div.WareTreeGeneDistribution({ dataset : taxonomy });
 

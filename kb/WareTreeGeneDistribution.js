@@ -164,7 +164,7 @@ require('./GeneDistribution.js');
                         }
                         else {
                             var parent = d.parent;
-                            while (parent != undefined) {
+                            while (parent != undefined && parent.parent != undefined) {
                                 this.filterParent.unshift(parent);
                                 parent = parent.parent;
                             }
