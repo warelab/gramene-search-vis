@@ -6,8 +6,7 @@ var $ = require('jquery');
 require('./kbaseTreechart.js');
 require('./GeneDistribution.js');
 
-    $.KBWidget({
-
+$.KBWidget({
 	    name: "WareTreeGeneDistribution",
 
         version: "1.0.0",

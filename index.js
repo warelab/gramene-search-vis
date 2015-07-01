@@ -27,28 +27,14 @@ var exampleQuery = {
   }
 };
 
-//var height = 2000, width = 960;
-var width = 960;
+Q.all([
+  taxonomyGetter.get(), // FOR NOW, use local data
+  search.geneSearch(exampleQuery)
+]).spread(function (taxonomy, results) {
+  taxonomy.setBinType('fixed', 200);
+  taxonomy.setResults(results.fixed_200_bin);
 
-   var $div = $.jqElem('div')
-        .css({width : width})
-    ;
-
-   $('body').append($div);
-
-    Q.all([
-      taxonomyGetter.get(), // FOR NOW, use local data
-      search.geneSearch(exampleQuery)
-    ]).spread(function (taxonomy, results) {
-      taxonomy.setBinType('fixed', 200);
-      taxonomy.setResults(results.fixed_200_bin);
-
-taxonomy = taxonomy.children[0];
-delete taxonomy.parent;
-
-$div.WareTreeGeneDistribution({ dataset : taxonomy });
-
-;
+  $('#the-test-vis').WareTreeGeneDistribution({dataset: taxonomy});
 }).catch(function (err) {
   console.error(err);
 });
