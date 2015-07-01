@@ -20,6 +20,7 @@
  */
 
 var $ = require('jquery');
+var jqElem = require('./jqElem');
 
 var KBase;
 var ucfirst = function (string) {
@@ -30,272 +31,15 @@ var ucfirst = function (string) {
 
 var willChangeNoteForName = function (name) {
   return 'willChangeValueFor' + ucfirst(name);
-}
+};
 
 var didChangeNoteForName = function (name) {
   return 'didChangeValueFor' + ucfirst(name);
-}
-
-var defaultBindingAccessors = function (elem) {
-  var tagName = $(elem).prop('tagName').toLowerCase();
-
-  if (tagName.match(/^(input|select|textarea)$/)) {
-    if ($(elem).attr('type') == 'checkbox') {
-      return {
-        setter: 'checked',
-        getter: 'checked'
-      }
-    }
-    else {
-      return {
-        setter: 'val',
-        getter: 'val'
-      }
-    }
-  }
-  else {
-    return {
-      setter: 'html',
-      getter: 'html'
-    }
-  }
 };
-
-var makeBindingCallback = function (elem, $target, attribute, transformers, accessors) {
-
-  return $.proxy(function (e, vals) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    var newVal = vals.newValue;
-
-    if (transformers.transformedValue != undefined) {
-      newVal = transformers.transformedValue(newVal);
-    }
-
-    if (accessors.setter == 'checked') {
-      $(elem).attr(accessors.setter, newVal);
-    }
-    else {
-      $(elem)[accessors.setter](newVal);
-    }
-
-  }, $(elem))
-};
-
-var makeBindingBlurCallback = function (elem, $target, attribute, transformers, accessors) {
-
-  return $.proxy(function (e, vals) {
-
-    if (e.type == 'keypress' && e.which != 13) {
-      return;
-    }
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    var newVal;
-
-    if (accessors.getter == 'checked') {
-      newVal = this.is(':checked')
-        ? true
-        : false;
-    }
-    else {
-      newVal = this[accessors.getter]();
-    }
-
-    if (newVal != this.data('kbase_bindingValue')) {
-
-      if (transformers.validator != undefined) {
-        var validation = transformers.validator(newVal);
-
-        if (!validation.success) {
-          $(elem).data('validationError.kbaseBinding', validation.msg);
-          this.popover(
-            {
-              placement: 'right',
-              title: 'Validation error',
-              content: $.proxy(function () { return this.data('validationError.kbaseBinding') }, $(elem)),
-              trigger: 'manual',
-              html: true,
-            }
-          );
-
-          this.popover('show');
-          return;
-        }
-        else {
-          $(elem).popover('hide');
-          if (validation.newVal) {
-            newVal = validation.newVal;
-          }
-        }
-      }
-
-      if (transformers.reverseTransformedValue != undefined) {
-        newVal = transformers.reverseTransformedValue(newVal);
-      }
-
-      var setter = $target.__attributes[attribute].setter;
-
-      $target[setter](newVal);
-      this.data('kbase_bindingValue', this[accessors.getter]());
-    }
-
-  }, $(elem))
-};
-
-var makeBindingFocusCallback = function (elem, transformers, accessors) {
-
-  return $.proxy(function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    this.data('kbase_bindingValue', this[accessors.getter]());
-
-  }, $(elem));
-
-};
-
-$.fn.asD3 = function () {
-  if (this.data('d3rep') == undefined) {
-    this.data('d3rep', d3.select(this.get(0)));
-  }
-  return this.data('d3rep')
-};
-
-$.fn.kb_bind = function ($target, attribute, transformers, accessors) {
-  if (this.length > 1) {
-    var methodArgs = arguments;
-    $.each(
-      this,
-      function (idx, elem) {
-        $.fn.kb_bind.apply($(elem), methodArgs);
-      }
-    )
-    return this;
-  }
-
-  if (accessors == undefined) {
-    accessors = defaultBindingAccessors(this);
-  }
-
-  if (transformers == undefined) {
-    transformers = {};
-  }
-
-  var event = didChangeNoteForName(attribute);
-  $target.on(
-    event,
-    makeBindingCallback(this, $target, attribute, transformers, accessors)
-  );
-
-  $(this).on(
-    'blur.kbaseBinding',
-    makeBindingBlurCallback(this, $target, attribute, transformers, accessors)
-  );
-
-  $(this).on(
-    'focus.kbaseBinding',
-    makeBindingFocusCallback(this, transformers, accessors)
-  );
-
-  var tagName = $(this).prop('tagName').toLowerCase();
-  if (tagName.match(/^(input)$/)) {
-    $(this).on(
-      'keypress.kbaseBinding',
-      makeBindingBlurCallback(this, $target, attribute, transformers, accessors)
-    )
-
-    if ($(this).attr('type') == 'checkbox') {
-      $(this).on(
-        'change.kbaseBinding',
-        makeBindingBlurCallback(this, $target, attribute, transformers, accessors)
-      )
-    }
-  }
-
-  var target_getter = $target.__attributes[attribute].getter;
-  var newVal = $target[target_getter]();
-
-  if (transformers.transformedValue != undefined) {
-    newVal = transformers.transformedValue(newVal);
-  }
-
-  if (accessors.setter == 'checked') {
-    $(this).attr(accessors.setter, newVal);
-  }
-  else {
-    $(this)[accessors.setter](newVal);
-  }
-
-  return this;
-};
-
-$.fn.kb_unbind = function ($target, attribute, callback, transformers, accessors) {
-
-  if (this.length > 1) {
-    var methodArgs = arguments;
-    $.each(
-      this,
-      function (idx, elem) {
-        $.fn.kb_unbind.apply($(elem), methodArgs);
-      }
-    )
-    return this;
-  }
-
-  if (accessors == undefined) {
-    accessors = defaultBindingAccessors(this);
-  }
-
-  if (transformers == undefined) {
-    transformers = {};
-  }
-
-  var event = didChangeNoteForName(attribute);
-  $target.off(
-    event,
-    makeBindingCallback(this, $target, attribute, transformers, accessors)
-  );
-
-  $(this).off(
-    'blur.kbaseBinding',
-    makeBindingBlurCallback(this, $target, attribute, transformers, accessors)
-  );
-
-  $(this).off(
-    'focus.kbaseBinding',
-    makeBindingBlurCallback(this, transformers, accessors)
-  );
-
-
-  var tagName = $(this).prop('tagName').toLowerCase();
-  if (tagName.match(/^(input)$/)) {
-    $(this).off(
-      'keypress.kbaseBinding',
-      makeBindingEnterCallback(this, $target, attribute, transformers, accessors)
-    )
-    if ($(this).attr('type') == 'checkbox') {
-      $(this).off(
-        'change.kbaseBinding',
-        makeBindingBlurCallback(this, $target, attribute, transformers, accessors)
-      )
-    }
-  }
-
-  return this;
-
-};
-
 
 var widgetRegistry = {};
-if (KBase == undefined) {
-  KBase = window.KBase;
-}
-if (window.KBase === undefined) {
-  KBase = window.KBase = {
+if (KBase === undefined) {
+  KBase = {
     _functions: {
 
       getter: function (name) {
@@ -320,7 +64,7 @@ if (window.KBase === undefined) {
             return this.valueForKey(name);
           }
         }
-      },
+      }
     }
   }
 }
@@ -334,14 +78,6 @@ function subclass(constructor, superConstructor) {
   prototypeObject.constructor = constructor;
 
   constructor.prototype = prototypeObject;
-}
-
-$.jqElem = function (tagName) {
-  var tag = "<" + tagName + ">";
-  if (!tag.match(/^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track)/)) {
-    tag += '</' + tagName + '>';
-  }
-  return $(tag);
 }
 
 $.KBWidget = function (def) {
@@ -362,7 +98,7 @@ $.KBWidget = function (def) {
     this.$elem = $elem;
     this.options = $.extend(true, {}, def.options, this.constructor.prototype.options);
     return this;
-  }
+  };
 
   if (name) {
     var directName = name;
@@ -372,7 +108,7 @@ $.KBWidget = function (def) {
     KBase[directName] = function (options, $elem) {
       var $w = new Widget();
       if ($elem == undefined) {
-        $elem = $.jqElem('div');
+        $elem = jqElem('div');
       }
       $w.$elem = $elem;
 
@@ -385,7 +121,7 @@ $.KBWidget = function (def) {
       $w._init = true;
       $w.trigger('initialized');
       return $w;
-    }
+    };
 
     widgetRegistry[name] = Widget;
 
@@ -421,7 +157,7 @@ $.KBWidget = function (def) {
           setter: accessor,
           getter: accessor,
           type: 'rw'
-        }
+        };
 
         if (typeof accessor === 'object') {
 
@@ -520,9 +256,9 @@ $.KBWidget = function (def) {
         $.each(
           this,
           function (idx, elem) {
-            $.fn[name].apply($(elem), methodArgs);
+            ctor.apply($(elem), methodArgs);
           }
-        )
+        );
         return this;
       }
 
@@ -554,8 +290,6 @@ $.KBWidget = function (def) {
 
     };
     ctor.name = name;
-    $.fn[name] = ctor;
-    $[name] = $.fn[name];
   }
 
   /**
@@ -590,10 +324,10 @@ $.KBWidget = function (def) {
 
   if (name !== undefined) {
     Widget.prototype[name] = function () {
-      return $.fn[name].apply(this.$elem, arguments);
+      return ctor.apply(this.$elem, arguments);
     }
 
-    return $.fn[name];
+    return ctor;
   } else {
     return this;
   }
@@ -716,7 +450,7 @@ $.KBWidget(
 
       var res = template(this.templateContent());
 
-      var $res = $.jqElem('span').append(res);
+      var $res = jqElem('span').append(res);
       this._rewireIds($res, this);
 
       this.$elem.append($res);
@@ -901,19 +635,6 @@ $.KBWidget(
       );
     },
 
-    /*
-     kb_bind : function($target, attribute, callback) {
-     var event = didChangeNoteForName(attribute);
-     $target.on(event, $target, callback);
-     },
-
-     kb_unbind : function($target, attribute, callback) {
-     var event = didChangeNoteForName(attribute);
-     $target.off(event, callback);
-     },
-     */
-
-    //*
     kb_bind: function ($target, attribute, callback) {
       var event = didChangeNoteForName(attribute);
       this.observe($target, event, callback);
@@ -933,9 +654,6 @@ $.KBWidget(
       }
 
       return 'uuid-' + result;
-    },
-
-    //*/
-
+    }
   }
 );

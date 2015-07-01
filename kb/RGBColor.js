@@ -1,3 +1,5 @@
+var jqElem = require('./jqElem');
+
 var RGBColor = function(r,g,b) {
     this.r = r;
     this.g = g;
@@ -70,7 +72,7 @@ RGBColor.prototype.subtract = function(c) {
 
 RGBColor.prototype.rgbFromString = function(string) {
     if ($) {
-        var $div = $.jqElem('div').css('background-color', string);
+        var $div = jqElem('div').css('background-color', string);
         var rgb = $div.css('background-color');
         var m;
         if (m = rgb.match(/rgb\((\d+), (\d+), (\d+)\)/)) {

@@ -3,6 +3,7 @@
 */
 
 var $ = require('jquery');
+var jqElem = require('./jqElem');
 require('./kbaseTreechart.js');
 require('./GeneDistribution.js');
 
@@ -75,7 +76,7 @@ $.KBWidget({
                             ;
 
                             if (d.$lgv == undefined) {
-                                d.$lgv = $.jqElem('div').GeneDistribution(
+                                d.$lgv = jqElem('div').GeneDistribution(
                                     {
                                         scaleAxes   : true,
                                         customRegions : {

@@ -3,6 +3,7 @@
 */
 
 var $ = require('jquery');
+var jqElem = require('./jqElem');
 require('./kbwidget.js');
 var Point = require('./Point.js');
 var Size = require('./Size.js');
@@ -392,7 +393,7 @@ var d3 = require('d3');
                     else {
                         var childOptions = $me.childOptions($me.children().length, newDatasets[i]);
                         childOptions.parent = $me;
-                        child = $.jqElem('div')[$me.name](childOptions);
+                        child = jqElem('div')[$me.name](childOptions);
                         $me.children().push(child);
                     }
 
@@ -520,7 +521,7 @@ var d3 = require('d3');
         },
 
         svg2HTML : function() {
-            var $container = $.jqElem('div')
+            var $container = jqElem('div')
                 .append(this.data('$svg'));
 
             return $container.html();
@@ -582,7 +583,7 @@ var d3 = require('d3');
 
             if (! this.options.parent) {
                 $elem.append(
-                    $.jqElem('style')
+                    jqElem('style')
                         .html('.axis path, .axis line { fill : none; stroke : black; shape-rendering : crispEdges;} .axis text \
                             {font-family : sans-serif; font-size : 11px}')
                 );
