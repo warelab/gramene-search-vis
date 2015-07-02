@@ -163,13 +163,18 @@ module.exports = KBWidget({
 
     var bins = [];
     var genomeTotalScore = 0;
+    var maxBinScore = 0;
 
     this.dataset().forEach(
       function (region, idx) {
         region.eachBin(function (bin) {
           bin.regionObj = region;
           bins.push(bin);
-          genomeTotalScore += bin.results ? bin.results.count : 0;
+          var score = bin.results ? bin.results.count : 0;
+          genomeTotalScore += score;
+          if (score > maxBinScore) {
+            maxBinScore = score;
+          }
         })
       }
     );
@@ -240,10 +245,10 @@ module.exports = KBWidget({
       .attr('x', function (d) { return scale(d.start + d.regionObj.start) })
       .attr('width', function (d) { return scale((d.end - d.start)) })
       .attr('fill', function (d, i) {
-        return $gd.colorForRegion(d.region)
+        //return $gd.colorForRegion(d.region)
         var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.region)])
-        var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.5), $gd.colorForRegion(d.region)]);
-        return scale( (d.results ? d.results.count : 0) / genomeTotalScore );
+        var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.75), $gd.colorForRegion(d.region)]);
+        return scale( (d.results ? d.results.count : 0) / maxBinScore );
        });
 
     binSelection
