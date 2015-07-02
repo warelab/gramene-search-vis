@@ -46,13 +46,13 @@ Q.all([
       return {derp: 0}
     },
     upderp: function() {
-      this.setState({derp: this.state.derp + 1});
+      this.setState({derp: 1 - this.state.derp});
     },
+
     render: function() {
       return (
         <div>
           <button type="button" onClick={this.upderp}>Change Props (DERP: {this.state.derp})</button>
-          <Vis taxonomy={taxonomy} derp={this.state.derp} />
           <Vis taxonomy={taxonomy} derp={this.state.derp} />
         </div>
       );
