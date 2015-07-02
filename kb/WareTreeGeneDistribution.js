@@ -47,6 +47,10 @@ module.exports = KBWidget({
         version: "1.0.0",
         options: {},
 
+        setDataset : function(dataset) {
+            this.$tree.setDataset(dataset);
+        },
+
         init : function(options) {
 
             this._super(options);
@@ -74,7 +78,7 @@ module.exports = KBWidget({
                 return d;
             }
 
-            KbaseTreechart.bind(this.$elem)(
+            this.$tree = KbaseTreechart.bind(this.$elem)(
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
@@ -149,8 +153,6 @@ module.exports = KBWidget({
                         }
                     },
 
-
-                    dataset         : this.options.dataset,
                     displayStyle    : 'Nnt',
                     circleRadius    : 2.5,
                     lineStyle       : 'square',

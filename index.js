@@ -35,7 +35,8 @@ console.log("HAS DATA");
   taxonomy.setBinType('fixed', 200);
   taxonomy.setResults(results.fixed_200_bin);
 
-  WareTreeGeneDistribution.bind($('#the-test-vis'))({dataset: taxonomy.children[0]});
+  var $wtgd = WareTreeGeneDistribution.bind($('#the-test-vis'))();
+  $wtgd.setDataset(taxonomy.children[0]);
 }).catch(function (err) {
   console.error(err);
 });
