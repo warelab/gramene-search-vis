@@ -199,7 +199,10 @@ module.exports = KBWidget({
                     },
 
                     nodeClick : function(d, node) {
+
                         this.defaultNodeClick(d,node);
+
+                        //HOOK IN HERE. d is collapsed or expanded. Check this.nodeState(d) to find out which - "open" / "closed" / "leaf"
                     },
 
                     nodeDblClick : function(d) {
@@ -232,7 +235,10 @@ module.exports = KBWidget({
                             relayout(d);
                             console.log("WTF ? ", d);
                             d.stroke = this.filterParent.length ? 'cyan' : 'darkslateblue';
+
                             this.setDataset(d);
+
+                            //HOOK IN HERE - d is the new root node.
                         }
 
                     },

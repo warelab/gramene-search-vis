@@ -149,6 +149,18 @@ module.exports = KBWidget({
 
   },
 
+    nodeState : function(d) {
+        if (d.children) {
+            return 'open';
+        }
+        else if (d._children) {
+            return 'closed';
+        }
+        else {
+            return 'leaf';
+        }
+    },
+
   updateTree: function (source) {
     var chart = this.data('D3svg').select(this.region('chart'));
 
