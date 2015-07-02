@@ -56,9 +56,8 @@ Q.all([
     }
   });
 
-
 // TODO: in the real world we will pass in the search object so we can infer correct tree state from taxonomy filters.
-  React.render(<AppComponent />, contentEl);
+  React.render(<AppComponent />, document.getElementById('the-test-vis'));
 }).catch(function (err) {
   console.error(err);
 });
