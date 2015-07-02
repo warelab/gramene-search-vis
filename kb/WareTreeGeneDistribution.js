@@ -1,8 +1,41 @@
 var $ = require('jquery');
+
 var jqElem = require('./jqElem');
 var KBWidget = require('./kbwidget');
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
+
+var calculateScore = function(node) {
+
+    if (node.score == undefined) {
+        var score = 0;
+
+        if (node.children) {
+            for (var i = 0; i < node.children.length; i++) {
+                score += calculateScore(node.children[i]);
+            }
+        }
+
+        if (node._children) {
+            for (var i = 0; i < node._children.length; i++) {
+                score += calculateScore(node._children[i]);
+            }
+        }
+
+        if (node.model.genome) {
+            node.model.genome.eachRegion(function(region) {
+                region.eachBin(function(bin) {
+                    score += bin.results ? bin.results.count : 0;
+                })
+            })
+        }
+
+        node.score = score;
+    }
+
+    return node.score;
+}
+
 
 module.exports = KBWidget({
   name: "WareTreeGeneDistribution",
@@ -51,25 +84,27 @@ module.exports = KBWidget({
 
             var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace;
 
+                            var labelDelta = 50;
 
-            var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
+
+                            var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
 
             var lgvID = 'lgv-' + $tree.uuid();
             var nodeHeight = 0.7 * node.getBBox().height;
 
-            if ($tree.options.lgvTransform == undefined) {
-              $tree.options.lgvTransform =
-                'translate(' + ($tree.options.labelWidth + $tree.options.labelSpace) + ',' + (0 - nodeHeight / 2) + ') , ' +
-                'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
-            }
+                            if ($tree.options.lgvTransform == undefined) {
+                                $tree.options.lgvTransform =
+                                    'translate(' + ($tree.options.labelWidth + labelDelta + 3) + ',' + (0 - nodeHeight / 2) + ') , ' +
+                                    'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
+                            }
 
 
-            lgvSelection
-              .enter()
-              .append('g')
-              .attr('class', lgvID)
-              .attr('transform', $tree.options.lgvTransform)
-            ;
+                            lgvSelection
+                                .enter()
+                                    .append('g')
+                                        .attr('class', lgvID)
+                                        .attr('transform', $tree.options.lgvTransform)
+                            ;
 
             if (d.$lgv == undefined) {
               d.$lgv = GeneDistribution.call(jqElem('div'), {
@@ -101,24 +136,24 @@ module.exports = KBWidget({
         },
 
 
-        dataset: this.options.dataset,
-        displayStyle: 'Nnt',
-        circleRadius: 2.5,
-        lineStyle: 'square',
-        layout: d3.layout.cluster().separation(function (a, b) {return 1}),
-        distance: 10,
-        fixed: true,
-        labelWidth: 250,
-        nodeHeight: 7,
-        nameFunction: function (d) {
-          var name = d.model.name;
-          if (d.model.genome) {
-            name += ' (' + d.model.genome.results.count +
-              ' results in ' + d.model.genome.results.bins +
-              ' bins)';
-          }
-          return name;
-        },
+                    dataset         : this.options.dataset,
+                    displayStyle    : 'Nnt',
+                    circleRadius    : 2.5,
+                    lineStyle       : 'square',
+                    layout          : d3.layout.cluster().separation(function(a,b){return 1}),
+                    distance        : 10,
+                    fixed           : true,
+                    labelWidth      : 250,
+                    nodeHeight      : 7,
+                    nameFunction    : function (d) {
+                      var name = d.model.name;
+                      if(d.model.genome) {
+                        name += ' (' + d.model.genome.results.count +
+                          ' results in ' + d.model.genome.results.bins +
+                          ' bins)';
+                      }
+                      return name;
+                    },
 
         truncationFunction: function (d, elem, $tree) {
           d3.select(elem)
@@ -137,21 +172,7 @@ module.exports = KBWidget({
 
         textClick: function (d) {
 
-          var max = Math.floor(Math.random() * 10);
-
-          var dataset = [];
-          for (var i = 0; i <= max; i++) {
-            dataset.push(
-              {
-                start: i,
-                end: i + 1,
-                score: Math.random() * 100
-              }
-            )
-          }
-
-          $gd.setDataset(dataset);
-        },
+                    },
 
         textDblClick: function (d) {
           var parent;
@@ -178,6 +199,24 @@ module.exports = KBWidget({
             this.setDataset(d);
           }
 
+                    },
+
+                    tooltip : function(d) {
+
+                        if (d.children || d._children) {
+
+                            if (d.score == undefined) {
+                                d.score = calculateScore(d);
+                            }
+
+                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
+                        }
+
+                    },
+                }
+            )
+
+            return this;
         },
 
         tooltip: function (d) {

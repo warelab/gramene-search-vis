@@ -18,6 +18,7 @@ module.exports = KBWidget({
     xPadding: 0,
     yPadding: 0,
     debug: false,
+    regionSaturation : 0.25,
 
     colorScale: function (idx) {
 
@@ -140,7 +141,11 @@ module.exports = KBWidget({
         else if (b.start && b.regionObj.name) {
           score = b.results ? b.results.count : 0;
           if (score) {
-            $gd.showToolTip({label: "bin starting at : " + b.start + ' for ' + b.regionObj.name + ' score is ' + score})
+            var units = (score > 1) ? ' genes' : ' gene';
+            $gd.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end + ' ' + score + units})
+          }
+          else {
+            $gd.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end})
           }
         }
       })
@@ -156,12 +161,19 @@ module.exports = KBWidget({
     };
 
     var bins = [];
+    var genomeTotalScore = 0;
+    var maxBinScore = 0;
 
     this.dataset().forEach(
       function (region, idx) {
         region.eachBin(function (bin) {
           bin.regionObj = region;
           bins.push(bin);
+          var score = bin.results ? bin.results.count : 0;
+          genomeTotalScore += score;
+          if (score > maxBinScore) {
+            maxBinScore = score;
+          }
         })
       }
     );
@@ -197,7 +209,7 @@ module.exports = KBWidget({
       .attr('width', function (d) { return scale((d.size)) })
       .attr('fill', function (d, i) {
         var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.name)])
-        return colorScale(0.25);
+        return colorScale($gd.options.regionSaturation);
       });
 
     regionSelection
@@ -231,7 +243,12 @@ module.exports = KBWidget({
       .attr('opacity', function (d) { return d.results ? 1 : 0})
       .attr('x', function (d) { return scale(d.start + d.regionObj.start) })
       .attr('width', function (d) { return scale((d.end - d.start)) })
-      .attr('fill', function (d, i) { return $gd.colorForRegion(d.region) });
+      .attr('fill', function (d, i) {
+        //return $gd.colorForRegion(d.region)
+        var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.region)])
+        var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.75), $gd.colorForRegion(d.region)]);
+        return scale( (d.results ? d.results.count : 0) / maxBinScore );
+       });
 
     binSelection
       .exit()
