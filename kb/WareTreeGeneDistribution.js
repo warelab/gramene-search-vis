@@ -153,6 +153,8 @@ module.exports = KBWidget({
                         }
                     },
 
+
+                    dataset         : this.options.dataset,
                     displayStyle    : 'Nnt',
                     circleRadius    : 2.5,
                     lineStyle       : 'square',
