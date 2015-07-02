@@ -41,8 +41,6 @@ KBWidget({
 
     width: '100%',
     height: '100%',
-
-    customRegions: {}
   },
 
   shouldScaleAxis: function (axis) {
@@ -215,6 +213,10 @@ KBWidget({
 
     if (this.linearGradients() == undefined) {
       this.linearGradients({});
+    }
+
+    if (this.options.customRegions == undefined) {
+      this.options.customRegions = {};
     }
 
     if (this.options.chartID == undefined) {

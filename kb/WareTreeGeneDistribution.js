@@ -78,6 +78,8 @@ module.exports = KBWidget({
                 return d;
             }
 
+            var $wtgd = this;
+
             this.$tree = KbaseTreechart.bind(this.$elem)(
                 {
 
@@ -198,6 +200,16 @@ module.exports = KBWidget({
                         return d.name_truncated + '...';
                     },
 
+                    nodeClick : function(d, node) {
+
+                        this.defaultNodeClick(d,node);
+
+                        if ($wtgd.options.taxonClick != undefined) {
+                            $wtgd.options.taxonClick.call(this, d, node);
+                        }
+
+                    },
+
                     nodeDblClick : function(d) {
                         this.options.textDblClick.call(this, d);
                     },
@@ -206,7 +218,10 @@ module.exports = KBWidget({
 
                     },
 
-                    textDblClick : function(d) {
+                    textDblClick : function(d, node) {
+
+                        var isRoot = true;
+
                         var parent;
                         if (this.filterParent == undefined) {
                             this.filterParent = [];
@@ -215,6 +230,7 @@ module.exports = KBWidget({
                         if (! d.parent && this.filterParent.length) {
                             d = this.filterParent.pop();
                             delete d.stroke;
+                            isRoot = false;
                         }
                         else {
                             var parent = d.parent;
@@ -228,7 +244,12 @@ module.exports = KBWidget({
                             relayout(d);
                             console.log("WTF ? ", d);
                             d.stroke = this.filterParent.length ? 'cyan' : 'darkslateblue';
+
                             this.setDataset(d);
+
+                            if ($wtgd.options.taxonDblClick != undefined) {
+                                $wtgd.options.taxonDblClick.call(this, d, node, isRoot);
+                            }
                         }
 
                     },

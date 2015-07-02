@@ -133,6 +133,34 @@ module.exports = KBWidget({
     }
   },
 
+  defaultNodeClick : function(d) {
+    if (!this.findInChildren(this.options.red, d) && !this.findInChildren(this.options.blue, d)) {
+        this.toggle(d);
+        this.updateTree(d);
+    }
+  },
+
+  defaultTextClick : function(d, node) {
+
+
+      if (this.options.redBlue) {
+        this.redBlue(node, d);
+      }
+
+  },
+
+    nodeState : function(d) {
+        if (d.children) {
+            return 'open';
+        }
+        else if (d._children) {
+            return 'closed';
+        }
+        else {
+            return 'leaf';
+        }
+    },
+
   updateTree: function (source) {
     var chart = this.data('D3svg').select(this.region('chart'));
 
@@ -307,7 +335,7 @@ module.exports = KBWidget({
 
           if ($tree.options.nodeDblClick) {
             $tree.oneClick = false;
-            $tree.options.nodeDblClick.call($tree, d);
+            $tree.options.nodeDblClick.call($tree, d, this);
           }
         }
         else {
@@ -316,13 +344,10 @@ module.exports = KBWidget({
             if ($tree.oneClick) {
               $tree.oneClick = false;
               if ($tree.options.nodeClick) {
-                return $tree.options.nodeClick.call($tree, d);
+                return $tree.options.nodeClick.call($tree, d, this);
               }
               else {
-                if (!$tree.findInChildren($tree.options.red, d) && !$tree.findInChildren($tree.options.blue, d)) {
-                  $tree.toggle(d);
-                  $tree.updateTree(d);
-                }
+                $tree.defaultNodeClick(d, this);
               }
             }
           }, 250)
@@ -361,7 +386,7 @@ module.exports = KBWidget({
 
           if ($tree.options.textDblClick) {
             $tree.oneClick = false;
-            $tree.options.textDblClick.call($tree, d);
+            $tree.options.textDblClick.call($tree, d, this);
           }
         }
         else {
@@ -370,11 +395,10 @@ module.exports = KBWidget({
             if ($tree.oneClick) {
               $tree.oneClick = false;
               if ($tree.options.textClick) {
-                return $tree.options.textClick.call($tree, d);
+                return $tree.options.textClick.call($tree, d, this);
               }
-
-              if ($tree.options.redBlue) {
-                $tree.redBlue(this, d);
+              else {
+                return $tree.defaultTextClick(d, this);
               }
             }
           }, 250)
