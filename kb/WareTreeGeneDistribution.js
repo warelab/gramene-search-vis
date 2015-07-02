@@ -116,7 +116,7 @@ module.exports = KBWidget({
                                     .attr("dy", ".35em")
                                     .attr('dx', $tree.options.labelWidth + labelDelta)
                                     .attr('text-anchor','end')
-                                    .text(d.model.genome.results.count)
+                                    .text(calculateScore(d))
                             ;
 
                             if (d.$lgv == undefined) {
