@@ -16,7 +16,7 @@ var Vis = React.createClass({
 
   componentDidUpdate: function() {
     //console.log("Need to update the chart somehow.", this.wareTreeGeneDist);
-    this.wareTreeGeneDist.setDataset(this.props.taxonomy.children[this.props.derp]);
+    this.wareTreeGeneDist.setDataset(this.props.taxonomy.children[0]);
   },
 
   render: function() {
