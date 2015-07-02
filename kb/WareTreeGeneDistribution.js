@@ -1,3 +1,7 @@
+/*
+
+*/
+
 var $ = require('jquery');
 
 var jqElem = require('./jqElem');
@@ -5,223 +9,247 @@ var KBWidget = require('./kbwidget');
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 
-var calculateScore = function (node) {
+var calculateScore = function(node) {
 
-  if (node.score == undefined) {
-    var score = 0;
+    if (node.score == undefined) {
+        var score = 0;
 
-    if (node.children) {
-      for (var i = 0; i < node.children.length; i++) {
-        score += calculateScore(node.children[i]);
-      }
+        if (node.children) {
+            for (var i = 0; i < node.children.length; i++) {
+                score += calculateScore(node.children[i]);
+            }
+        }
+
+        if (node._children) {
+            for (var i = 0; i < node._children.length; i++) {
+                score += calculateScore(node._children[i]);
+            }
+        }
+
+        if (node.model.genome) {
+            node.model.genome.eachRegion(function(region) {
+                region.eachBin(function(bin) {
+                    score += bin.results ? bin.results.count : 0;
+                })
+            })
+        }
+
+        node.score = score;
     }
 
-    if (node._children) {
-      for (var i = 0; i < node._children.length; i++) {
-        score += calculateScore(node._children[i]);
-      }
-    }
-
-    if (node.model.genome) {
-      node.model.genome.eachRegion(function (region) {
-        region.eachBin(function (bin) {
-          score += bin.results ? bin.results.count : 0;
-        })
-      })
-    }
-
-    node.score = score;
-  }
-
-  return node.score;
-};
+    return node.score;
+}
 
 
 module.exports = KBWidget({
-    name: "WareTreeGeneDistribution",
+	    name: "WareTreeGeneDistribution",
 
-    version: "1.0.0",
-    options: {},
+        version: "1.0.0",
+        options: {},
 
-    init: function (options) {
+        setDataset : function(dataset) {
+            this.$tree.setDataset(dataset);
+        },
 
-      this._super(options);
+        init : function(options) {
 
-      var relayout = function (d) {
+            this._super(options);
 
-        delete d.depth;
-        delete d.id;
-        delete d.x;
-        delete d.x0;
-        delete d.y;
-        delete d.y0;
-        delete d.parent;
-        delete d.stroke;
+            var relayout = function(d) {
 
-        if (d.children) {
-          $.each(
-            d.children,
-            function (idx, kid) {
-              relayout(kid);
+                delete d.depth;
+                delete d.id;
+                delete d.x;
+                delete d.x0;
+                delete d.y;
+                delete d.y0;
+                delete d.parent;
+                delete d.stroke;
+
+                if (d.children) {
+                    $.each(
+                        d.children,
+                        function (idx, kid) {
+                            relayout(kid);
+                        }
+                    )
+                }
+
+                return d;
             }
-          )
-        }
 
-        return d;
-      };
+            this.$tree = KbaseTreechart.bind(this.$elem)(
+                {
 
-      KbaseTreechart.call(this.$elem, {
+                    nodeEnterCallback : function(d, i, node, duration) {
+                        if (d.model.genome) {
+                            var $tree = this;
 
-          nodeEnterCallback: function (d, i, node, duration) {
-            if (d.model.genome) {
-              var $tree = this;
+                            var bounds = this.chartBounds();
 
-              var bounds = this.chartBounds();
+                            var y = $tree.options.fixed && (! d.children || d.length == 0)
+                                ? $tree.options.fixedDepth
+                                : d.y;
 
-              var y = $tree.options.fixed && (!d.children || d.length == 0)
-                ? $tree.options.fixedDepth
-                : d.y;
+                            var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace;
 
-              var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace;
-
-              var labelDelta = 50;
+                            var labelDelta = 50;
 
 
-              var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
+                            var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
 
-              var lgvID = 'lgv-' + $tree.uuid();
-              var nodeHeight = 0.7 * node.getBBox().height;
+                            var lgvID = 'lgv-' + $tree.uuid();
+                            var nodeHeight = 0.7 * node.getBBox().height;
 
-              if ($tree.options.lgvTransform == undefined) {
-                $tree.options.lgvTransform =
-                  'translate(' + ($tree.options.labelWidth + labelDelta + 3) + ',' + (0 - nodeHeight / 2) + ') , ' +
-                  'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
-              }
+                            if ($tree.options.lgvTransform == undefined) {
+                                $tree.options.lgvTransform =
+                                    'translate(' + ($tree.options.labelWidth + labelDelta + 3) + ',' + (0 - nodeHeight / 2) + ') , ' +
+                                    'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
+                            }
 
 
-              lgvSelection
-                .enter()
-                .append('g')
-                .attr('class', lgvID)
-                .attr('transform', $tree.options.lgvTransform)
-              ;
+                            lgvSelection
+                                .enter()
+                                    .append('g')
+                                        .attr('class', lgvID)
+                                        .attr('transform', $tree.options.lgvTransform)
+                            lgvSelection
+                              .enter()
+                                .append('text')
+                                    .attr('style', 'font-size : 11px;cursor : pointer;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;')
+                                    .attr("dy", ".35em")
+                                    .attr('dx', $tree.options.labelWidth + labelDelta)
+                                    .attr('text-anchor','end')
+                                    .text(calculateScore(d))
+                            ;
 
-              if (d.$lgv == undefined) {
-                d.$lgv = GeneDistribution.call(jqElem('div'), {
-                    scaleAxes: true,
-                    customRegions: {
-                      chart: lgvID
+                            if (d.$lgv == undefined) {
+                                d.$lgv = GeneDistribution.bind(jqElem('div'))(
+                                    {
+                                        scaleAxes   : true,
+                                        customRegions : {
+                                            chart : lgvID
+                                        },
+                                        parent : $tree,
+                                    }
+                                );
+                            }
+
+                            d.$lgv.options.customRegions.chart = lgvID;
+                            d.$lgv.setDataset(d.model.genome);
+
+                        }
                     },
-                    parent: $tree
-                  }
-                );
-              }
 
-              d.$lgv.options.customRegions.chart = lgvID;
-              d.$lgv.setDataset(d.model.genome);
+                    nodeUpdateCallback : function(d,i,node, duration) {
+                        if (! d.children || ! d.children.length) {
+                            d3.select(node).selectAll('.lgv').data([d]).transition().duration(duration).attr('opacity', 1);
+                        }
+                    },
 
-            }
-          },
-
-          nodeUpdateCallback: function (d, i, node, duration) {
-            if (!d.children || !d.children.length) {
-              d3.select(node).selectAll('.lgv').data([d]).transition().duration(duration).attr('opacity', 1);
-            }
-          },
-
-          nodeExitCallback: function (d, i, node, duration) {
-            if (!d.children || !d.children.length) {
-              d3.select(node).selectAll('.lgv').data([d]).exit().transition().duration(duration).attr('opacity', 0);
-            }
-          },
+                    nodeExitCallback : function(d,i,node, duration) {
+                        if (! d.children || ! d.children.length) {
+                            d3.select(node).selectAll('.lgv').data([d]).exit().transition().duration(duration).attr('opacity', 0);
+                        }
+                    },
 
 
-          dataset: this.options.dataset,
-          displayStyle: 'Nnt',
-          circleRadius: 2.5,
-          lineStyle: 'square',
-          layout: d3.layout.cluster().separation(function (a, b) {return 1}),
-          distance: 10,
-          fixed: true,
-          labelWidth: 250,
-          nodeHeight: 7,
-          nameFunction: function (d) {
-            var name = d.model.name;
-            if (d.model.genome) {
-              name += ' (' + d.model.genome.results.count +
-                ' results in ' + d.model.genome.results.bins +
-                ' bins)';
-            }
-            return name;
-          },
+                    dataset         : this.options.dataset,
+                    displayStyle    : 'Nnt',
+                    circleRadius    : 2.5,
+                    lineStyle       : 'square',
+                    layout          : d3.layout.cluster().separation(function(a,b){return 1}),
+                    distance        : 10,
+                    fixed           : true,
+                    labelWidth      : 100,
+                    nodeHeight      : 7,
 
-          truncationFunction: function (d, elem, $tree) {
-            d3.select(elem)
-              .on('mouseover', function (d) {
-                $tree.showToolTip({label: d.name});
-              })
-              .on('mouseout', function (d) {
-                $tree.hideToolTip();
-              });
-            return d.name_truncated + '...';
-          },
+                    strokeWidth : function(d) {
 
-          nodeDblClick: function (d) {
-            this.options.textDblClick.call(this, d);
-          },
+                        var parent = d.source;
 
-          textClick: function (d) {
+                        while (parent.parent != undefined && (this.filterParent == undefined || parent.parent != this.filterParent[0])) {
+                            parent = parent.parent;
+                        }
 
-          },
+                        var rootScore = calculateScore(parent);
 
-          textDblClick: function (d) {
-            var parent;
-            if (this.filterParent == undefined) {
-              this.filterParent = [];
-            }
+                        var targetScore = calculateScore(d.target);
 
-            if (!d.parent && this.filterParent.length) {
-              d = this.filterParent.pop();
-              delete d.stroke;
-            }
-            else {
-              var parent = d.parent;
-              while (parent != undefined && parent.parent != undefined) {
-                this.filterParent.unshift(parent);
-                parent = parent.parent;
-              }
-            }
+                        var scale = d3.scale.linear()
+                            .domain([0, rootScore])
+                            .range([.5, 5]);
 
-            if (d.children && d.children.length) {
-              relayout(d);
-              console.log("WTF ? ", d);
-              d.stroke = this.filterParent.length ? 'cyan' : 'darkslateblue';
-              this.setDataset(d);
-            }
+                        return scale(targetScore);
+                    },
 
-          },
+                    nameFunction    : function (d) {
+                      return d.model.name;
+                    },
 
-          tooltip: function (d) {
+                    truncationFunction : function(d, elem, $tree) {
+                        d3.select(elem)
+                        .on('mouseover', function(d) {
+                            $tree.showToolTip({label : d.name});
+                        })
+                        .on('mouseout', function(d) {
+                            $tree.hideToolTip();
+                        });
+                        return d.name_truncated + '...';
+                    },
 
-            if (d.children || d._children) {
+                    nodeDblClick : function(d) {
+                        this.options.textDblClick.call(this, d);
+                    },
 
-              if (d.score == undefined) {
-                d.score = calculateScore(d);
-              }
+                    textClick : function(d) {
 
-              this.showToolTip({label: d.name + ' - ' + d.score + ' genes'})
-            }
+                    },
 
-          },
-        }
-      )
+                    textDblClick : function(d) {
+                        var parent;
+                        if (this.filterParent == undefined) {
+                            this.filterParent = [];
+                        }
 
-      return this;
-    },
+                        if (! d.parent && this.filterParent.length) {
+                            d = this.filterParent.pop();
+                            delete d.stroke;
+                        }
+                        else {
+                            var parent = d.parent;
+                            while (parent != undefined && parent.parent != undefined) {
+                                this.filterParent.unshift(parent);
+                                parent = parent.parent;
+                            }
+                        }
 
-    tooltip: function (d) {
-      this.showToolTip({label: d.name})
-    }
-  }
-);
+                        if (d.children && d.children.length) {
+                            relayout(d);
+                            console.log("WTF ? ", d);
+                            d.stroke = this.filterParent.length ? 'cyan' : 'darkslateblue';
+                            this.setDataset(d);
+                        }
 
+                    },
+
+                    tooltip : function(d) {
+
+                        if (d.children || d._children) {
+
+                            if (d.score == undefined) {
+                                d.score = calculateScore(d);
+                            }
+
+                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
+                        }
+
+                    },
+                }
+            )
+
+            return this;
+        },
+
+
+    });

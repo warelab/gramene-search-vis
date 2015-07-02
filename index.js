@@ -30,16 +30,13 @@ var exampleQuery = {
   }
 };
 
-var contentEl = document.getElementById('the-test-vis');
-//React.render((<p>Loading…</p>), contentEl);
-
 Q.all([
   taxonomyGetter.get(),
   search.geneSearch(exampleQuery)
 ]).spread(function (taxonomy, results) {
   taxonomy.setBinType('fixed', 200);
   taxonomy.setResults(results.fixed_200_bin);
-
+  
   //var visComponent = new Vis({taxonomy: taxonomy, results: results, derp: derp});
   var AppComponent = React.createClass({
     getInitialState: function() {
