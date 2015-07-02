@@ -335,7 +335,7 @@ module.exports = KBWidget({
 
           if ($tree.options.nodeDblClick) {
             $tree.oneClick = false;
-            $tree.options.nodeDblClick.call($tree, d);
+            $tree.options.nodeDblClick.call($tree, d, this);
           }
         }
         else {
@@ -344,7 +344,7 @@ module.exports = KBWidget({
             if ($tree.oneClick) {
               $tree.oneClick = false;
               if ($tree.options.nodeClick) {
-                return $tree.options.nodeClick.call($tree, d);
+                return $tree.options.nodeClick.call($tree, d, this);
               }
               else {
                 $tree.defaultNodeClick(d, this);
@@ -386,7 +386,7 @@ module.exports = KBWidget({
 
           if ($tree.options.textDblClick) {
             $tree.oneClick = false;
-            $tree.options.textDblClick.call($tree, d);
+            $tree.options.textDblClick.call($tree, d, this);
           }
         }
         else {
@@ -395,7 +395,7 @@ module.exports = KBWidget({
             if ($tree.oneClick) {
               $tree.oneClick = false;
               if ($tree.options.textClick) {
-                return $tree.options.textClick.call($tree, d);
+                return $tree.options.textClick.call($tree, d, this);
               }
               else {
                 return $tree.defaultTextClick(d, this);

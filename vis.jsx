@@ -11,7 +11,18 @@ var Vis = React.createClass({
 
   componentDidMount: function() {
     var el = React.findDOMNode(this);
-    this.wareTreeGeneDist = WareTreeGeneDistribution.call($(el), {dataset: this.props.taxonomy.children[0]})
+    this.wareTreeGeneDist = WareTreeGeneDistribution.call(
+        $(el),
+        {
+            dataset: this.props.taxonomy.children[0],
+            taxonClick : function(d, node) {
+                console.log("I clicked on", d, " and it is now : ", this.nodeState(d));
+            },
+            taxonDblClick : function(d, node, isRoot) {
+                console.log("I double clicked on", d, " and it is now : ", this.nodeState(d), " and is the root : ", isRoot);
+            },
+        }
+    )
   },
 
   componentDidUpdate: function() {
