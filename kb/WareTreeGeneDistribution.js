@@ -198,6 +198,10 @@ module.exports = KBWidget({
                         return d.name_truncated + '...';
                     },
 
+                    nodeClick : function(d, node) {
+                        this.defaultNodeClick(d,node);
+                    },
+
                     nodeDblClick : function(d) {
                         this.options.textDblClick.call(this, d);
                     },

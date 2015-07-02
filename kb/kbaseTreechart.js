@@ -133,6 +133,22 @@ module.exports = KBWidget({
     }
   },
 
+  defaultNodeClick : function(d) {
+    if (!this.findInChildren(this.options.red, d) && !this.findInChildren(this.options.blue, d)) {
+        this.toggle(d);
+        this.updateTree(d);
+    }
+  },
+
+  defaultTextClick : function(d, node) {
+
+
+      if (this.options.redBlue) {
+        this.redBlue(node, d);
+      }
+
+  },
+
   updateTree: function (source) {
     var chart = this.data('D3svg').select(this.region('chart'));
 
@@ -319,10 +335,7 @@ module.exports = KBWidget({
                 return $tree.options.nodeClick.call($tree, d);
               }
               else {
-                if (!$tree.findInChildren($tree.options.red, d) && !$tree.findInChildren($tree.options.blue, d)) {
-                  $tree.toggle(d);
-                  $tree.updateTree(d);
-                }
+                $tree.defaultNodeClick(d, this);
               }
             }
           }, 250)
@@ -372,9 +385,8 @@ module.exports = KBWidget({
               if ($tree.options.textClick) {
                 return $tree.options.textClick.call($tree, d);
               }
-
-              if ($tree.options.redBlue) {
-                $tree.redBlue(this, d);
+              else {
+                return $tree.defaultTextClick(d, this);
               }
             }
           }, 250)
