@@ -19,6 +19,7 @@ module.exports = KBWidget({
     yPadding: 0,
     debug: false,
     regionSaturation : 0.25,
+    unachoredBinColor : 'lightgray',
 
     colorScale: function (idx) {
 
@@ -171,7 +172,8 @@ module.exports = KBWidget({
           bins.push(bin);
           var score = bin.results ? bin.results.count : 0;
           genomeTotalScore += score;
-          if (score > maxBinScore) {
+
+          if (score > maxBinScore && region.name != 'UNANCHORED') {
             maxBinScore = score;
           }
         })
@@ -240,13 +242,18 @@ module.exports = KBWidget({
       .call(function (d) { return mouseAction.call(this, d) })
       .transition()
       .duration(transitionTime)
-      .attr('opacity', function (d) { return d.results ? 1 : 0})
+      .attr('opacity', function (d) { return d.results && d.results.count ? 1 : 0})
       .attr('x', function (d) { return scale(d.start + d.regionObj.start) })
       .attr('width', function (d) { return scale((d.end - d.start)) })
       .attr('fill', function (d, i) {
-        //return $gd.colorForRegion(d.region)
+
+        if (d.regionObj.name == 'UNANCHORED') {
+            return $gd.options.unachoredBinColor;
+        }
+
         var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.region)])
         var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.75), $gd.colorForRegion(d.region)]);
+
         return scale( (d.results ? d.results.count : 0) / maxBinScore );
        });
 
