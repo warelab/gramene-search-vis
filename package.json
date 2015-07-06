@@ -14,7 +14,7 @@
     "gramene-search-client": "git://github.com/warelab/gramene-search-client.git#master",
     "jquery": "^2.1.4",
     "q": "^1.4.1",
-    "react": "^0.13.1"
+    "react": "^0.13.3"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
