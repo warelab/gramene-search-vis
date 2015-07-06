@@ -1,6 +1,22 @@
-# gramene-taxonomy-d3-example
+# gramene-search-vis
 
-### Install
+### Use in another project
+
+`npm install "git://github.com/warelab/gramene-search-vis.git#master"`
+
+Then, in a JSX file
+
+```
+// import
+var Vis = require('gramene-search-vis').Vis
+
+// in a render method.
+// `taxonomy` is an object provided by gramene-taxonomy-with-genomes (see example)
+<Vis taxonomy={taxonomy} />
+```
+
+
+### Run example
 1. `npm install`
 2. `npm install -g live-server`
 3. `npm install -g grunt-cli`
