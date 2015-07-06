@@ -210,8 +210,8 @@ module.exports = KBWidget({
 
                     },
 
-                    nodeDblClick : function(d) {
-                        this.options.textDblClick.call(this, d);
+                    nodeDblClick : function(d, node) {
+                        this.options.textDblClick.call(this, d, node);
                     },
 
                     textClick : function(d) {

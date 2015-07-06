@@ -340,7 +340,7 @@ module.exports = KBWidget({
         }
         else {
           $tree.oneClick = true;
-          setTimeout(function () {
+          setTimeout($.proxy(function () {
             if ($tree.oneClick) {
               $tree.oneClick = false;
               if ($tree.options.nodeClick) {
@@ -350,7 +350,7 @@ module.exports = KBWidget({
                 $tree.defaultNodeClick(d, this);
               }
             }
-          }, 250)
+          }, this), 250)
         }
 
       })
@@ -391,7 +391,7 @@ module.exports = KBWidget({
         }
         else {
           $tree.oneClick = true;
-          setTimeout(function () {
+          setTimeout($.proxy(function () {
             if ($tree.oneClick) {
               $tree.oneClick = false;
               if ($tree.options.textClick) {
@@ -401,7 +401,7 @@ module.exports = KBWidget({
                 return $tree.defaultTextClick(d, this);
               }
             }
-          }, 250)
+          }, this), 250)
         }
 
       })
