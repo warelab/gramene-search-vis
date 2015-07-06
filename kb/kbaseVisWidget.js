@@ -690,6 +690,10 @@ KBWidget({
       regions,
       function (idx, region) {
 
+        if ($vis.options.customRegions[region]) {
+            return;
+        }
+
         D3svg.selectAll('.' + region).selectAll('g').data([{
           region: $vis.region(region, true),
           r: region
@@ -925,7 +929,7 @@ KBWidget({
       grad
     );
 
-    var gradKey = [grad.cx, grad.cy, grad.r, grad.startColor, grad.stopColor].join(',');
+    var gradKey = [grad.x1, grad.x2, grad.y1, grad.y2, grad.startColor, grad.stopColor].join(',');
 
     if (this.linearGradients()[gradKey] != undefined && grad.id == undefined) {
       grad.id = this.linearGradients()[gradKey];
@@ -963,6 +967,7 @@ KBWidget({
       .attr('x2', function (d) {return d.x2})
       .attr('y1', function (d) {return d.y1})
       .attr('y2', function (d) {return d.y2})
+      .attr('gradientTransform', function(d) { return d.gradientTransform})
       .attr('spreadMethod', 'pad')
     ;
 
