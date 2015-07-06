@@ -30,14 +30,12 @@ var Vis = React.createClass({
   },
 
   render: function() {
-    return (
-      <div className="ware-tree-gene">Hello, World</div>
+    return React.createElement(
+      "div",
+      {className: "ware-tree-gene"},
+      "Hello, World"
     );
   }
 });
-
-
-
-
 
 module.exports = Vis;

@@ -8,7 +8,7 @@ var $ = require('jquery');
 
 var WareTreeGeneDistribution = require('./kb/WareTreeGeneDistribution.js');
 
-var Vis = require('./vis.jsx');
+var Vis = require('./vis.js');
 
 // Example query object.
 // This is usually generated in code by gramoogle.
