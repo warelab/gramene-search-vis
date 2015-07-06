@@ -20,13 +20,12 @@ var Vis = React.createClass({
             },
             taxonDblClick : function(d, node, isRoot) {
                 console.log("I double clicked on", d, " and it is now : ", this.nodeState(d), " and is the root : ", isRoot);
-            },
+            }
         }
     )
   },
 
   componentDidUpdate: function() {
-    //console.log("Need to update the chart somehow.", this.wareTreeGeneDist);
     this.wareTreeGeneDist.setDataset(this.props.taxonomy.children[0]);
   },
 

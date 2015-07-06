@@ -1,13 +1,13 @@
 {
-  "name": "treedemo",
+  "name": "gramene-search-vis",
   "version": "1.0.0",
-  "description": "",
+  "description": "Visualization used by Gramene search",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "thomasoniii, mycrobe, ajo2995",
+  "license": "MIT",
   "dependencies": {
     "d3": "^3.5.5",
     "gramene-taxonomy-with-genomes": "git://github.com/warelab/gramene-taxonomy-with-genomes.git#master",
