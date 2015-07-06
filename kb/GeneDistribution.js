@@ -242,7 +242,7 @@ module.exports = KBWidget({
       .call(function (d) { return mouseAction.call(this, d) })
       .transition()
       .duration(transitionTime)
-      .attr('opacity', function (d) { return d.results && d.results.count ? 1 : 0})
+      .attr('opacity', function (d) { return (d.results && d.results.count) || d.regionObj.name == 'UNANCHORED' ? 1 : 0})
       .attr('x', function (d) { return scale(d.start + d.regionObj.start) })
       .attr('width', function (d) { return scale((d.end - d.start)) })
       .attr('fill', function (d, i) {
