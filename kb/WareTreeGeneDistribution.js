@@ -202,10 +202,21 @@ module.exports = KBWidget({
 
                     nodeClick : function(d, node) {
 
+                        var oldState = this.nodeState(d);
+
                         this.defaultNodeClick(d,node);
 
+                        var newState = this.nodeState(d);
+
+                        if (oldState == 'closed' && newState == 'open' && $wtgd.options.subtreeExpand) {
+                            $wtgd.options.subtreeExpand.call(this, d);
+                        }
+                        if (oldState == 'open' && newState == 'closed' && $wtgd.options.subtreeCollapse) {
+                            $wtgd.options.subtreeCollapse.call(this, d);
+                        }
+
                         if ($wtgd.options.taxonClick != undefined) {
-                            $wtgd.options.taxonClick.call(this, d, node);
+                            $wtgd.options.taxonClick.call(this, d);
                         }
 
                     },
@@ -242,14 +253,17 @@ module.exports = KBWidget({
 
                         if (d.children && d.children.length) {
                             relayout(d);
-                            console.log("WTF ? ", d);
                             d.stroke = this.filterParent.length ? 'cyan' : 'darkslateblue';
 
                             this.setDataset(d);
 
                             if ($wtgd.options.taxonDblClick != undefined) {
-                                $wtgd.options.taxonDblClick.call(this, d, node, isRoot);
+                                $wtgd.options.taxonDblClick.call(this, d, isRoot);
                             }
+                        }
+
+                        if ($wtgd.options.treeRootChange) {
+                            $wtgd.options.treeRootChange.call(this, d);
                         }
 
                     },

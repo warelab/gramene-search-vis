@@ -15,12 +15,21 @@ var Vis = React.createClass({
         $(el),
         {
             dataset: this.props.taxonomy.children[0],
-            taxonClick : function(d, node) {
+            taxonClick : function(d) {
                 console.log("I clicked on", d, " and it is now : ", this.nodeState(d));
             },
-            taxonDblClick : function(d, node, isRoot) {
+            taxonDblClick : function(d, isRoot) {
                 console.log("I double clicked on", d, " and it is now : ", this.nodeState(d), " and is the root : ", isRoot);
-            }
+            },
+            subtreeCollapse : function(d) {
+                console.log("collapsed under ", d);
+            },
+            subtreeExpand : function(d) {
+                console.log("expanded under ", d);
+            },
+            treeRootChange : function(d) {
+                console.log('changed root to ', d);
+            },
         }
     )
   },
