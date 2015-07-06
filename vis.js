@@ -4,36 +4,43 @@ var $ = require('jquery');
 var React = require('react');
 var WareTreeGeneDistribution = require('./kb/WareTreeGeneDistribution');
 
+var _counterForVisId = 0;
+
 var Vis = React.createClass({
   propTypes: {
-    taxonomy: React.PropTypes.object.isRequired
+    taxonomy: React.PropTypes.object.isRequired,
+    onSubtreeCollapse: React.PropTypes.function,
+    onSubtreeExpand: React.PropTypes.function,
+    onTreeRootChange: React.PropTypes.function
   },
 
-  componentDidMount: function() {
-    var el = React.findDOMNode(this);
+  componentWillMount: function () {
+    this.visId = "vis" + _counterForVisId++;
+  },
+
+  componentDidMount: function () {
     this.wareTreeGeneDist = WareTreeGeneDistribution.call(
-        $(el),
-        {
-            dataset: this.props.taxonomy.children[0],
-            taxonClick : function(d, node) {
-                console.log("I clicked on", d, " and it is now : ", this.nodeState(d));
-            },
-            taxonDblClick : function(d, node, isRoot) {
-                console.log("I double clicked on", d, " and it is now : ", this.nodeState(d), " and is the root : ", isRoot);
-            }
+      $("." + this.visId),
+      {
+        dataset: this.props.taxonomy.children[0],
+        taxonClick: function (d, node) {
+          console.log("I clicked on", d, " and it is now : ", this.nodeState(d));
+        },
+        taxonDblClick: function (d, node, isRoot) {
+          console.log("I double clicked on", d, " and it is now : ", this.nodeState(d), " and is the root : ", isRoot);
         }
+      }
     )
   },
 
-  componentDidUpdate: function() {
-    this.wareTreeGeneDist.setDataset(this.props.taxonomy.children[0]);
+  shouldComponentUpdate: function (newProps, newState) {
+    this.wareTreeGeneDist.setDataset(newProps.taxonomy.children[0]);
+    return false;
   },
 
-  render: function() {
-    return React.createElement(
-      "div",
-      {className: "ware-tree-gene"},
-      "Hello, World"
+  render: function () {
+    return React.DOM.div(
+      {className: "ware-tree-gene " + this.visId}
     );
   }
 });
