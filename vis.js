@@ -28,7 +28,16 @@ var Vis = React.createClass({
         },
         taxonDblClick: function (d, node, isRoot) {
           console.log("I double clicked on", d, " and it is now : ", this.nodeState(d), " and is the root : ", isRoot);
-        }
+        },
+        subtreeCollapse : function(d) {
+            console.log("collapsed under ", d);
+        },
+        subtreeExpand : function(d) {
+            console.log("expanded under ", d);
+        },
+        treeRootChange : function(d) {
+            console.log('changed root to ', d);
+        },
       }
     )
   },
