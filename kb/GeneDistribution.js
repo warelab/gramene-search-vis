@@ -246,8 +246,13 @@ module.exports = KBWidget({
       .attr('fill', function (d, i) {
         //return $gd.colorForRegion(d.region)
         var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.region)])
-        var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.75), $gd.colorForRegion(d.region)]);
-        return scale( (d.results ? d.results.count : 0) / maxBinScore );
+        var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.5), $gd.colorForRegion(d.region)]);
+        if (!d.results || d.results.count === 0) {
+          return colorScale(.25);
+        }
+        else {
+          return scale( d.results.count / maxBinScore );
+        }
        });
 
     binSelection
