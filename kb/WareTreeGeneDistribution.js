@@ -11,33 +11,29 @@ var GeneDistribution = require('./GeneDistribution.js');
 
 var calculateScore = function(node) {
 
-    if (node.score == undefined) {
-        var score = 0;
+    var score = 0;
 
-        if (node.children) {
-            for (var i = 0; i < node.children.length; i++) {
-                score += calculateScore(node.children[i]);
-            }
+    if (node.children) {
+        for (var i = 0; i < node.children.length; i++) {
+            score += calculateScore(node.children[i]);
         }
-
-        if (node._children) {
-            for (var i = 0; i < node._children.length; i++) {
-                score += calculateScore(node._children[i]);
-            }
-        }
-
-        if (node.model.genome) {
-            node.model.genome.eachRegion(function(region) {
-                region.eachBin(function(bin) {
-                    score += bin.results ? bin.results.count : 0;
-                })
-            })
-        }
-
-        node.score = score;
     }
 
-    return node.score;
+    if (node._children) {
+        for (var i = 0; i < node._children.length; i++) {
+            score += calculateScore(node._children[i]);
+        }
+    }
+
+    if (node.model.genome) {
+        node.model.genome.eachRegion(function(region) {
+            region.eachBin(function(bin) {
+                score += bin.results ? bin.results.count : 0;
+            })
+        })
+    }
+
+    return score;
 }
 
 
@@ -93,14 +89,14 @@ module.exports = KBWidget({
                                 ? $tree.options.fixedDepth
                                 : d.y;
 
-                            var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace;
-
                             var labelDelta = 50;
+
+                            var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace - labelDelta;
 
 
                             var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
 
-                            var lgvID = 'lgv-' + $tree.uuid();
+                            d.lgvID = 'lgv-' + $tree.uuid();
                             var nodeHeight = 0.7 * node.getBBox().height;
 
                             if ($tree.options.lgvTransform == undefined) {
@@ -113,16 +109,16 @@ module.exports = KBWidget({
                             lgvSelection
                                 .enter()
                                     .append('g')
-                                        .attr('class', lgvID)
+                                        .attr('class', d.lgvID)
                                         .attr('transform', $tree.options.lgvTransform)
                             lgvSelection
                               .enter()
                                 .append('text')
+                                    .attr('class', 'scoreField')
                                     .attr('style', 'font-size : 11px;cursor : pointer;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;')
                                     .attr("dy", ".35em")
                                     .attr('dx', $tree.options.labelWidth + labelDelta)
                                     .attr('text-anchor','end')
-                                    .text(calculateScore(d))
                             ;
 
                             if (d.$lgv == undefined) {
@@ -130,15 +126,12 @@ module.exports = KBWidget({
                                     {
                                         scaleAxes   : true,
                                         customRegions : {
-                                            chart : lgvID
+                                            chart : d.lgvID
                                         },
                                         parent : $tree,
                                     }
                                 );
                             }
-
-                            d.$lgv.options.customRegions.chart = lgvID;
-                            d.$lgv.setDataset(d.model.genome);
 
                         }
                     },
@@ -146,6 +139,14 @@ module.exports = KBWidget({
                     nodeUpdateCallback : function(d,i,node, duration) {
                         if (! d.children || ! d.children.length) {
                             d3.select(node).selectAll('.lgv').data([d]).transition().duration(duration).attr('opacity', 1);
+
+                            var scoreFieldSelection = d3.select(node).selectAll('.scoreField').data([d]);
+
+                            scoreFieldSelection.text(calculateScore(d));
+
+                            d.$lgv.options.customRegions.chart = d.lgvID;
+                            d.$lgv.setDataset(d.model.genome);
+
                         }
                     },
 
