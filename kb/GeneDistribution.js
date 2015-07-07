@@ -380,7 +380,7 @@ module.exports = KBWidget({
                 .attr('x', 0)
                 .attr('y', 0)
                 .attr('fill', $gd.options.dragColor)
-                .attr('fill-opacity', 0.3)
+                .attr('fill-opacity', 0.6)
                 .attr('pointer-events', 'none')
     ;
 
