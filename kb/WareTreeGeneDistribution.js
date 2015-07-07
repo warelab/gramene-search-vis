@@ -121,18 +121,17 @@ module.exports = KBWidget({
                                     .attr('text-anchor','end')
                             ;
 
-                            //if (d.$lgv == undefined) {
-                                d.$lgv = GeneDistribution.bind(jqElem('div'))(
-                                    {
-                                        scaleAxes   : true,
-                                        customRegions : {
-                                            chart : d.lgvID
-                                        },
-                                        parent : $tree,
-                                        binHeight : $tree.options.lgvHeight,
-                                    }
-                                );
-                            //}
+                            d.$lgv = GeneDistribution.bind(jqElem('div'))(
+                                {
+                                    scaleAxes   : true,
+                                    customRegions : {
+                                        chart : d.lgvID
+                                    },
+                                    parent : $tree,
+                                    binHeight : $tree.options.lgvHeight,
+                                    selectionCallback : $wtgd.options.geneSelection
+                                }
+                            );
 
                         }
                     },
