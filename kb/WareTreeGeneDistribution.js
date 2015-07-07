@@ -238,26 +238,17 @@ module.exports = KBWidget({
                         var isRoot = true;
 
                         var parent;
-                        if (this.originalRoot == undefined) {
-                            this.originalRoot = this.options.dataset;
+                        if (this.originalRoot == undefined || this.lastClicked !== d) {
+                            if (this.originalRoot == undefined) {
+                                this.originalRoot = this.options.dataset;
+                            }
+                            this.lastClicked = d;
                         }
                         else {
                             d = this.originalRoot;
                             this.originalRoot = undefined;
+                            this.lastClicked = undefined;
                         }
-
-                        /*if (! d.parent && this.filterParent.length) {
-                            d = this.filterParent.pop();
-                            delete d.stroke;
-                            isRoot = false;
-                        }
-                        else {
-                            var parent = d.parent;
-                            while (parent != undefined && parent.parent != undefined) {
-                                this.filterParent.unshift(parent);
-                                parent = parent.parent;
-                            }
-                        }*/
 
                         if (this.nodeState(d) == 'open') {
                             relayout(d);
