@@ -41,6 +41,10 @@ KBWidget({
 
     width: '100%',
     height: '100%',
+
+    tooltipLeftOffset : 10,
+    tooltipTopOffset : 10,
+
   },
 
   shouldScaleAxis: function (axis) {
@@ -827,8 +831,8 @@ KBWidget({
     d3.selectAll('.visToolTip')
       .style('display', 'block')
       .html(args.label)
-      .style("left", (args.event.pageX + 10) + "px")
-      .style("top", (args.event.pageY - 10) + "px");
+      .style("left", (args.event.pageX + (args.tooltipLeftOffset || this.options.tooltipLeftOffset)) + "px")
+      .style("top", (args.event.pageY - (args.tooltipTopOffset || this.options.tooltipTopOffset)) + "px");
   },
 
   hideToolTip: function (args) {

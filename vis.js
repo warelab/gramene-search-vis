@@ -38,6 +38,9 @@ var Vis = React.createClass({
         treeRootChange : function(d) {
             console.log('changed root to ', d);
         },
+        geneSelection : function(bins) {
+            console.log("I SELECTED THESE BINS : ", bins)
+        },
       }
     )
   },
