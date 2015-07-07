@@ -201,7 +201,7 @@ module.exports = KBWidget({
           .attr('x', bounds.size.width)
           .attr('y', 0)
           .attr('width', 0)
-          .attr('height', bounds.size.height)
+          .attr('height', $gd.options.binHeight || bounds.size.height)
         ;
 
 
@@ -240,7 +240,7 @@ module.exports = KBWidget({
           .attr('x', bounds.size.width)
           .attr('y', 0)
           .attr('width', 0)
-          .attr('height', bounds.size.height)
+          .attr('height', $gd.options.binHeight || bounds.size.height)
           .attr('style', 'cursor : pointer')
           .call(function (d) { return mouseAction.call(this, d) })
     ;
