@@ -136,6 +136,7 @@ module.exports = KBWidget({
 
     var mouseAction = function (d, i) {
       this.on('mouseover', function (b, j) {
+
         if ($gd.options.tooltip) {
           $gd.options.tooltip(b);
         }
@@ -181,6 +182,7 @@ module.exports = KBWidget({
     );
 
 
+
     var transitionTime = this.initialized
       ? this.options.transitionTime
       : 0;
@@ -192,18 +194,19 @@ module.exports = KBWidget({
 
     regionSelection
       .enter()
-      .append('rect')
-      .attr('class', 'region')
-      .attr('opacity', 0)
-      //                        .attr('transform', function (d) {return "translate(" + scale(d.start) + ",0)"})
-      .attr('x', bounds.size.width)
-      .attr('y', 0)
-      .attr('width', 0)
-      .attr('height', bounds.size.height);
+          .append('rect')
+          .attr('class', 'region')
+          .attr('opacity', 0)
+          //                        .attr('transform', function (d) {return "translate(" + scale(d.start) + ",0)"})
+          .attr('x', bounds.size.width)
+          .attr('y', 0)
+          .attr('width', 0)
+          .attr('height', bounds.size.height)
+        ;
 
 
     regionSelection
-      .call(function (d) { return mouseAction.call(this, d) })
+      //.call(function (d) { return mouseAction.call(this, d) })
       .transition()
       .duration(transitionTime)
       .attr('opacity', 1)
@@ -228,18 +231,21 @@ module.exports = KBWidget({
 
     var binSelection = binsSelection.selectAll('.bin').data(bins);
 
-    binSelection
-      .enter()
-      .append('rect')
-      .attr('class', 'bin')
-      .attr('opacity', 0)
-      .attr('x', bounds.size.width)
-      .attr('y', 0)
-      .attr('width', 0)
-      .attr('height', bounds.size.height);
 
     binSelection
-      .call(function (d) { return mouseAction.call(this, d) })
+      .enter()
+          .append('rect')
+          .attr('class', 'bin')
+          .attr('opacity', 0)
+          .attr('x', bounds.size.width)
+          .attr('y', 0)
+          .attr('width', 0)
+          .attr('height', bounds.size.height)
+          .attr('style', 'cursor : pointer')
+          .call(function (d) { return mouseAction.call(this, d) })
+    ;
+
+    binSelection
       .transition()
       .duration(transitionTime)
       .attr('opacity', function (d) { return (d.results && d.results.count) || d.regionObj.name == 'UNANCHORED' ? 1 : 0})
@@ -271,6 +277,7 @@ module.exports = KBWidget({
       .each('end', function (d) { d3.select(this).remove() });
 
     this.initialized = true;
+
 
   },
 
