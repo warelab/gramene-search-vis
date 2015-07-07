@@ -93,16 +93,16 @@ module.exports = KBWidget({
 
                             var width = bounds.size.width - y - this.options.labelWidth - this.options.labelSpace - labelDelta;
 
-
-                            var lgvSelection = d3.select(node).selectAll('.lgv').data([d]);
-
                             d.lgvID = 'lgv-' + $tree.uuid();
+
+                            var lgvSelection = d3.select(node).selectAll(d.lgvID).data([d]);
                             var nodeHeight = 0.7 * node.getBBox().height;
 
                             if ($tree.options.lgvTransform == undefined) {
                                 $tree.options.lgvTransform =
                                     'translate(' + ($tree.options.labelWidth + labelDelta + 3) + ',' + (0 - nodeHeight / 2) + ') , ' +
-                                    'scale(' + width / bounds.size.width + ',' + nodeHeight / $tree.$elem.height() + ')'
+                                    'scale(' + width / bounds.size.width + ',1)' //+ nodeHeight / $tree.$elem.height() + ')';
+                                $tree.options.lgvHeight = nodeHeight;
                             }
 
 
@@ -121,7 +121,7 @@ module.exports = KBWidget({
                                     .attr('text-anchor','end')
                             ;
 
-                            if (d.$lgv == undefined) {
+                            //if (d.$lgv == undefined) {
                                 d.$lgv = GeneDistribution.bind(jqElem('div'))(
                                     {
                                         scaleAxes   : true,
@@ -129,16 +129,18 @@ module.exports = KBWidget({
                                             chart : d.lgvID
                                         },
                                         parent : $tree,
+                                        binHeight : $tree.options.lgvHeight,
                                     }
                                 );
-                            }
+                            //}
 
                         }
                     },
 
                     nodeUpdateCallback : function(d,i,node, duration) {
-                        if (! d.children || ! d.children.length) {
-                            d3.select(node).selectAll('.lgv').data([d]).transition().duration(duration).attr('opacity', 1);
+                        //if (! d.children || ! d.children.length) {
+                        if (d.lgvID && d.$lgv) {
+                            d3.select(node).selectAll(d.lgvID).data([d]).transition().duration(duration).attr('opacity', 1);
 
                             var scoreFieldSelection = d3.select(node).selectAll('.scoreField').data([d]);
 
@@ -151,8 +153,9 @@ module.exports = KBWidget({
                     },
 
                     nodeExitCallback : function(d,i,node, duration) {
-                        if (! d.children || ! d.children.length) {
-                            d3.select(node).selectAll('.lgv').data([d]).exit().transition().duration(duration).attr('opacity', 0);
+                        //if (! d.children || ! d.children.length) {
+                        if (d.lgvID) {
+                            d3.select(node).selectAll(d.lgvID).data([d]).exit().transition().duration(duration).attr('opacity', 0).remove();
                         }
                     },
 
