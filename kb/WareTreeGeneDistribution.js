@@ -80,6 +80,7 @@ module.exports = KBWidget({
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
+
                         if (d.model.genome) {
                             var $tree = this;
 
@@ -168,6 +169,15 @@ module.exports = KBWidget({
                     fixed           : true,
                     labelWidth      : 100,
                     nodeHeight      : 7,
+
+                    depth : function(d, rootOffset, chartOffset) {
+                        if (d.parent == undefined) {
+                            return -5;
+                        }
+                        else {
+                            return this.defaultDepth(d, rootOffset, chartOffset);
+                        }
+                    },
 
                     strokeWidth : function(d) {
 

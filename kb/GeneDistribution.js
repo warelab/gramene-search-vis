@@ -272,7 +272,7 @@ module.exports = KBWidget({
                 if (callbackBins.length) {
 
                     if ($gd.options.selectionCallback) {
-                        $gd.options.selectionCallback(callbackBins);
+                        $gd.options.selectionCallback.call(this, callbackBins);
                     }
 
                 }

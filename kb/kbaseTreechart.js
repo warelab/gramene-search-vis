@@ -9,7 +9,7 @@ module.exports = KBWidget({
 
   version: "1.0.0",
   options: {
-    debug: false,
+    debug: true,
 
     xGutter: 0,
     xPadding: 0,
@@ -161,6 +161,33 @@ module.exports = KBWidget({
         }
     },
 
+  depth : function(d, rootOffset, chartOffset) {
+    if (this.options.depth) {
+        return this.options.depth.call(this, d, rootOffset, chartOffset);
+    }
+    else {
+        return this.defaultDepth(d, rootOffset, chartOffset);
+    }
+  },
+
+  defaultDepth : function(d, rootOffset, chartOffset) {
+
+      var distance = this.options.distance;
+      if (d.distance != undefined) {
+        distance *= d.distance;
+      }
+      ;
+
+      if (d.parent != undefined) {
+        distance += this.depth(d.parent, rootOffset, chartOffset);
+      }
+      else {
+        distance = rootOffset + chartOffset;
+      }
+
+      return distance;
+    },
+
   updateTree: function (source) {
     var chart = this.data('D3svg').select(this.region('chart'));
 
@@ -186,6 +213,7 @@ module.exports = KBWidget({
       .attr('class', 'fake')
       .text(root.name);
     rootOffset = rootText[0][0].getBBox().width + $tree.options.labelSpace + bounds.origin.x;
+    console.log("RO IS ", root, root.name, rootOffset, rootText[0][0].getBBox().width, $tree.options.labelSpace, bounds.origin.x);
 
     var newHeight = this.options.nodeHeight * this.countVisibleNodes(this.dataset());
     //this.$elem.animate({'height' : newHeight + this.options.yGutter + this.options.yPadding}, 500);
@@ -200,23 +228,7 @@ module.exports = KBWidget({
 
     var chartOffset = 0;
 
-    function depth(d) {
 
-      var distance = $tree.options.distance;
-      if (d.distance != undefined) {
-        distance *= d.distance;
-      }
-      ;
-
-      if (d.parent != undefined) {
-        distance += depth(d.parent);
-      }
-      else {
-        distance = rootOffset + chartOffset;
-      }
-
-      return distance;
-    };
 
     var maxOffset = 0;
     var minOffset = 5000000000;
@@ -235,7 +247,7 @@ module.exports = KBWidget({
 
     this.nodes.forEach(
       function (d) {
-        d.y = depth(d);
+        d.y = $tree.depth(d, rootOffset, chartOffset);
 
         if (d.name == undefined && $tree.options.nameFunction) {
           d.name = $tree.options.nameFunction.call($tree, d);
@@ -250,7 +262,7 @@ module.exports = KBWidget({
         var fakeLeft = fakeBounds[0];
         var fakeRight = fakeBounds[1];
         d.width = fakeBounds[2];
-
+console.log("CALCULATE WIDTH ON ", d.name, " TO BE ", d.width);
         if ($tree.options.labelWidth && d.width > $tree.options.labelWidth) {
           var words = d.name.split(/\s+/);
           var shortWords = [words.shift()];
@@ -292,7 +304,7 @@ module.exports = KBWidget({
 
     this.nodes.forEach(
       function (d) {
-        d.y = depth(d);
+        d.y = $tree.depth(d, rootOffset, chartOffset);
 
         if (d.y > $tree.options.fixedDepth) {
           $tree.options.fixedDepth = d.y;
