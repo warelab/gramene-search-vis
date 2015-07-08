@@ -38,6 +38,8 @@ module.exports = KBWidget({
     circleStroke: 'steelblue',
     openCircleFill: 'lightsteelblue',
     closedCircleFill: '#FFF',
+    staticWidth : false,
+    staticHeight : false,
 
   },
 
@@ -213,7 +215,6 @@ module.exports = KBWidget({
       .attr('class', 'fake')
       .text(root.name);
     rootOffset = rootText[0][0].getBBox().width + $tree.options.labelSpace + bounds.origin.x;
-    console.log("RO IS ", root, root.name, rootOffset, rootText[0][0].getBBox().width, $tree.options.labelSpace, bounds.origin.x);
 
     var newHeight = this.options.nodeHeight * this.countVisibleNodes(this.dataset());
     //this.$elem.animate({'height' : newHeight + this.options.yGutter + this.options.yPadding}, 500);
@@ -262,7 +263,7 @@ module.exports = KBWidget({
         var fakeLeft = fakeBounds[0];
         var fakeRight = fakeBounds[1];
         d.width = fakeBounds[2];
-console.log("CALCULATE WIDTH ON ", d.name, " TO BE ", d.width);
+
         if ($tree.options.labelWidth && d.width > $tree.options.labelWidth) {
           var words = d.name.split(/\s+/);
           var shortWords = [words.shift()];
@@ -319,13 +320,16 @@ console.log("CALCULATE WIDTH ON ", d.name, " TO BE ", d.width);
       newWidth = $tree.options.originalWidth;
     }
 
-    this.$elem.animate(
-      {
-        'width': newWidth,
-        'height': newHeight + this.options.yGutter + this.options.yPadding
-      },
-      duration
-    );
+    newWidth = this.options.staticWidth ? this.$elem.width() : newWidth;
+    newHeight = this.options.staticHeight ? this.$elem.height() : newHeight + this.options.yGutter + this.options.yPadding;
+
+        this.$elem.animate(
+          {
+            'width': newWidth,
+            'height': newHeight
+          },
+          duration
+        );
 
     var node = chart.selectAll("g.node")
       .data(this.nodes, this.uniqueID);

@@ -169,6 +169,7 @@ module.exports = KBWidget({
                     fixed           : true,
                     labelWidth      : 100,
                     nodeHeight      : 7,
+                    staticWidth     : true,
 
                     depth : function(d, rootOffset, chartOffset) {
                         if (d.parent == undefined) {
