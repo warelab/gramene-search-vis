@@ -258,6 +258,7 @@ module.exports = KBWidget({
                             d = this.originalRoot;
                             this.originalRoot = undefined;
                             this.lastClicked = undefined;
+                            isRoot = false;
                         }
 
                         if (this.nodeState(d) == 'open') {
