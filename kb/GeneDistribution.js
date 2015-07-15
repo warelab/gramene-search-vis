@@ -20,6 +20,10 @@ module.exports = KBWidget({
     debug: false,
     regionSaturation : 0.25,
     unachoredBinColor : 'lightgray',
+    dragColor : 'cyan',
+
+    tooltipLeftOffset : 10,
+    tooltipTopOffset : -15,
 
     colorScale: function (idx) {
 
@@ -181,8 +185,6 @@ module.exports = KBWidget({
       }
     );
 
-
-
     var transitionTime = this.initialized
       ? this.options.transitionTime
       : 0;
@@ -229,8 +231,61 @@ module.exports = KBWidget({
     var binsSelection = this.D3svg().select(this.region('chart')).selectAll('.bins').data([0]);
     binsSelection.enter().append('g').attr('class', 'bins');
 
+    var drag = d3.behavior.drag()
+        .on('dragstart', function(d) {
+            $gd.dragging = true;
+            $gd.validDrag = true;
+        })
+        .on('drag', function(d) {
+            var coordinates = [0, 0];
+            coordinates = d3.mouse(this);
+            var bounds = this.getBBox();
+
+            if (coordinates[1] < 0 || coordinates[1] > bounds.height) {
+                $gd.dragBox.attr('visibility', 'hidden');
+                $gd.validDrag = false;
+            }
+            else {
+                $gd.validDrag = true;
+            }
+        })
+        .on('dragend', function(d) {
+            $gd.dragging = false;
+
+            var binX = parseFloat($gd.dragBox.attr('x'));
+            var binEnd = parseFloat($gd.dragBox.attr('width')) + binX;
+
+            if ($gd.validDrag) {
+                var callbackBins = [];
+                selectedBins.forEach(
+                    function(d, idx) {
+
+                        var dX = scale(d.start + d.regionObj.start);
+
+                        if (Math.floor(binX) <= dX && Math.floor(dX) < binEnd && callbackBins.indexOf(d) == -1) {
+                            callbackBins.push(d);
+                        }
+
+                    }
+                );
+
+                if (callbackBins.length) {
+
+                    if ($gd.options.selectionCallback) {
+                        $gd.options.selectionCallback(callbackBins);
+                    }
+
+                }
+
+            }
+
+            $gd.dragBox.attr('visibility', 'hidden');
+        })
+
     var binSelection = binsSelection.selectAll('.bin').data(bins);
 
+    var initialBox = undefined;
+    var selectedBins = [];
 
     binSelection
       .enter()
@@ -242,7 +297,44 @@ module.exports = KBWidget({
           .attr('width', 0)
           .attr('height', $gd.options.binHeight || bounds.size.height)
           .attr('style', 'cursor : pointer')
+          .on('mousedown', function (d) {
+                initialBox = this.getBBox();
+                $gd.dragBox.attr('x', initialBox.x)
+                $gd.dragBox.attr('width', initialBox.width);
+                $gd.dragBox.attr('visibility', 'visible');
+
+                selectedBins = [];
+                selectedBins.push(d);
+          })
+          .on('mouseenter', function(d) {
+            if ($gd.dragging) {
+
+                var box = this.getBBox();
+
+                var binX = parseFloat($gd.dragBox.attr('x'));
+                var binEnd = parseFloat($gd.dragBox.attr('width')) + binX;
+
+                if (box.x <= initialBox.x) {
+                    binX = box.x
+                }
+
+                if (box.x > initialBox.x) {
+                    binEnd = box.x + box.width;
+                }
+
+                $gd.dragBox.attr('x', binX);
+
+                var binWidth = binEnd - binX;
+
+                $gd.dragBox.attr('width', binWidth);
+                $gd.dragBox.attr('visibility', 'visible');
+
+                selectedBins.push(d);
+            }
+           })
+
           .call(function (d) { return mouseAction.call(this, d) })
+          .call(drag)
     ;
 
     binSelection
@@ -275,6 +367,22 @@ module.exports = KBWidget({
       .attr('x', bounds.size.width + 1)
       .attr('width', 0)
       .each('end', function (d) { d3.select(this).remove() });
+
+    $gd.dragBox = this.D3svg().select(this.region('chart')).selectAll('.dragBox').data([0]);
+
+    $gd.dragBox
+        .enter()
+            .append('rect')
+                .attr('class', 'dragBox')
+                .attr('visibility', 'hidden')
+                .attr('height', $gd.options.binHeight || bounds.size.height)
+                .attr('width', 0)
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('fill', $gd.options.dragColor)
+                .attr('fill-opacity', 0.3)
+                .attr('pointer-events', 'none')
+    ;
 
     this.initialized = true;
 

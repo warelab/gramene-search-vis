@@ -12,7 +12,8 @@ var Vis = React.createClass({
     taxonomy: React.PropTypes.object.isRequired,
     onSubtreeCollapse: React.PropTypes.function,
     onSubtreeExpand: React.PropTypes.function,
-    onTreeRootChange: React.PropTypes.function
+    onTreeRootChange: React.PropTypes.function,
+    onGeneSelection: React.PropTypes.function
   },
 
   componentWillMount: function () {
@@ -35,7 +36,11 @@ var Vis = React.createClass({
         },
         subtreeCollapse : reactProps.onSubtreeCollapse || function() {},
         subtreeExpand : reactProps.onSubtreeExpand || function() {},
-        treeRootChange : reactProps.onTreeRootChange || function() {}
+        treeRootChange : reactProps.onTreeRootChange || function() {},
+        geneSelection : function(bins) {
+            console.log("I SELECTED THESE BINS : ", bins);
+            reactProps.onGeneSelection(bins);
+        }
       }
     )
   },

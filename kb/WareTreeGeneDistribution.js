@@ -121,18 +121,17 @@ module.exports = KBWidget({
                                     .attr('text-anchor','end')
                             ;
 
-                            //if (d.$lgv == undefined) {
-                                d.$lgv = GeneDistribution.bind(jqElem('div'))(
-                                    {
-                                        scaleAxes   : true,
-                                        customRegions : {
-                                            chart : d.lgvID
-                                        },
-                                        parent : $tree,
-                                        binHeight : $tree.options.lgvHeight,
-                                    }
-                                );
-                            //}
+                            d.$lgv = GeneDistribution.bind(jqElem('div'))(
+                                {
+                                    scaleAxes   : true,
+                                    customRegions : {
+                                        chart : d.lgvID
+                                    },
+                                    parent : $tree,
+                                    binHeight : $tree.options.lgvHeight,
+                                    selectionCallback : $wtgd.options.geneSelection
+                                }
+                            );
 
                         }
                     },
@@ -238,37 +237,34 @@ module.exports = KBWidget({
                         var isRoot = true;
 
                         var parent;
-                        if (this.filterParent == undefined) {
-                            this.filterParent = [];
-                        }
-
-                        if (! d.parent && this.filterParent.length) {
-                            d = this.filterParent.pop();
-                            delete d.stroke;
-                            isRoot = false;
+                        if (this.originalRoot == undefined || this.lastClicked !== d) {
+                            if (this.originalRoot == undefined) {
+                                this.originalRoot = this.options.dataset;
+                            }
+                            this.lastClicked = d;
                         }
                         else {
-                            var parent = d.parent;
-                            while (parent != undefined && parent.parent != undefined) {
-                                this.filterParent.unshift(parent);
-                                parent = parent.parent;
-                            }
+                            d = this.originalRoot;
+                            this.originalRoot = undefined;
+                            this.lastClicked = undefined;
                         }
 
-                        if (d.children && d.children.length) {
+                        if (this.nodeState(d) == 'open') {
                             relayout(d);
-                            d.stroke = this.filterParent.length ? 'cyan' : 'darkslateblue';
+                            d.stroke = this.originalRoot ? 'cyan' : 'darkslateblue';
 
                             this.setDataset(d);
 
                             if ($wtgd.options.taxonDblClick != undefined) {
                                 $wtgd.options.taxonDblClick.call(this, d, isRoot);
                             }
+
+                            if ($wtgd.options.treeRootChange) {
+                                $wtgd.options.treeRootChange.call(this, d);
+                            }
+
                         }
 
-                        if ($wtgd.options.treeRootChange) {
-                            $wtgd.options.treeRootChange.call(this, d);
-                        }
 
                     },
 
