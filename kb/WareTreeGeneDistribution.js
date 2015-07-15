@@ -130,7 +130,48 @@ module.exports = KBWidget({
                                     },
                                     parent : $tree,
                                     binHeight : $tree.options.lgvHeight,
-                                    selectionCallback : $wtgd.options.geneSelection
+                                    selectionCallback : $wtgd.options.geneSelection,
+
+                                    showHighlightCallback : function() {
+                                        d3.select(node).selectAll('.nodeText')
+                                            .attr('fill', this.options.highlightColor)
+                                            .attr('font-style', 'italic')
+                                        ;
+
+                                        var nodes = d.id.split('/');
+
+                                        while (nodes.length) {
+                                            var nodeID = nodes.join('/');
+
+                                            $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
+                                                    .attr('stroke', this.options.highlightColor)
+
+                                            nodes.pop();
+                                        }
+
+                                    },
+
+                                    hideHighlightCallback : function() {
+                                        if (! this.dragging) {
+                                            d3.select(node).selectAll('.nodeText')
+                                                .attr('fill', 'black')
+                                                .attr('font-style', '')
+                                            ;
+
+                                            var nodes = d.id.split('/');
+
+                                            while (nodes.length) {
+                                                var nodeID = nodes.join('/');
+
+                                                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
+                                                        .attr('stroke', $tree.options.lineStroke)
+
+                                                nodes.pop();
+                                            }
+                                        }
+
+
+                                    },
                                 }
                             );
 

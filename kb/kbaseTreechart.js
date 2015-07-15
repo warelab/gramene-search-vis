@@ -9,12 +9,12 @@ module.exports = KBWidget({
 
     version: "1.0.0",
     options: {
-        debug: true,
+        debug: false,
 
         xGutter: 0,
         xPadding: 0,
-        yGutter: 0,
-        yPadding: 0,
+        yGutter: 2,
+        yPadding: 2,
 
         bgColor: 'none',
 
@@ -38,6 +38,9 @@ module.exports = KBWidget({
         circleStroke: 'steelblue',
         openCircleFill: 'lightsteelblue',
         closedCircleFill: '#FFF',
+
+        lineStroke : '#ccc',
+
         staticWidth : false,
         staticHeight : false,
         canShrinkWidth : true,
@@ -218,6 +221,7 @@ module.exports = KBWidget({
         rootOffset = rootText[0][0].getBBox().width + $tree.options.labelSpace + bounds.origin.x;
 
         var newHeight = this.options.nodeHeight * this.countVisibleNodes(this.dataset());
+
         //this.$elem.animate({'height' : newHeight + this.options.yGutter + this.options.yPadding}, 500);
         //            this.$elem.height(newHeight);
         this.height(this.$elem.height());
@@ -411,6 +415,7 @@ module.exports = KBWidget({
 
         nodeEnter.append("text")
             //.attr('style', 'font-size : 11px')
+            .attr('class', 'nodeText')
             .attr('style', 'font-size : 11px;cursor : pointer;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;')
             .attr("dy", ".35em")
             .text(function (d) {
@@ -543,8 +548,9 @@ module.exports = KBWidget({
                         // Enter any new links at the parent's previous position.
                         link.enter().insert("path", "g")
                                 .attr("class", "link")
+                                .attr('data-node-id', function (d) { return uniqueness(d.target) } )
                                 .attr('fill', 'none')
-                                .attr('stroke', '#ccc')
+                                .attr('stroke', function (d) { return d.stroke || $tree.options.lineStroke})
                                 .attr("d", function(d) {
                                     var o = {x: source.x0, y: source.y0};
                                     return $tree.diagonal({source: o, target: o});

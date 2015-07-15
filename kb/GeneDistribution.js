@@ -21,6 +21,7 @@ module.exports = KBWidget({
     regionSaturation : 0.25,
     unachoredBinColor : 'lightgray',
     dragColor : 'cyan',
+    highlightColor : 'red',
 
     tooltipLeftOffset : 10,
     tooltipTopOffset : -15,
@@ -123,6 +124,23 @@ module.exports = KBWidget({
     this._super(regions);
   },
 
+  showHighlightBox : function() {
+    this.highlightBox.attr('visibility', 'visible');
+
+    if (this.options.showHighlightCallback) {
+        this.options.showHighlightCallback.call(this);
+    }
+
+  },
+
+  hideHighlightBox : function() {
+    this.highlightBox.attr('visibility', 'hidden');
+
+    if (this.options.hideHighlightCallback) {
+        this.options.hideHighlightCallback.call(this);
+    }
+  },
+
   renderChart: function () {
 
     if (this.dataset() == undefined) {
@@ -157,6 +175,7 @@ module.exports = KBWidget({
       })
         .on('mouseout', function (b, j) {
           $gd.hideToolTip()
+          $gd.hideHighlightBox();
         })
         .on('click', function (b, j) {
           if ($gd.options.binClick) {
@@ -235,6 +254,7 @@ module.exports = KBWidget({
         .on('dragstart', function(d) {
             $gd.dragging = true;
             $gd.validDrag = true;
+            $gd.hideHighlightBox();
         })
         .on('drag', function(d) {
             var coordinates = [0, 0];
@@ -331,6 +351,10 @@ module.exports = KBWidget({
 
                 selectedBins.push(d);
             }
+            else {
+                $gd.showHighlightBox();
+            }
+
            })
 
           .call(function (d) { return mouseAction.call(this, d) })
@@ -381,6 +405,23 @@ module.exports = KBWidget({
                 .attr('y', 0)
                 .attr('fill', $gd.options.dragColor)
                 .attr('fill-opacity', 0.6)
+                .attr('pointer-events', 'none')
+    ;
+
+    $gd.highlightBox = this.D3svg().select(this.region('chart')).selectAll('.highlightBox').data([0]);
+
+    $gd.highlightBox
+        .enter()
+            .append('rect')
+                .attr('class', 'highlightBox')
+                .attr('visibility', 'hidden')
+                .attr('height', $gd.options.binHeight || bounds.size.height)
+                .attr('width', bounds.size.width)
+                .attr('x', 0)
+                .attr('y', 0)
+                .attr('stroke', $gd.options.highlightColor)
+                .attr('stroke-width', 2)
+                .attr('fill', 'none')
                 .attr('pointer-events', 'none')
     ;
 
