@@ -319,10 +319,6 @@ module.exports = KBWidget({
 
                 if (selectedBins.length) {
 
-                    $gd.showToolTip(
-                        {label : "<a>Display region</a> <a>Cancel</a>"}
-                    );
-
                     if ($gd.options.selectionCallback) {
                         $gd.options.selectionCallback.call(this, {start : selectedBins[0], end : selectedBins[selectedBins.length - 1]});
                     }
