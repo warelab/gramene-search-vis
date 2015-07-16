@@ -10,32 +10,8 @@ var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 
 var calculateScore = function(node) {
-
-    var score = 0;
-
-    if (node.children) {
-        for (var i = 0; i < node.children.length; i++) {
-            score += calculateScore(node.children[i]);
-        }
-    }
-
-    if (node._children) {
-        for (var i = 0; i < node._children.length; i++) {
-            score += calculateScore(node._children[i]);
-        }
-    }
-
-    if (node.model.genome) {
-        node.model.genome.eachRegion(function(region) {
-            region.eachBin(function(bin) {
-                score += bin.results ? bin.results.count : 0;
-            })
-        })
-    }
-
-    return score;
-}
-
+    return node.results().proportion;
+};
 
 module.exports = KBWidget({
 	    name: "WareTreeGeneDistribution",
@@ -44,6 +20,7 @@ module.exports = KBWidget({
         options: {},
 
         setDataset : function(dataset) {
+            console.log("setDataset was called");
             this.$tree.setDataset(dataset);
         },
 
@@ -143,7 +120,7 @@ module.exports = KBWidget({
 
                             var scoreFieldSelection = d3.select(node).selectAll('.scoreField').data([d]);
 
-                            scoreFieldSelection.text(calculateScore(d));
+                            scoreFieldSelection.text(d.results().count);
 
                             d.$lgv.options.customRegions.chart = d.lgvID;
                             d.$lgv.setDataset(d.model.genome);
@@ -171,18 +148,17 @@ module.exports = KBWidget({
 
                     strokeWidth : function(d) {
 
-                        var parent = d.source;
+                        var parent = d.source,
+                          maxScore = parent.globalResultSetStats().maxProportion;
 
                         while (parent.parent != undefined && (this.filterParent == undefined || parent.parent != this.filterParent[0])) {
                             parent = parent.parent;
                         }
 
-                        var rootScore = calculateScore(parent);
-
                         var targetScore = calculateScore(d.target);
 
                         var scale = d3.scale.linear()
-                            .domain([0, rootScore])
+                            .domain([0, maxScore])
                             .range([.5, 5]);
 
                         return scale(targetScore);
@@ -273,7 +249,7 @@ module.exports = KBWidget({
                         if (d.children || d._children) {
 
                             if (d.score == undefined) {
-                                d.score = calculateScore(d);
+                                d.score = d.results().count;
                             }
 
                             this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
