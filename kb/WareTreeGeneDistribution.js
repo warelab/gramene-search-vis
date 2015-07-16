@@ -67,7 +67,7 @@ module.exports = KBWidget({
         },
 
         dehighlightTree : function($tree) {
-            d3.select(node).selectAll('.nodeText')
+            $tree.data('D3svg').select($tree.region('chart')).selectAll('.nodeText')
                 .attr('fill', 'black')
                 .attr('font-style', '')
             ;
