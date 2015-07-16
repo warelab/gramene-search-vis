@@ -21,6 +21,7 @@ module.exports = KBWidget({
     regionSaturation : 0.25,
     unachoredBinColor : 'lightgray',
     dragColor : 'red',
+    dragStrokeColor : 'cyan',
     highlightColor : 'red',
 
     tooltipLeftOffset : 10,
@@ -125,21 +126,35 @@ module.exports = KBWidget({
     },
 
     showHighlightBox : function() {
-    this.highlightBox.attr('visibility', 'visible');
+        this.highlightBox.attr('visibility', 'visible');
 
-    if (this.options.showHighlightCallback) {
-        this.options.showHighlightCallback.call(this);
-    }
+        if (this.options.showHighlightCallback) {
+            this.options.showHighlightCallback.call(this);
+        }
 
     },
 
     hideHighlightBox : function() {
-    this.highlightBox.attr('visibility', 'hidden');
+        this.highlightBox.attr('visibility', 'hidden');
 
-    if (this.options.hideHighlightCallback) {
-        this.options.hideHighlightCallback.call(this);
-    }
+        if (this.options.hideHighlightCallback) {
+            this.options.hideHighlightCallback.call(this);
+        }
     },
+
+    selectBins : function(bins) {
+
+        this.dragBox.attr('visibility', 'visible');
+    },
+
+    showSelection : function() {
+        this.dragBox.attr('visibility', 'visible');
+    },
+
+    hideSelection : function() {
+        this.dragBox.attr('visibility', 'hidden');
+    },
+
 
     binsInRange : function(bins, start, end) {
         var results = [];
@@ -264,7 +279,7 @@ module.exports = KBWidget({
         .attr('x', function (d) {return scale(d.start) })
         .attr('width', function (d) { return scale((d.size)) })
         .attr('fill', function (d, i) {
-        var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.name)])
+        var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d)])
         return colorScale($gd.options.regionSaturation);
         })
     ;
@@ -287,6 +302,7 @@ module.exports = KBWidget({
             $gd.validDrag = true;
             //$gd.hideHighlightBox();
             $gd.highlightBox.attr('visibility', 'hidden');
+
         })
         .on('drag', function(d) {
             var coordinates = [0, 0];
@@ -294,7 +310,7 @@ module.exports = KBWidget({
             var bounds = this.getBBox();
 
             if (coordinates[1] < 0 || coordinates[1] > bounds.height) {
-                $gd.dragBox.attr('visibility', 'hidden');
+                $gd.hideSelection();
                 $gd.hideToolTip();
                 //$gd.hideHighlightBox();
                 $gd.validDrag = false;
@@ -319,15 +335,18 @@ module.exports = KBWidget({
 
                 if (selectedBins.length) {
 
-                    if ($gd.options.selectionCallback) {
-                        $gd.options.selectionCallback.call(this, {start : selectedBins[0], end : selectedBins[selectedBins.length - 1]});
+                    if ($gd.options.endSelectionCallback) {
+                        $gd.options.endSelectionCallback.call($gd, {start : selectedBins[0], end : selectedBins[selectedBins.length - 1]});
                     }
 
                 }
 
             }
+            else if ($gd.options.cancelSelectionCallback) {
+                $gd.options.cancelSelectionCallback.call($gd);
+            }
 
-//            $gd.dragBox.attr('visibility', 'hidden');
+//            $gd.hideSelection();
             dragRange = [];
         })
 
@@ -352,9 +371,12 @@ module.exports = KBWidget({
                 dragRegion = d.regionObj;
                 $gd.dragBox.attr('x', initialBox.x)
                 $gd.dragBox.attr('width', initialBox.width);
-                $gd.dragBox.attr('visibility', 'visible');
+                $gd.showSelection();
 
                 dragRange = [d.start + d.regionObj.start, d.end + d.regionObj.start];
+                if ($gd.options.startSelectionCallback) {
+                    $gd.options.startSelectionCallback.call($gd);
+                }
             })
             .on('mouseenter', function(d) {
             if ($gd.dragging) {
@@ -417,7 +439,7 @@ module.exports = KBWidget({
                 var binWidth = binEnd - binX;
 
                 $gd.dragBox.attr('width', binWidth);
-                $gd.dragBox.attr('visibility', 'visible');
+                $gd.showSelection();
 
                 var selectedBins = $gd.binsInRange(bins, dragRange[0], dragRange[1]);
                 var score = 0;
@@ -462,8 +484,8 @@ module.exports = KBWidget({
             return $gd.options.unachoredBinColor;
         }
 
-        var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.region)])
-        var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.5), $gd.colorForRegion(d.region)]);
+        var colorScale = d3.scale.linear().domain([0, 1]).range(['#FFFFFF', $gd.colorForRegion(d.regionObj)])
+        var scale = d3.scale.linear().domain([0, 1]).range([colorScale(.5), $gd.colorForRegion(d.regionObj)]);
         if (!d.results || d.results.count === 0) {
             return colorScale(.25);
         }
@@ -493,6 +515,9 @@ module.exports = KBWidget({
                 .attr('x', 0)
                 .attr('y', 0)
                 .attr('fill', $gd.options.dragColor)
+                .attr('stroke', $gd.options.dragStrokeColor)
+                .attr('stroke-width', 2)
+                .attr('stroke-opacity', 0.6)
                 .attr('fill-opacity', 0.6)
                 .attr('pointer-events', 'none')
     ;
@@ -519,17 +544,27 @@ module.exports = KBWidget({
 
     },
 
-    colorForRegion: function (region, colorScale) {
-    var map = this.regionColors;
-    if (map == undefined) {
-        map = this.regionColors = {colorScale: this.options.colorScale()};
-    }
+    colorForRegion: function (regionObj) {
 
-    if (map[region] == undefined) {
-        map[region] = map.colorScale(d3.keys(map).length);
-    }
+        /*var regionIdx = parseInt(regionObj.name);
 
-    return map[region];
+        return regionIdx % 2
+            ? '#557B74'
+            : '#f0b866';*/
+
+
+        var region = regionObj.name;
+
+        var map = this.regionColors;
+        if (map == undefined) {
+            map = this.regionColors = {colorScale: this.options.colorScale()};
+        }
+
+        if (map[region] == undefined) {
+            map[region] = map.colorScale(d3.keys(map).length);
+        }
+
+        return map[region];
 
     }
 

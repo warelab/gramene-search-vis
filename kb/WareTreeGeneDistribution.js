@@ -47,6 +47,43 @@ module.exports = KBWidget({
             this.$tree.setDataset(dataset);
         },
 
+
+        highlightTree : function(d, node, $lgv, $tree) {
+            d3.select(node).selectAll('.nodeText')
+                .attr('fill', $lgv.options.highlightColor)
+                .attr('font-style', 'italic')
+            ;
+
+            var nodes = d.id.split('/');
+
+            while (nodes.length) {
+                var nodeID = nodes.join('/');
+
+                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
+                        .attr('stroke', $lgv.options.highlightColor)
+
+                nodes.pop();
+            }
+        },
+
+        dehighlightTree : function(d, node, $lgv, $tree) {
+            d3.select(node).selectAll('.nodeText')
+                .attr('fill', 'black')
+                .attr('font-style', '')
+            ;
+
+            var nodes = d.id.split('/');
+
+            while (nodes.length) {
+                var nodeID = nodes.join('/');
+
+                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
+                        .attr('stroke', $tree.options.lineStroke)
+
+                nodes.pop();
+            }
+        },
+
         init : function(options) {
 
             this._super(options);
@@ -130,45 +167,39 @@ module.exports = KBWidget({
                                     },
                                     parent : $tree,
                                     binHeight : $tree.options.lgvHeight,
-                                    selectionCallback : $wtgd.options.geneSelection,
+                                    endSelectionCallback : function() {
+                                        if ($wtgd.options.geneSelection) {
+                                            $wtgd.options.geneSelection.apply(this, arguments)
+                                        }
+                                        $wtgd.lastSelection = {$lgv : this, d : d, node : node};
+                                    },
+                                    cancelSelectionCallback : function() {
+                                        if ($wtgd.lastSelection != undefined) {
+                                            $wtgd.lastSelection.$lgv.showSelection();
+                                        }
+                                    },
+                                    startSelectionCallback : function() {
+                                        if ($wtgd.lastSelection != undefined) {
+                                            $wtgd.lastSelection.$lgv.hideSelection();
+                                        }
+                                    },
 
                                     showHighlightCallback : function() {
-                                        d3.select(node).selectAll('.nodeText')
-                                            .attr('fill', this.options.highlightColor)
-                                            .attr('font-style', 'italic')
-                                        ;
 
-                                        var nodes = d.id.split('/');
-
-                                        while (nodes.length) {
-                                            var nodeID = nodes.join('/');
-
-                                            $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
-                                                    .attr('stroke', this.options.highlightColor)
-
-                                            nodes.pop();
+                                        if ($wtgd.lastSelection) {
+                                            $wtgd.dehighlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
                                         }
 
+                                        $wtgd.highlightTree(d, node, this, $tree);
                                     },
 
                                     hideHighlightCallback : function() {
-                                        //if (! this.dragging) {
-                                            d3.select(node).selectAll('.nodeText')
-                                                .attr('fill', 'black')
-                                                .attr('font-style', '')
-                                            ;
 
-                                            var nodes = d.id.split('/');
+                                        $wtgd.dehighlightTree(d, node, this, $tree);
 
-                                            while (nodes.length) {
-                                                var nodeID = nodes.join('/');
-
-                                                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
-                                                        .attr('stroke', $tree.options.lineStroke)
-
-                                                nodes.pop();
-                                            }
-                                        //}
+                                        if ($wtgd.lastSelection) {
+                                            $wtgd.highlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
+                                        }
 
 
                                     },
