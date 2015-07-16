@@ -152,7 +152,7 @@ module.exports = KBWidget({
                                     },
 
                                     hideHighlightCallback : function() {
-                                        if (! this.dragging) {
+                                        //if (! this.dragging) {
                                             d3.select(node).selectAll('.nodeText')
                                                 .attr('fill', 'black')
                                                 .attr('font-style', '')
@@ -168,7 +168,7 @@ module.exports = KBWidget({
 
                                                 nodes.pop();
                                             }
-                                        }
+                                        //}
 
 
                                     },
