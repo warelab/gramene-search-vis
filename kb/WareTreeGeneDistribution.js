@@ -66,22 +66,15 @@ module.exports = KBWidget({
             }
         },
 
-        dehighlightTree : function(d, node, $lgv, $tree) {
+        dehighlightTree : function($tree) {
             d3.select(node).selectAll('.nodeText')
                 .attr('fill', 'black')
                 .attr('font-style', '')
             ;
 
-            var nodes = d.id.split('/');
+            $tree.data('D3svg').select($tree.region('chart')).selectAll('.link')
+                    .attr('stroke', $tree.options.lineStroke)
 
-            while (nodes.length) {
-                var nodeID = nodes.join('/');
-
-                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
-                        .attr('stroke', $tree.options.lineStroke)
-
-                nodes.pop();
-            }
         },
 
         init : function(options) {
@@ -187,7 +180,7 @@ module.exports = KBWidget({
                                     showHighlightCallback : function() {
 
                                         if ($wtgd.lastSelection) {
-                                            $wtgd.dehighlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
+                                            $wtgd.dehighlightTree($tree);
                                         }
 
                                         $wtgd.highlightTree(d, node, this, $tree);
@@ -195,7 +188,7 @@ module.exports = KBWidget({
 
                                     hideHighlightCallback : function() {
 
-                                        $wtgd.dehighlightTree(d, node, this, $tree);
+                                        $wtgd.dehighlightTree($tree);
 
                                         if ($wtgd.lastSelection) {
                                             $wtgd.highlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
