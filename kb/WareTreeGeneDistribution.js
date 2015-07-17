@@ -47,6 +47,36 @@ module.exports = KBWidget({
             this.$tree.setDataset(dataset);
         },
 
+
+        highlightTree : function(d, node, $lgv, $tree) {
+            d3.select(node).selectAll('.nodeText')
+                .attr('fill', $lgv.options.highlightColor)
+                .attr('font-style', 'italic')
+            ;
+
+            var nodes = d.id.split('/');
+
+            while (nodes.length) {
+                var nodeID = nodes.join('/');
+
+                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
+                        .attr('stroke', $lgv.options.highlightColor)
+
+                nodes.pop();
+            }
+        },
+
+        dehighlightTree : function($tree) {
+            $tree.data('D3svg').select($tree.region('chart')).selectAll('.nodeText')
+                .attr('fill', 'black')
+                .attr('font-style', '')
+            ;
+
+            $tree.data('D3svg').select($tree.region('chart')).selectAll('.link')
+                    .attr('stroke', $tree.options.lineStroke)
+
+        },
+
         init : function(options) {
 
             this._super(options);
@@ -80,6 +110,7 @@ module.exports = KBWidget({
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
+
                         if (d.model.genome) {
                             var $tree = this;
 
@@ -129,7 +160,42 @@ module.exports = KBWidget({
                                     },
                                     parent : $tree,
                                     binHeight : $tree.options.lgvHeight,
-                                    selectionCallback : $wtgd.options.geneSelection
+                                    endSelectionCallback : function() {
+                                        if ($wtgd.options.geneSelection) {
+                                            $wtgd.options.geneSelection.apply(this, arguments)
+                                        }
+                                        $wtgd.lastSelection = {$lgv : this, d : d, node : node};
+                                    },
+                                    cancelSelectionCallback : function() {
+                                        if ($wtgd.lastSelection != undefined) {
+                                            $wtgd.lastSelection.$lgv.showSelection();
+                                        }
+                                    },
+                                    startSelectionCallback : function() {
+                                        if ($wtgd.lastSelection != undefined) {
+                                            $wtgd.lastSelection.$lgv.hideSelection();
+                                        }
+                                    },
+
+                                    showHighlightCallback : function() {
+
+                                        if ($wtgd.lastSelection) {
+                                            $wtgd.dehighlightTree($tree);
+                                        }
+
+                                        $wtgd.highlightTree(d, node, this, $tree);
+                                    },
+
+                                    hideHighlightCallback : function() {
+
+                                        $wtgd.dehighlightTree($tree);
+
+                                        if ($wtgd.lastSelection) {
+                                            $wtgd.highlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
+                                        }
+
+
+                                    },
                                 }
                             );
 
@@ -168,6 +234,16 @@ module.exports = KBWidget({
                     fixed           : true,
                     labelWidth      : 100,
                     nodeHeight      : 7,
+                    staticWidth     : true,
+
+                    depth : function(d, rootOffset, chartOffset) {
+                        if (d.parent == undefined) {
+                            return -5;
+                        }
+                        else {
+                            return this.defaultDepth(d, rootOffset, chartOffset);
+                        }
+                    },
 
                     strokeWidth : function(d) {
 
@@ -247,6 +323,7 @@ module.exports = KBWidget({
                             d = this.originalRoot;
                             this.originalRoot = undefined;
                             this.lastClicked = undefined;
+                            isRoot = false;
                         }
 
                         if (this.nodeState(d) == 'open') {
