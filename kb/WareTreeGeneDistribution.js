@@ -270,10 +270,10 @@ module.exports = KBWidget({
 
                     truncationFunction : function(d, elem, $tree) {
                         d3.select(elem)
-                        .on('mouseover', function(d) {
+                        .on('mouseover.truncated', function(d) {
                             $tree.showToolTip({label : d.name});
                         })
-                        .on('mouseout', function(d) {
+                        .on('mouseout.truncated', function(d) {
                             $tree.hideToolTip();
                         });
                         return d.name_truncated + '...';

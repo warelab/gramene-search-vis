@@ -13,8 +13,8 @@ module.exports = KBWidget({
 
         xGutter: 0,
         xPadding: 0,
-        yGutter: 2,
-        yPadding: 2,
+        yGutter: 4,
+        yPadding: 4,
 
         bgColor: 'none',
 
