@@ -59,7 +59,7 @@ module.exports = KBWidget({
             while (nodes.length) {
                 var nodeID = nodes.join('/');
 
-                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-node-id="' + nodeID + '"]')
+                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-link-id="' + nodeID + '"]')
                         .attr('stroke', $lgv.options.highlightColor)
 
                 nodes.pop();
@@ -84,7 +84,7 @@ module.exports = KBWidget({
             var relayout = function(d) {
 
                 delete d.depth;
-                delete d.id;
+                //delete d.id;
                 delete d.x;
                 delete d.x0;
                 delete d.y;
@@ -238,7 +238,7 @@ module.exports = KBWidget({
 
                     depth : function(d, rootOffset, chartOffset) {
                         if (d.parent == undefined) {
-                            return -5;
+                            return 5;
                         }
                         else {
                             return this.defaultDepth(d, rootOffset, chartOffset);
@@ -279,7 +279,48 @@ module.exports = KBWidget({
                         return d.name_truncated + '...';
                     },
 
+                    nodeOver : function(d, node) {
+                        this.options.tooltip.call(this, d);
+                        this.options.textOver.call(this, d, node);
+                    },
+
+                    nodeOut : function (d, node) {
+                        this.hideToolTip();
+                        this.options.textOut.call(this, d, node);
+                    },
+
+                    textOver : function (d, node) {
+                        //this has an -awful- hack and hardwires the highlight color to red.
+                        $wtgd.highlightTree(d, node.parentNode, { options : { highlightColor : 'red'} }, this);
+                    },
+
+                    textOut : function(d, node) {
+                        $wtgd.dehighlightTree(this);
+                    },
+
+
+
                     nodeClick : function(d, node) {
+                        //this.options.collapseTree.call(this,d,node);
+                        this.options.rerootTree.call(this, d, node);
+                    },
+
+                    textClick : function(d, node) {
+                        //this.options.collapseTree.call(this,d,node);
+                        this.options.rerootTree.call(this, d, node);
+                    },
+
+                    nodeDblClick : function(d, node) {
+                        //this.options.rerootTree.call(this, d, node);
+                        this.options.collapseTree.call(this, d, node);
+                    },
+
+                    textDblClick : function(d, node) {
+                        //this.options.rerootTree.call(this, d, node);
+                        this.options.collapseTree.call(this, d, node);
+                    },
+
+                    collapseTree : function(d, node) {
 
                         var oldState = this.nodeState(d);
 
@@ -300,15 +341,7 @@ module.exports = KBWidget({
 
                     },
 
-                    nodeDblClick : function(d, node) {
-                        this.options.textDblClick.call(this, d, node);
-                    },
-
-                    textClick : function(d) {
-
-                    },
-
-                    textDblClick : function(d, node) {
+                    rerootTree : function(d, node) {
 
                         var isRoot = true;
 
@@ -326,7 +359,7 @@ module.exports = KBWidget({
                             isRoot = false;
                         }
 
-                        if (this.nodeState(d) == 'open') {
+                        //if (this.nodeState(d) == 'open') {
                             relayout(d);
                             d.stroke = this.originalRoot ? 'cyan' : 'darkslateblue';
 
@@ -340,7 +373,7 @@ module.exports = KBWidget({
                                 $wtgd.options.treeRootChange.call(this, d);
                             }
 
-                        }
+                        //}
 
 
                     },

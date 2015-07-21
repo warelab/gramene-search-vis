@@ -401,15 +401,20 @@ module.exports = KBWidget({
 
             })
             .on('mouseover', function (d) {
-                if ($tree.options.tooltip) {
-                    $tree.options.tooltip.call($tree, d);
+                if ($tree.options.nodeOver) {
+                    $tree.options.nodeOver.call($tree, d, this);
                 }
                 else if (d.tooltip) {
                     $tree.showToolTip({label: d.tooltip})
                 }
             })
             .on('mouseout', function (d) {
-                $tree.hideToolTip()
+                if ($tree.options.nodeOut) {
+                    $tree.options.nodeOut.call($tree, d, this);
+                }
+                else if (d.tooltip) {
+                    $tree.hideToolTip()
+                }
             })
         ;
 
@@ -451,6 +456,16 @@ module.exports = KBWidget({
                     }, this), 250)
                 }
 
+            })
+            .on('mouseover', function (d) {
+                if ($tree.options.textOver) {
+                    $tree.options.textOver.call($tree, d, this);
+                }
+            })
+            .on('mouseout', function (d) {
+                if ($tree.options.textOut) {
+                    $tree.options.textOut.call($tree, d, this);
+                }
             })
 
         ;
@@ -548,7 +563,7 @@ module.exports = KBWidget({
                         // Enter any new links at the parent's previous position.
                         link.enter().insert("path", "g")
                                 .attr("class", "link")
-                                .attr('data-node-id', function (d) { return uniqueness(d.target) } )
+                                .attr('data-link-id', function (d) { return uniqueness(d.target) } )
                                 .attr('fill', 'none')
                                 .attr('stroke', function (d) { return d.stroke || $tree.options.lineStroke})
                                 .attr("d", function(d) {
@@ -689,7 +704,9 @@ module.exports = KBWidget({
         }
 
         var root = this.dataset();
-        root.children.forEach(toggleAll);
+        if (root.children) {
+            root.children.forEach(toggleAll);
+        }
 
 
         this.updateTree(this.dataset());
