@@ -35,8 +35,9 @@ var Vis = React.createClass({
         subtreeExpand : function(d) {
             console.log("expanded under ", d);
         },
-        treeRootChange : function(d) {
-            console.log('changed root to ', d);
+        treeRootChange : function(d, last) {
+            console.log('changed root to ', d, ' from ', last);
+            props.onTreeRootChange(d);
         },
         geneSelection : function(bins) {
             console.log("I SELECTED THESE BINS : ", bins)
