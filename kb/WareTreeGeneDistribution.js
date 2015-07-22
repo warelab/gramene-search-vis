@@ -44,7 +44,55 @@ module.exports = KBWidget({
         options: {},
 
         setDataset : function(dataset) {
-            this.$tree.setDataset(dataset);
+
+            var newset = dataset;
+
+            if (this.$tree.lastClicked != undefined) {
+
+                var $tree = this.$tree;
+
+                //gotta layout the tree first.
+                $tree.treeLayout.nodes(dataset).reverse();
+
+                $tree.originalRoot = dataset;
+
+                var clickID = $tree.uniqueness($tree.lastClicked);
+
+                if (clickID) {
+
+                    var scanner = function(d) {
+                        if ($tree.uniqueness(d) == clickID) {
+                            newset = d;
+                            return;
+                        }
+                        else {
+                            if (d.children) {
+                                d.children.forEach(
+                                    function(d) {
+                                        scanner(d);
+                                    }
+                                )
+                            }
+
+                            if (d._children) {
+                                d._children.forEach(
+                                    function(d) {
+                                        scanner(d);
+                                    }
+                                )
+                            }
+
+                        }
+                    }
+
+                    scanner(dataset);
+                }
+
+                this.relayout(newset);
+
+            }
+
+            this.$tree.setDataset(newset);
         },
 
 
@@ -77,32 +125,45 @@ module.exports = KBWidget({
 
         },
 
+        relayout : function(d) {
+
+            var $wtgd = this;
+
+            delete d.depth;
+            //delete d.id;
+            delete d.x;
+            delete d.x0;
+            delete d.y;
+            delete d.y0;
+            delete d.parent;
+            delete d.stroke;
+
+            if (d.children) {
+                $.each(
+                    d.children,
+                    function (idx, kid) {
+                        $wtgd.relayout(kid);
+                    }
+                )
+            }
+
+            if (d._children) {
+                $.each(
+                    d._children,
+                    function (idx, kid) {
+                        $wtgd.relayout(kid);
+                    }
+                )
+            }
+
+            return d;
+        },
+
         init : function(options) {
 
             this._super(options);
 
-            var relayout = function(d) {
 
-                delete d.depth;
-                //delete d.id;
-                delete d.x;
-                delete d.x0;
-                delete d.y;
-                delete d.y0;
-                delete d.parent;
-                delete d.stroke;
-
-                if (d.children) {
-                    $.each(
-                        d.children,
-                        function (idx, kid) {
-                            relayout(kid);
-                        }
-                    )
-                }
-
-                return d;
-            }
 
             var $wtgd = this;
 
@@ -360,7 +421,7 @@ module.exports = KBWidget({
                         }
 
                         //if (this.nodeState(d) == 'open') {
-                            relayout(d);
+                            $wtgd.relayout(d);
                             d.stroke = this.originalRoot ? 'cyan' : 'darkslateblue';
 
                             this.setDataset(d);
