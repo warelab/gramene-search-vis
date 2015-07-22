@@ -178,21 +178,41 @@ module.exports = KBWidget({
 
     defaultDepth : function(d, rootOffset, chartOffset) {
 
-            var distance = this.options.distance;
-            if (d.distance != undefined) {
-                distance *= d.distance;
+        var distance = this.options.distance;
+        if (d.distance != undefined) {
+            distance *= d.distance;
+        }
+        ;
+
+        if (d.parent != undefined) {
+            distance += this.depth(d.parent, rootOffset, chartOffset);
+        }
+        else {
+            distance = rootOffset + chartOffset;
+        }
+
+        return distance;
+    },
+
+    uniqueness : function (d) {
+
+        if (d.id == undefined) {
+
+            var name = d.name;
+            if (name == undefined && this.options.nameFunction != undefined) {
+                name = this.options.nameFunction.call(this, d);
             }
-            ;
 
             if (d.parent != undefined) {
-                distance += this.depth(d.parent, rootOffset, chartOffset);
-            }
-            else {
-                distance = rootOffset + chartOffset;
+                name = this.uniqueness(d.parent) + '/' + name;
             }
 
-            return distance;
-        },
+            d.id = name;
+        }
+
+        return d.id;
+
+    },
 
     updateTree: function (source) {
         var chart = this.data('D3svg').select(this.region('chart'));
@@ -341,28 +361,8 @@ module.exports = KBWidget({
                     duration
                 );
 
-        var uniqueness = function (d) {
-
-            if (d.id == undefined) {
-
-                var name = d.name;
-                if (name == undefined && $tree.options.nameFunction != undefined) {
-                    name = $tree.options.nameFunction.call($tree, d);
-                }
-
-                if (d.parent != undefined) {
-                    name = uniqueness(d.parent) + '/' + name;
-                }
-
-                d.id = name;
-            }
-
-            return d.id;
-
-        }
-
         var node = chart.selectAll("g.node")
-            .data(this.nodes, uniqueness);
+            .data(this.nodes, function(d) { return $tree.uniqueness(d) });
 
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
@@ -558,12 +558,12 @@ module.exports = KBWidget({
 
         // Update the links�
         var link = chart.selectAll("path.link")
-            .data($tree.treeLayout.links($tree.nodes), function(d) { return uniqueness(d.target) });
+            .data($tree.treeLayout.links($tree.nodes), function(d) { return $tree.uniqueness(d.target) });
 
                         // Enter any new links at the parent's previous position.
                         link.enter().insert("path", "g")
                                 .attr("class", "link")
-                                .attr('data-link-id', function (d) { return uniqueness(d.target) } )
+                                .attr('data-link-id', function (d) { return $tree.uniqueness(d.target) } )
                                 .attr('fill', 'none')
                                 .attr('stroke', function (d) { return d.stroke || $tree.options.lineStroke})
                                 .attr("d", function(d) {
