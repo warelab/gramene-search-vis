@@ -89,7 +89,7 @@ module.exports = KBWidget({
                 }
 
                 this.relayout(newset);
-
+                newset.stroke = 'cyan';
             }
 
             this.$tree.setDataset(newset);
