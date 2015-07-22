@@ -367,6 +367,7 @@ module.exports = KBWidget({
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
+                .attr('opacity', 0)
                 .attr("transform", function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
             ;
 
@@ -480,6 +481,7 @@ module.exports = KBWidget({
         // Transition nodes to their new position.
         var nodeUpdate = node.transition()
                 .duration(duration)
+                .attr('opacity', 1)
                 .attr("transform", function (d) {
                     var y = $tree.options.fixed && (!d.children || d.length == 0)
                         ? $tree.options.fixedDepth
@@ -540,6 +542,7 @@ module.exports = KBWidget({
         // Transition exiting nodes to the parent's new position.
         var nodeExit = node.exit().transition()
                 .duration(duration)
+                .attr('opacity', 0)
                 .attr("transform", function (d) { return "translate(" + source.y + "," + source.x + ")"; })
                 .remove()
             ;
@@ -590,6 +593,7 @@ module.exports = KBWidget({
         // Transition exiting nodes to the parent's new position.
         link.exit().transition()
             .duration(duration)
+            .attr('opacity', 0)
             .attr("d", function (d) {
                 var o = {x: source.x, y: source.y};
                 return $tree.diagonal({source: o, target: o});
