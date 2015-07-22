@@ -405,6 +405,7 @@ module.exports = KBWidget({
                     rerootTree : function(d, node) {
 
                         var isRoot = true;
+                        var lastRoot = undefined;
 
                         var parent;
                         if (this.originalRoot == undefined || this.lastClicked !== d) {
@@ -412,8 +413,10 @@ module.exports = KBWidget({
                                 this.originalRoot = this.options.dataset;
                             }
                             this.lastClicked = d;
+                            lastRoot = this.originalRoot;
                         }
                         else {
+                            lastRoot = d;
                             d = this.originalRoot;
                             this.originalRoot = undefined;
                             this.lastClicked = undefined;
@@ -431,7 +434,7 @@ module.exports = KBWidget({
                             }
 
                             if ($wtgd.options.treeRootChange) {
-                                $wtgd.options.treeRootChange.call(this, d);
+                                $wtgd.options.treeRootChange.call(this, d, lastRoot);
                             }
 
                         //}
