@@ -171,6 +171,32 @@ module.exports = KBWidget({
 
     },
 
+    binBoundsForRegion : function(region, bins) {
+        var firstBin = undefined;
+        var lastBin = undefined;
+        var foundRegion = false;
+
+        for (var i = 0; i < bins.length; i++) {
+            var bin = bins[i];
+
+            if (bin.regionObj === region && firstBin == undefined) {
+                firstBin = bin;
+                foundRegion = true;
+            }
+
+            if (foundRegion && bin.regionObj !== region) {
+                break;
+            }
+
+            lastBin = bin;
+
+        }
+
+        return [firstBin, lastBin];
+
+    },
+
+
     renderChart: function () {
 
     if (this.dataset() == undefined) {
@@ -324,21 +350,24 @@ module.exports = KBWidget({
         })
         .on('dragend', function(d) {
             $gd.dragging = false;
-            dragRegion = undefined;
-
-            var binX = parseFloat($gd.dragBox.attr('x'));
-            var binEnd = parseFloat($gd.dragBox.attr('width')) + binX;
+            //initialBin = undefined;
 
             if ($gd.validDrag) {
 
-                var selectedBins = $gd.binsInRange(bins, dragRange[0], dragRange[1]);
 
-                if (selectedBins.length) {
+                if (! $gd.doubleClick) {
+                    var selectedBins = $gd.binsInRange(bins, dragRange[0], dragRange[1]);
 
-                    if ($gd.options.endSelectionCallback) {
-                        $gd.options.endSelectionCallback.call($gd, {start : selectedBins[0], end : selectedBins[selectedBins.length - 1]});
+                    if (selectedBins.length) {
+                        setTimeout(function() {
+                            if (! $gd.doubleClick) {
+                                if ($gd.options.endSelectionCallback) {
+                                    $gd.options.endSelectionCallback.call($gd, {start : selectedBins[0], end : selectedBins[selectedBins.length - 1]});
+                                }
+                            }
+                        }, 300);
+
                     }
-
                 }
 
             }
@@ -353,8 +382,8 @@ module.exports = KBWidget({
     var binSelection = binsSelection.selectAll('.bin').data(bins);
 
     var initialBox = undefined;
+    var initialBin = undefined;
     var dragRange = [];
-    var dragRegion = undefined;
 
     binSelection
         .enter()
@@ -367,44 +396,65 @@ module.exports = KBWidget({
             .attr('height', $gd.options.binHeight || bounds.size.height)
             .attr('style', 'cursor : pointer')
             .on('mousedown', function (d) {
-                initialBox = this.getBBox();
-                dragRegion = d.regionObj;
-                $gd.dragBox.attr('x', initialBox.x)
-                $gd.dragBox.attr('width', initialBox.width);
-                $gd.showSelection();
 
-                dragRange = [d.start + d.regionObj.start, d.end + d.regionObj.start];
-                if ($gd.options.startSelectionCallback) {
-                    $gd.options.startSelectionCallback.call($gd);
+                //double clicks should select an entire region
+                if ($gd.singleClick) {
+                    $gd.singleClick = false;
+                    $gd.doubleClick = true;
+
+                    var binBounds = $gd.binBoundsForRegion(initialBin.regionObj, bins);
+
+                    var firstBin = binBounds[0];
+                    var lastBin = binBounds[1];
+                    var lastStart = lastBin.start + lastBin.regionObj.start;
+                    var firstStart = firstBin.start + firstBin.regionObj.start;
+
+                    var firstBox = $gd.D3svg().select($gd.region('chart')).selectAll('[data-start="' + firstStart + '"]')[0][0].getBBox();
+
+                    var lastBox = $gd.D3svg().select($gd.region('chart')).selectAll('[data-start="' + lastStart + '"]')[0][0].getBBox();
+
+                    $gd.dragBox.attr('x', firstBox.x);
+                    $gd.dragBox.attr('width', lastBox.x + lastBox.width - firstBox.x);
+
+                    if ($gd.options.endSelectionCallback) {
+                        $gd.options.endSelectionCallback.call($gd, {start : firstBin, end : lastBin});
+                    }
+
                 }
+                else {
+                    $gd.singleClick = true;
+                    $gd.doubleClick = false;
+
+                    setTimeout(function() {
+                        if ($gd.singleClick) {
+                            $gd.singleClick = false;
+                        }
+                    }, 250);
+
+                    initialBox = this.getBBox();
+                    initialBin = d;
+
+                    $gd.dragBox.attr('x', initialBox.x)
+                    $gd.dragBox.attr('width', initialBox.width);
+                    $gd.showSelection();
+
+                    dragRange = [d.start + d.regionObj.start, d.end + d.regionObj.start];
+                    if ($gd.options.startSelectionCallback) {
+                        $gd.options.startSelectionCallback.call($gd);
+                    }
+                }
+
             })
             .on('mouseenter', function(d) {
             if ($gd.dragging) {
 
                 var box = this.getBBox();
 
-                if (d.regionObj !== dragRegion) {
+                if (d.regionObj !== initialBin.regionObj) {
 
-                    var firstBin = undefined;
-                    var lastBin = undefined;
-                    var foundRegion = false;
-
-                    for (var i = 0; i < bins.length; i++) {
-                        var bin = bins[i];
-
-                        if (bin.regionObj === dragRegion && firstBin == undefined) {
-                            firstBin = bin;
-                            foundRegion = true;
-                            continue;
-                        }
-
-                        if (foundRegion && bin.regionObj !== dragRegion) {
-                            break;
-                        }
-
-                        lastBin = bin;
-
-                    }
+                    var binBounds = $gd.binBoundsForRegion(initialBin.regionObj, bins);
+                    var firstBin = binBounds[0];
+                    var lastBin = binBounds[1];
 
                     if (box.x <= initialBox.x) {
                         d = firstBin;
@@ -414,7 +464,7 @@ module.exports = KBWidget({
                     }
 
                     var pos = d.start + d.regionObj.start;
-                    var node = d3.select('[data-start="' + pos + '"]');
+                    var node = $gd.D3svg().select($gd.region('chart')).selectAll('[data-start="' + pos + '"]');
 
                     if (node) {
                         box = node[0][0].getBBox();
@@ -422,26 +472,28 @@ module.exports = KBWidget({
 
                 }
 
-                var binX = parseFloat($gd.dragBox.attr('x'));
-                var binEnd = parseFloat($gd.dragBox.attr('width')) + binX;
-
                 if (box.x <= initialBox.x) {
-                    binX = box.x
                     dragRange[0] = d.start + d.regionObj.start;
+                    dragRange[1] = initialBin.end + initialBin.regionObj.start;
                 }
                 if (box.x >= initialBox.x) {
-                    binEnd = box.x + box.width;
+                    dragRange[0] = initialBin.start + initialBin.regionObj.start;
                     dragRange[1] = d.end + d.regionObj.start;
                 }
 
-                $gd.dragBox.attr('x', binX);
+                var selectedBins = $gd.binsInRange(bins, dragRange[0], dragRange[1]);
+                var lastBin = selectedBins[selectedBins.length - 1];
+                var lastStart = lastBin.start + lastBin.regionObj.start;
+                var firstStart = selectedBins[0].start + selectedBins[0].regionObj.start;
 
-                var binWidth = binEnd - binX;
+                var firstBox = $gd.D3svg().select($gd.region('chart')).selectAll('[data-start="' + firstStart + '"]')[0][0].getBBox();
+                var lastBox = $gd.D3svg().select($gd.region('chart')).selectAll('[data-start="' + lastStart + '"]')[0][0].getBBox();
 
-                $gd.dragBox.attr('width', binWidth);
+                $gd.dragBox.attr('x', firstBox.x);
+                $gd.dragBox.attr('width', lastBox.x + lastBox.width - firstBox.x);
+
                 $gd.showSelection();
 
-                var selectedBins = $gd.binsInRange(bins, dragRange[0], dragRange[1]);
                 var score = 0;
                 selectedBins.forEach(
                     function (bin, idx) {
@@ -459,7 +511,7 @@ module.exports = KBWidget({
                 //we need to do this to ensure that the callback fires, since we are re-highlighting
                 $gd.showHighlightBox();
                 //but we don't actually want to show the box if we're dragging, so we duck internally to this.
-                if (dragRegion != undefined) {
+                if (initialBin != undefined) {
                     $gd.highlightBox.attr('visibility', 'hidden');
                 }
             }
