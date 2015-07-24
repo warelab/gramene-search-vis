@@ -13,8 +13,8 @@ module.exports = KBWidget({
 
         xGutter: 0,
         xPadding: 0,
-        yGutter: 4,
-        yPadding: 4,
+        yGutter: 0,
+        yPadding: 0,
 
         bgColor: 'none',
 
@@ -67,7 +67,7 @@ module.exports = KBWidget({
                 num += this.countVisibleLeaves(nodes.children[idx]);
             }
         } else {
-          num++;
+          num = 1;
         }
 
         return num;
@@ -242,7 +242,7 @@ module.exports = KBWidget({
             .text(root.name);
         rootOffset = rootText[0][0].getBBox().width + $tree.options.labelSpace + bounds.origin.x;
 
-        var newHeight = (this.options.nodeHeight+this.options.yPadding) * this.countVisibleLeaves(this.dataset());
+        var newHeight = this.options.nodeHeight * this.countVisibleLeaves(this.dataset());
 
         //this.$elem.animate({'height' : newHeight + this.options.yGutter + this.options.yPadding}, 500);
         //            this.$elem.height(newHeight);
