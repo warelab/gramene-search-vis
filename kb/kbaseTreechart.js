@@ -60,12 +60,14 @@ module.exports = KBWidget({
         return array[idx];
     },
 
-    countVisibleNodes: function (nodes) {
-        var num = 1;
+    countVisibleLeaves: function (nodes) {
+        var num = 0;
         if (nodes.children != undefined && (nodes.open == true || nodes.open == undefined)) {
             for (var idx = 0; idx < nodes.children.length; idx++) {
-                num += this.countVisibleNodes(nodes.children[idx]);
+                num += this.countVisibleLeaves(nodes.children[idx]);
             }
+        } else {
+          num++;
         }
 
         return num;
@@ -240,7 +242,7 @@ module.exports = KBWidget({
             .text(root.name);
         rootOffset = rootText[0][0].getBBox().width + $tree.options.labelSpace + bounds.origin.x;
 
-        var newHeight = this.options.nodeHeight * this.countVisibleNodes(this.dataset());
+        var newHeight = (this.options.nodeHeight+this.options.yPadding) * this.countVisibleLeaves(this.dataset());
 
         //this.$elem.animate({'height' : newHeight + this.options.yGutter + this.options.yPadding}, 500);
         //            this.$elem.height(newHeight);
