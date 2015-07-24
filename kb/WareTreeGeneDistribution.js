@@ -44,35 +44,126 @@ module.exports = KBWidget({
         options: {},
 
         setDataset : function(dataset) {
-            this.$tree.setDataset(dataset);
+
+            var newset = dataset;
+
+            if (this.$tree.lastClicked != undefined) {
+
+                var $tree = this.$tree;
+
+                //gotta layout the tree first.
+                $tree.treeLayout.nodes(dataset).reverse();
+
+                $tree.originalRoot = dataset;
+
+                var clickID = $tree.uniqueness($tree.lastClicked);
+
+                if (clickID) {
+
+                    var scanner = function(d) {
+                        if ($tree.uniqueness(d) == clickID) {
+                            newset = d;
+                            return;
+                        }
+                        else {
+                            if (d.children) {
+                                d.children.forEach(
+                                    function(d) {
+                                        scanner(d);
+                                    }
+                                )
+                            }
+
+                            if (d._children) {
+                                d._children.forEach(
+                                    function(d) {
+                                        scanner(d);
+                                    }
+                                )
+                            }
+
+                        }
+                    }
+
+                    scanner(dataset);
+                }
+
+                this.relayout(newset);
+                newset.stroke = 'cyan';
+            }
+
+            this.$tree.setDataset(newset);
+        },
+
+
+        highlightTree : function(d, node, $lgv, $tree) {
+            d3.select(node).selectAll('.nodeText')
+                .attr('fill', $lgv.options.highlightColor)
+                .attr('font-style', 'italic')
+            ;
+
+            var nodes = d.id.split('/');
+
+            while (nodes.length) {
+                var nodeID = nodes.join('/');
+
+                $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-link-id="' + nodeID + '"]')
+                        .attr('stroke', $lgv.options.highlightColor)
+
+                nodes.pop();
+            }
+        },
+
+        dehighlightTree : function($tree) {
+            $tree.data('D3svg').select($tree.region('chart')).selectAll('.nodeText')
+                .attr('fill', 'black')
+                .attr('font-style', '')
+            ;
+
+            $tree.data('D3svg').select($tree.region('chart')).selectAll('.link')
+                    .attr('stroke', $tree.options.lineStroke)
+
+        },
+
+        relayout : function(d) {
+
+            var $wtgd = this;
+
+            delete d.depth;
+            //delete d.id;
+            delete d.x;
+            delete d.x0;
+            delete d.y;
+            delete d.y0;
+            delete d.parent;
+            delete d.stroke;
+
+            if (d.children) {
+                $.each(
+                    d.children,
+                    function (idx, kid) {
+                        $wtgd.relayout(kid);
+                    }
+                )
+            }
+
+            if (d._children) {
+                $.each(
+                    d._children,
+                    function (idx, kid) {
+                        $wtgd.relayout(kid);
+                    }
+                )
+            }
+
+            return d;
         },
 
         init : function(options) {
 
             this._super(options);
 
-            var relayout = function(d) {
 
-                delete d.depth;
-                delete d.id;
-                delete d.x;
-                delete d.x0;
-                delete d.y;
-                delete d.y0;
-                delete d.parent;
-                delete d.stroke;
-
-                if (d.children) {
-                    $.each(
-                        d.children,
-                        function (idx, kid) {
-                            relayout(kid);
-                        }
-                    )
-                }
-
-                return d;
-            }
 
             var $wtgd = this;
 
@@ -80,6 +171,7 @@ module.exports = KBWidget({
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
+
                         if (d.model.genome) {
                             var $tree = this;
 
@@ -129,7 +221,42 @@ module.exports = KBWidget({
                                     },
                                     parent : $tree,
                                     binHeight : $tree.options.lgvHeight,
-                                    selectionCallback : $wtgd.options.geneSelection
+                                    endSelectionCallback : function() {
+                                        if ($wtgd.options.geneSelection) {
+                                            $wtgd.options.geneSelection.apply(this, arguments)
+                                        }
+                                        $wtgd.lastSelection = {$lgv : this, d : d, node : node};
+                                    },
+                                    cancelSelectionCallback : function() {
+                                        if ($wtgd.lastSelection != undefined) {
+                                            $wtgd.lastSelection.$lgv.showSelection();
+                                        }
+                                    },
+                                    startSelectionCallback : function() {
+                                        if ($wtgd.lastSelection != undefined && $wtgd.lastSelection.$lgv !== this) {
+                                            $wtgd.lastSelection.$lgv.hideSelection();
+                                        }
+                                    },
+
+                                    showHighlightCallback : function() {
+
+                                        if ($wtgd.lastSelection) {
+                                            $wtgd.dehighlightTree($tree);
+                                        }
+
+                                        $wtgd.highlightTree(d, node, this, $tree);
+                                    },
+
+                                    hideHighlightCallback : function() {
+
+                                        $wtgd.dehighlightTree($tree);
+
+                                        if ($wtgd.lastSelection) {
+                                            $wtgd.highlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
+                                        }
+
+
+                                    },
                                 }
                             );
 
@@ -167,7 +294,17 @@ module.exports = KBWidget({
                     distance        : 10,
                     fixed           : true,
                     labelWidth      : 100,
-                    nodeHeight      : 7,
+                    nodeHeight      : 12,
+                    staticWidth     : true,
+
+                    depth : function(d, rootOffset, chartOffset) {
+                        if (d.parent == undefined) {
+                            return 5;
+                        }
+                        else {
+                            return this.defaultDepth(d, rootOffset, chartOffset);
+                        }
+                    },
 
                     strokeWidth : function(d) {
 
@@ -194,16 +331,57 @@ module.exports = KBWidget({
 
                     truncationFunction : function(d, elem, $tree) {
                         d3.select(elem)
-                        .on('mouseover', function(d) {
+                        .on('mouseover.truncated', function(d) {
                             $tree.showToolTip({label : d.name});
                         })
-                        .on('mouseout', function(d) {
+                        .on('mouseout.truncated', function(d) {
                             $tree.hideToolTip();
                         });
                         return d.name_truncated + '...';
                     },
 
+                    nodeOver : function(d, node) {
+                        this.options.tooltip.call(this, d);
+                        this.options.textOver.call(this, d, node);
+                    },
+
+                    nodeOut : function (d, node) {
+                        this.hideToolTip();
+                        this.options.textOut.call(this, d, node);
+                    },
+
+                    textOver : function (d, node) {
+                        //this has an -awful- hack and hardwires the highlight color to red.
+                        $wtgd.highlightTree(d, node.parentNode, { options : { highlightColor : 'red'} }, this);
+                    },
+
+                    textOut : function(d, node) {
+                        $wtgd.dehighlightTree(this);
+                    },
+
+
+
                     nodeClick : function(d, node) {
+                        //this.options.collapseTree.call(this,d,node);
+                        this.options.rerootTree.call(this, d, node);
+                    },
+
+                    textClick : function(d, node) {
+                        //this.options.collapseTree.call(this,d,node);
+                        this.options.rerootTree.call(this, d, node);
+                    },
+
+                    nodeDblClick : function(d, node) {
+                        //this.options.rerootTree.call(this, d, node);
+                        this.options.collapseTree.call(this, d, node);
+                    },
+
+                    textDblClick : function(d, node) {
+                        //this.options.rerootTree.call(this, d, node);
+                        this.options.collapseTree.call(this, d, node);
+                    },
+
+                    collapseTree : function(d, node) {
 
                         var oldState = this.nodeState(d);
 
@@ -224,17 +402,10 @@ module.exports = KBWidget({
 
                     },
 
-                    nodeDblClick : function(d, node) {
-                        this.options.textDblClick.call(this, d, node);
-                    },
-
-                    textClick : function(d) {
-
-                    },
-
-                    textDblClick : function(d, node) {
+                    rerootTree : function(d, node) {
 
                         var isRoot = true;
+                        var lastRoot = undefined;
 
                         var parent;
                         if (this.originalRoot == undefined || this.lastClicked !== d) {
@@ -242,15 +413,18 @@ module.exports = KBWidget({
                                 this.originalRoot = this.options.dataset;
                             }
                             this.lastClicked = d;
+                            lastRoot = this.originalRoot;
                         }
                         else {
+                            lastRoot = d;
                             d = this.originalRoot;
                             this.originalRoot = undefined;
                             this.lastClicked = undefined;
+                            isRoot = false;
                         }
 
-                        if (this.nodeState(d) == 'open') {
-                            relayout(d);
+                        //if (this.nodeState(d) == 'open') {
+                            $wtgd.relayout(d);
                             d.stroke = this.originalRoot ? 'cyan' : 'darkslateblue';
 
                             this.setDataset(d);
@@ -260,10 +434,10 @@ module.exports = KBWidget({
                             }
 
                             if ($wtgd.options.treeRootChange) {
-                                $wtgd.options.treeRootChange.call(this, d);
+                                $wtgd.options.treeRootChange.call(this, d, lastRoot);
                             }
 
-                        }
+                        //}
 
 
                     },

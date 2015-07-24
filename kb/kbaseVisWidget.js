@@ -813,13 +813,24 @@ KBWidget({
     var widgetWidth = this.width();
     var widgetHeight = this.height();
 
-    return new Rectangle(
+    var chart = new Rectangle(
       new Point(this.xPadding(), this.yGutter()),
       new Size(
         widgetWidth - this.xPadding() - this.xGutter(),
         widgetHeight - this.yGutter() - this.yPadding()
       )
     );
+
+    if (chart.size.width < 0) {
+        chart.size.width = 0;
+    }
+
+    if (chart.size.height < 0) {
+        chart.size.height = 0;
+    }
+
+    return chart;
+
   },
 
   showToolTip: function (args) {

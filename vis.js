@@ -11,14 +11,16 @@ var Vis = React.createClass({
     taxonomy: React.PropTypes.object.isRequired,
     onSubtreeCollapse: React.PropTypes.function,
     onSubtreeExpand: React.PropTypes.function,
-    onTreeRootChange: React.PropTypes.function
+    onTreeRootChange: React.PropTypes.function,
+    onGeneSelection: React.PropTypes.function
   },
 
   componentWillMount: function () {
     this.visId = "vis" + _counterForVisId++;
   },
 
-  componentDidMount: function () {
+  componentDidMount : function () {
+    var props = this.props;
     this.wareTreeGeneDist = WareTreeGeneDistribution.call(
       $("." + this.visId),
       {
@@ -31,15 +33,27 @@ var Vis = React.createClass({
         },
         subtreeCollapse : function(d) {
             console.log("collapsed under ", d);
+            if (props.onSubtreeCollapse) {
+                props.onSubtreeCollapse(d);
+            }
         },
         subtreeExpand : function(d) {
             console.log("expanded under ", d);
+            if (props.onSubtreeExpand) {
+                props.onSubtreeExpand(d);
+            }
         },
-        treeRootChange : function(d) {
-            console.log('changed root to ', d);
+        treeRootChange : function(d, last) {
+            console.log('changed root to ', d, ' from ', last);
+            if (props.onTreeRootChange) {
+                props.onTreeRootChange(d, last);
+            }
         },
         geneSelection : function(bins) {
-            console.log("I SELECTED THESE BINS : ", bins)
+            console.log("I SELECTED THESE BINS : ", bins);
+            if (props.onGeneSelection) {
+                props.onGeneSelection(bins);
+            }
         },
       }
     )
