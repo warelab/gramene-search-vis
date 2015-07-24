@@ -233,7 +233,7 @@ module.exports = KBWidget({
                                         }
                                     },
                                     startSelectionCallback : function() {
-                                        if ($wtgd.lastSelection != undefined) {
+                                        if ($wtgd.lastSelection != undefined && $wtgd.lastSelection.$lgv !== this) {
                                             $wtgd.lastSelection.$lgv.hideSelection();
                                         }
                                     },
