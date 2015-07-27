@@ -312,6 +312,7 @@ module.exports = KBWidget({
 
                         while (parent.parent != undefined && (this.filterParent == undefined || parent.parent != this.filterParent[0])) {
                             parent = parent.parent;
+                            break;
                         }
 
                         var rootScore = calculateScore(parent);
