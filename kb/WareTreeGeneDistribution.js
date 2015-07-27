@@ -469,9 +469,9 @@ module.exports = KBWidget({
 
                         if (d.children || d._children) {
 
-                            if (d.score == undefined) {
+                            //if (d.score == undefined) {
                                 d.score = calculateScore(d);
-                            }
+                            //}
 
                             this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
                         }
