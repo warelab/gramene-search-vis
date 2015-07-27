@@ -172,7 +172,7 @@ module.exports = KBWidget({
 
                     nodeEnterCallback : function(d, i, node, duration) {
 
-                        if (d.model.genome) {
+                        if (1 || d.model.genome) {
                             var $tree = this;
 
                             var bounds = this.chartBounds();
@@ -213,65 +213,72 @@ module.exports = KBWidget({
                                     .attr('text-anchor','end')
                             ;
 
-                            d.$lgv = GeneDistribution.bind(jqElem('div'))(
-                                {
-                                    scaleAxes   : true,
-                                    customRegions : {
-                                        chart : d.lgvID
-                                    },
-                                    parent : $tree,
-                                    binHeight : $tree.options.lgvHeight,
-                                    endSelectionCallback : function() {
-                                        if ($wtgd.options.geneSelection) {
-                                            $wtgd.options.geneSelection.apply(this, arguments)
-                                        }
-                                        $wtgd.lastSelection = {$lgv : this, d : d, node : node};
-                                    },
-                                    cancelSelectionCallback : function() {
-                                        if ($wtgd.lastSelection != undefined) {
-                                            $wtgd.lastSelection.$lgv.showSelection();
-                                        }
-                                    },
-                                    startSelectionCallback : function() {
-                                        if ($wtgd.lastSelection != undefined && $wtgd.lastSelection.$lgv !== this) {
-                                            $wtgd.lastSelection.$lgv.hideSelection();
-                                        }
-                                    },
+                            if (d.model.genome) {
+                                d.$lgv = GeneDistribution.bind(jqElem('div'))(
+                                    {
+                                        scaleAxes   : true,
+                                        customRegions : {
+                                            chart : d.lgvID
+                                        },
+                                        parent : $tree,
+                                        binHeight : $tree.options.lgvHeight,
+                                        endSelectionCallback : function() {
+                                            if ($wtgd.options.geneSelection) {
+                                                $wtgd.options.geneSelection.apply(this, arguments)
+                                            }
+                                            $wtgd.lastSelection = {$lgv : this, d : d, node : node};
+                                        },
+                                        cancelSelectionCallback : function() {
+                                            if ($wtgd.lastSelection != undefined) {
+                                                $wtgd.lastSelection.$lgv.showSelection();
+                                            }
+                                        },
+                                        startSelectionCallback : function() {
+                                            if ($wtgd.lastSelection != undefined && $wtgd.lastSelection.$lgv !== this) {
+                                                $wtgd.lastSelection.$lgv.hideSelection();
+                                            }
+                                        },
 
-                                    showHighlightCallback : function() {
+                                        showHighlightCallback : function() {
 
-                                        if ($wtgd.lastSelection) {
+                                            if ($wtgd.lastSelection) {
+                                                $wtgd.dehighlightTree($tree);
+                                            }
+
+                                            $wtgd.highlightTree(d, node, this, $tree);
+                                        },
+
+                                        hideHighlightCallback : function() {
+
                                             $wtgd.dehighlightTree($tree);
-                                        }
 
-                                        $wtgd.highlightTree(d, node, this, $tree);
-                                    },
-
-                                    hideHighlightCallback : function() {
-
-                                        $wtgd.dehighlightTree($tree);
-
-                                        if ($wtgd.lastSelection) {
-                                            $wtgd.highlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
-                                        }
+                                            if ($wtgd.lastSelection) {
+                                                $wtgd.highlightTree($wtgd.lastSelection.d, $wtgd.lastSelection.node, $wtgd.lastSelection.$lgv, $tree);
+                                            }
 
 
-                                    },
-                                }
-                            );
+                                        },
+                                    }
+                                );
+                            }
 
                         }
                     },
 
                     nodeUpdateCallback : function(d,i,node, duration) {
-                        //if (! d.children || ! d.children.length) {
-                        if (d.lgvID && d.$lgv) {
-                            d3.select(node).selectAll(d.lgvID).data([d]).transition().duration(duration).attr('opacity', 1);
 
-                            var scoreFieldSelection = d3.select(node).selectAll('.scoreField').data([d]);
+                        d3.select(node).selectAll(d.lgvID).data([d]).transition().duration(duration).attr('opacity', 1);
 
+                        var scoreFieldSelection = d3.select(node).selectAll('.scoreField').data([d]);
+
+                        if (d.lgvID && d.$lgv || d._children) {
                             scoreFieldSelection.text(calculateScore(d));
+                        }
+                        else {
+                            scoreFieldSelection.text('');
+                        }
 
+                        if (d.lgvID && d.$lgv) {
                             d.$lgv.options.customRegions.chart = d.lgvID;
                             d.$lgv.setDataset(d.model.genome);
 
