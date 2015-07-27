@@ -296,10 +296,11 @@ module.exports = KBWidget({
                     labelWidth      : 100,
                     nodeHeight      : 12,
                     staticWidth     : true,
+                    rootDepth       : 5,
 
                     depth : function(d, rootOffset, chartOffset) {
                         if (d.parent == undefined) {
-                            return 5;
+                            return this.options.rootDepth;
                         }
                         else {
                             return this.defaultDepth(d, rootOffset, chartOffset);
@@ -310,10 +311,9 @@ module.exports = KBWidget({
 
                         var parent = d.source;
 
-                        while (parent.parent != undefined && (this.filterParent == undefined || parent.parent != this.filterParent[0])) {
+                        /*while (parent.parent != undefined && (this.filterParent == undefined || parent.parent != this.filterParent[0])) {
                             parent = parent.parent;
-                            break;
-                        }
+                        }*/
 
                         var rootScore = calculateScore(parent);
 
@@ -405,16 +405,30 @@ module.exports = KBWidget({
 
                     rerootTree : function(d, node) {
 
+                        //clicks on the root node shouldn't do anything, so bail out.
+                        if (d.name == 'Eukaryota') {
+                            return;
+                        }
+
                         var isRoot = true;
                         var lastRoot = undefined;
 
-                        var parent;
+                        var parent = d;
                         if (this.originalRoot == undefined || this.lastClicked !== d) {
                             if (this.originalRoot == undefined) {
                                 this.originalRoot = this.options.dataset;
                             }
+
                             this.lastClicked = d;
                             lastRoot = this.originalRoot;
+
+                            var distance = 0;
+                            while (parent.name != 'Eukaryota') {
+                                distance++;
+                                parent = parent.parent;
+                            }
+                            this.options.rootDepth = 5 + this.options.distance * distance;//*/
+
                         }
                         else {
                             lastRoot = d;
@@ -422,6 +436,7 @@ module.exports = KBWidget({
                             this.originalRoot = undefined;
                             this.lastClicked = undefined;
                             isRoot = false;
+                            this.options.rootDepth = 5;
                         }
 
                         //if (this.nodeState(d) == 'open') {
