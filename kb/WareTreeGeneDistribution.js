@@ -9,10 +9,6 @@ var KBWidget = require('./kbwidget');
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 
-var calculateScore = function(node) {
-    return node.results().proportion;
-};
-
 module.exports = KBWidget({
 	    name: "WareTreeGeneDistribution",
 
@@ -297,7 +293,7 @@ module.exports = KBWidget({
 
                         if (maxScore == 1) { return 1.5 } //hardwired to smaller stroke width if unfiltered
 
-                        var targetScore = calculateScore(d.target);
+                        var targetScore = d.target.results().proportion;
 
                         var scale = d3.scale.linear()
                             .domain([0, maxScore])
@@ -438,18 +434,6 @@ module.exports = KBWidget({
 
                     },
 
-                    tooltip : function(d) {
-
-                        if (d.children || d._children) {
-
-                            if (d.score == undefined) {
-                                d.score = d.results().count;
-                            }
-
-                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
-                        }
-
-                    },
                 }
             )
 
