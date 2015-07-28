@@ -10,9 +10,10 @@
   "license": "MIT",
   "dependencies": {
     "d3": "^3.5.5",
-    "gramene-taxonomy-with-genomes": "git://github.com/warelab/gramene-taxonomy-with-genomes.git#master",
     "gramene-search-client": "git://github.com/warelab/gramene-search-client.git#master",
+    "gramene-taxonomy-with-genomes": "git://github.com/warelab/gramene-taxonomy-with-genomes.git#master",
     "jquery": "^2.1.4",
+    "lodash.debounce": "^3.1.1",
     "q": "^1.4.1",
     "react": "^0.13.3"
   },

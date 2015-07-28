@@ -20,9 +20,9 @@ var Vis = require('./vis.js');
 var exampleQuery = {
   "q": "",
   "filters": {
-//    "interpro_ancestors:2347": {
-//      "fq": "interpro_ancestors:2347"
-//    }
+    //"interpro_ancestors:2347": {
+    //  "fq": "interpro_ancestors:2347"
+    //}
   },
   "resultTypes": {
     "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
@@ -36,7 +36,7 @@ Q.all([
 ]).spread(function (taxonomy, results) {
   taxonomy.setBinType('fixed', 200);
   taxonomy.setResults(results.fixed_200_bin);
-
+  
   //var visComponent = new Vis({taxonomy: taxonomy, results: results, derp: derp});
   var AppComponent = React.createClass({
     getInitialState: function() {
