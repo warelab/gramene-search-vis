@@ -20,9 +20,9 @@ var Vis = require('./vis.js');
 var exampleQuery = {
   "q": "",
   "filters": {
-//    "interpro_ancestors:2347": {
-//      "fq": "interpro_ancestors:2347"
-//    }
+    "interpro_ancestors:2347": {
+      "fq": "interpro_ancestors:2347"
+    }
   },
   "resultTypes": {
     "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
