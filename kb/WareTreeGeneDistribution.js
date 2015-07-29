@@ -34,10 +34,6 @@ module.exports = KBWidget({
 
             this.treeStrokeScale = createScale(dataset);
 
-            if (this.$tree == undefined) {
-                this.$tree = this.createTreeWidget();
-            }
-
             if (this.$tree.lastClicked != undefined) {
 
                 var $tree = this.$tree;
@@ -150,11 +146,11 @@ module.exports = KBWidget({
             return d;
         },
 
-        createTreeWidget : function() {
+        init : function(options) {
 
             var $wtgd = this;
 
-            return KbaseTreechart.bind(this.$elem)(
+            this.$tree = KbaseTreechart.bind(this.$elem)(
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
@@ -443,17 +439,21 @@ module.exports = KBWidget({
 
                     },
 
+                    tooltip : function(d) {
+
+                        if (d.children || d._children) {
+
+                            d.score = d.results().proportion;
+
+                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
+                        }
+
+                    },
+
                 }
             )
-        },
-
-        init : function(options) {
 
             this._super(options);
-
-            if (this.$tree == undefined) {
-                this.$tree = this.$tree.createTreeWidget();
-            }
 
             return this;
         },
