@@ -293,12 +293,14 @@ module.exports = KBWidget({
 
                     strokeWidth : function(d) {
 
-                        var maxScore = d.source.globalResultSetStats().maxProportion,
-                            targetScore = calculateScore(d.target);
+                        var node = d.target,
+                            maxScore = node.globalResultSetStats().maxProportion,
+                            maxRange = maxScore === 1 ? 2 : 5,
+                            targetScore = node.results().proportion;
 
                         var scale = d3.scale.linear()
                           .domain([0, maxScore])
-                          .range([.5, 5]);
+                          .range([.5, maxRange]);
 
                         return scale(targetScore);
                     },
