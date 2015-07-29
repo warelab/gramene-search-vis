@@ -13,6 +13,14 @@ var calculateScore = function(node) {
     return node.results().proportion;
 };
 
+var createScale = function(dataset) {
+    var maxScore = dataset.globalResultSetStats().maxProportion,
+        maxRange = maxScore === 1 ? 2 : 5;
+
+    return d3.scale.linear()
+      .domain([0, maxScore])
+      .range([.5, maxRange]);
+};
 
 module.exports = KBWidget({
 	    name: "WareTreeGeneDistribution",
@@ -23,6 +31,8 @@ module.exports = KBWidget({
         setDataset : function(dataset) {
 
             var newset = dataset;
+
+            this.treeStrokeScale = createScale(dataset);
 
             if (this.$tree.lastClicked != undefined) {
 
@@ -302,7 +312,7 @@ module.exports = KBWidget({
                           .domain([0, maxScore])
                           .range([.5, maxRange]);
 
-                        return scale(targetScore);
+                        return this.treeStrokeScale(targetScore);
                     },
 
                     nameFunction    : function (d) {
