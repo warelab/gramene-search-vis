@@ -300,11 +300,10 @@ module.exports = KBWidget({
                     strokeWidth : function(d) {
 
                         var node = d.target,
-                            maxScore = node.globalResultSetStats().maxProportion,
-                            maxRange = maxScore === 1 ? 2 : 5,
                             targetScore = node.results().proportion;
 
                         return $wtgd.treeStrokeScale(targetScore);
+
                     },
 
                     nameFunction    : function (d) {
