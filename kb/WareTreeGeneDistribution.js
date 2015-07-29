@@ -9,11 +9,6 @@ var KBWidget = require('./kbwidget');
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 
-var calculateScore = function(node) {
-    return node.results().proportion;
-};
-
-var treeStrokeScale;
 var createScale = function(dataset) {
     var maxScore = dataset.globalResultSetStats().maxProportion,
         maxRange = maxScore === 1 ? 2 : 5;
@@ -29,11 +24,15 @@ module.exports = KBWidget({
         version: "1.0.0",
         options: {},
 
+        _accessors: [
+            {name: 'dataset', setter: 'setDataset'}
+        ],
+
         setDataset : function(dataset) {
 
             var newset = dataset;
 
-            treeStrokeScale = createScale(dataset);
+            this.treeStrokeScale = createScale(dataset);
 
             if (this.$tree.lastClicked != undefined) {
 
@@ -148,10 +147,6 @@ module.exports = KBWidget({
         },
 
         init : function(options) {
-
-            this._super(options);
-
-
 
             var $wtgd = this;
 
@@ -307,7 +302,8 @@ module.exports = KBWidget({
                         var node = d.target,
                             targetScore = node.results().proportion;
 
-                        return treeStrokeScale(targetScore);
+                        return $wtgd.treeStrokeScale(targetScore);
+
                     },
 
                     nameFunction    : function (d) {
@@ -446,16 +442,15 @@ module.exports = KBWidget({
 
                         if (d.children || d._children) {
 
-                            //if (d.score == undefined) {
-                            //    d.score = calculateScore(d);
-                            //}
-
                             this.showToolTip({label : d.name + ' - ' + d.stats().genes + ' genes'})
                         }
 
                     },
+
                 }
             )
+
+            this._super(options);
 
             return this;
         },
