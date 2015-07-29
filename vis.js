@@ -36,19 +36,27 @@ var Vis = React.createClass({
         },
         subtreeCollapse : function(d) {
             console.log("collapsed under ", d);
-            props.onSubtreeCollapse(d);
+            if (props.onSubtreeCollapse) {
+                props.onSubtreeCollapse(d);
+            }
         },
         subtreeExpand : function(d) {
             console.log("expanded under ", d);
-            props.onSubtreeExpand(d);
+            if (props.onSubtreeExpand) {
+                props.onSubtreeExpand(d);
+            }
         },
         treeRootChange : function(d) {
             console.log('changed root to ', d);
-            props.onTreeRootChange(d);
+            if (props.onTreeRootChange) {
+                props.onTreeRootChange(d);
+            }
         },
         geneSelection : function(bins) {
             console.log("I SELECTED THESE BINS : ", bins);
-            props.onGeneSelection(bins);
+            if (props.onGeneSelection) {
+                props.onGeneSelection(bins);
+            }
         }
       }
     )
