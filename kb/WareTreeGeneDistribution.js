@@ -289,15 +289,15 @@ module.exports = KBWidget({
                     strokeWidth : function(d) {
 
                         var parent = d.source,
-                          maxScore = parent.globalResultSetStats().maxProportion;
+                        maxScore = parent.globalResultSetStats().maxProportion;
 
-                        if (maxScore == 1) { return 1.5 } //hardwired to smaller stroke width if unfiltered
+                        var maxRange = maxScore == 1 ? 2 : 5;
 
                         var targetScore = d.target.results().proportion;
 
                         var scale = d3.scale.linear()
                             .domain([0, maxScore])
-                            .range([.5, 5]);
+                            .range([.5, maxRange]);
 
                         return scale(targetScore);
                     },
