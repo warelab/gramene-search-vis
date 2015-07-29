@@ -13,6 +13,7 @@ var calculateScore = function(node) {
     return node.results().proportion;
 };
 
+var treeStrokeScale;
 var createScale = function(dataset) {
     var maxScore = dataset.globalResultSetStats().maxProportion,
         maxRange = maxScore === 1 ? 2 : 5;
@@ -32,7 +33,7 @@ module.exports = KBWidget({
 
             var newset = dataset;
 
-            this.treeStrokeScale = createScale(dataset);
+            treeStrokeScale = createScale(dataset);
 
             if (this.$tree.lastClicked != undefined) {
 
@@ -304,11 +305,9 @@ module.exports = KBWidget({
                     strokeWidth : function(d) {
 
                         var node = d.target,
-                            maxScore = node.globalResultSetStats().maxProportion,
-                            maxRange = maxScore === 1 ? 2 : 5,
                             targetScore = node.results().proportion;
 
-                        return this.treeStrokeScale(targetScore);
+                        return treeStrokeScale(targetScore);
                     },
 
                     nameFunction    : function (d) {
@@ -448,10 +447,10 @@ module.exports = KBWidget({
                         if (d.children || d._children) {
 
                             //if (d.score == undefined) {
-                                d.score = calculateScore(d);
+                            //    d.score = calculateScore(d);
                             //}
 
-                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
+                            this.showToolTip({label : d.name + ' - ' + d.stats().genes + ' genes'})
                         }
 
                     },
