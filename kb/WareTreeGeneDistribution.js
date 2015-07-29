@@ -308,10 +308,6 @@ module.exports = KBWidget({
                             maxRange = maxScore === 1 ? 2 : 5,
                             targetScore = node.results().proportion;
 
-                        var scale = d3.scale.linear()
-                          .domain([0, maxScore])
-                          .range([.5, maxRange]);
-
                         return this.treeStrokeScale(targetScore);
                     },
 
