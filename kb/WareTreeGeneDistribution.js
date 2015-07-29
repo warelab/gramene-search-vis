@@ -9,15 +9,34 @@ var KBWidget = require('./kbwidget');
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 
+var createScale = function(dataset) {
+    var maxScore = dataset.globalResultSetStats().maxProportion,
+        maxRange = maxScore === 1 ? 2 : 5;
+
+    return d3.scale.linear()
+      .domain([0, maxScore])
+      .range([.5, maxRange]);
+};
+
 module.exports = KBWidget({
 	    name: "WareTreeGeneDistribution",
 
         version: "1.0.0",
         options: {},
 
+        _accessors: [
+            {name: 'dataset', setter: 'setDataset'}
+        ],
+
         setDataset : function(dataset) {
 
             var newset = dataset;
+
+            this.treeStrokeScale = createScale(dataset);
+
+            if (this.$tree == undefined) {
+                this.$tree = this.createTreeWidget();
+            }
 
             if (this.$tree.lastClicked != undefined) {
 
@@ -131,15 +150,11 @@ module.exports = KBWidget({
             return d;
         },
 
-        init : function(options) {
-
-            this._super(options);
-
-
+        createTreeWidget : function() {
 
             var $wtgd = this;
 
-            this.$tree = KbaseTreechart.bind(this.$elem)(
+            return KbaseTreechart.bind(this.$elem)(
                 {
 
                     nodeEnterCallback : function(d, i, node, duration) {
@@ -293,12 +308,7 @@ module.exports = KBWidget({
                             maxRange = maxScore === 1 ? 2 : 5,
                             targetScore = node.results().proportion;
 
-                        var scale = d3.scale.linear()
-                          .domain([0, maxScore])
-                          .range([.5, maxRange]);
-
-
-                        return scale(targetScore);
+                        return $wtgd.treeStrokeScale(targetScore);
                     },
 
                     nameFunction    : function (d) {
@@ -435,6 +445,15 @@ module.exports = KBWidget({
 
                 }
             )
+        },
+
+        init : function(options) {
+
+            this._super(options);
+
+            if (this.$tree == undefined) {
+                this.$tree = this.$tree.createTreeWidget();
+            }
 
             return this;
         },
