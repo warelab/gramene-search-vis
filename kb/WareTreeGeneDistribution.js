@@ -351,7 +351,7 @@ module.exports = KBWidget({
 
                     lineOut : function(d, node) {
                         $wtgd.dehighlightTree(this);
-                        $tree.hideToolTip();
+                        this.hideToolTip();
                     },
 
                     nodeOver : function(d, node) {
