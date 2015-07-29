@@ -443,9 +443,7 @@ module.exports = KBWidget({
 
                         if (d.children || d._children) {
 
-                            d.score = d.results().proportion;
-
-                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
+                            this.showToolTip({label : d.name + ' - ' + d.stats().genes + ' genes'})
                         }
 
                     },
