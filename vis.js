@@ -23,7 +23,7 @@ var Vis = React.createClass({
 
   componentDidMount: function () {
     console.log("Will display visualization", this.visId);
-    var reactProps = this.props;
+    var props = this.props;
     this.wareTreeGeneDist = WareTreeGeneDistribution.call(
       $("." + this.visId),
       {
@@ -34,12 +34,21 @@ var Vis = React.createClass({
         taxonDblClick: function (d, isRoot) {
           console.log("I double clicked on", d, " and it is now : ", this.nodeState(d), " and is the root : ", isRoot);
         },
-        subtreeCollapse : reactProps.onSubtreeCollapse || function() {},
-        subtreeExpand : reactProps.onSubtreeExpand || function() {},
-        treeRootChange : reactProps.onTreeRootChange || function() {},
+        subtreeCollapse : function(d) {
+            console.log("collapsed under ", d);
+            props.onSubtreeCollapse(d);
+        },
+        subtreeExpand : function(d) {
+            console.log("expanded under ", d);
+            props.onSubtreeExpand(d);
+        },
+        treeRootChange : function(d) {
+            console.log('changed root to ', d);
+            props.onTreeRootChange(d);
+        },
         geneSelection : function(bins) {
             console.log("I SELECTED THESE BINS : ", bins);
-            reactProps.onGeneSelection(bins);
+            props.onGeneSelection(bins);
         }
       }
     )
