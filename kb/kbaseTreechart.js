@@ -369,11 +369,13 @@ module.exports = KBWidget({
         // Enter any new nodes at the parent's previous position.
         var nodeEnter = node.enter().append("g")
                 .attr("class", "node")
+                .attr('data-node-id', function (d) { return $tree.uniqueness(d) } )
                 .attr('opacity', 0)
                 .attr("transform", function (d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
             ;
 
                         nodeEnter.append("circle")
+                                .attr("class", "circle")
                                 .attr("r", 1e-6)
                                 .attr('style', 'cursor : pointer;')
                                 .attr('stroke', function(d) { return d.stroke || $tree.options.circleStroke})
@@ -424,6 +426,7 @@ module.exports = KBWidget({
         nodeEnter.append("text")
             //.attr('style', 'font-size : 11px')
             .attr('class', 'nodeText')
+            .attr('data-text-id', function (d) { return $tree.uniqueness(d) } )
             .attr('style', 'font-size : 11px;cursor : pointer;-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;')
             .attr("dy", ".35em")
             .text(function (d) {
@@ -574,6 +577,16 @@ module.exports = KBWidget({
                                 .attr("d", function(d) {
                                     var o = {x: source.x0, y: source.y0};
                                     return $tree.diagonal({source: o, target: o});
+                                })
+                                .on('mouseover', function (d) {
+                                    if ($tree.options.lineOver) {
+                                        $tree.options.lineOver.call($tree, d, this);
+                                    }
+                                })
+                                .on('mouseout', function (d) {
+                                    if ($tree.options.lineOut) {
+                                        $tree.options.lineOut.call($tree, d, this);
+                                    }
                                 })
                         .transition()
                                 .duration(duration)
