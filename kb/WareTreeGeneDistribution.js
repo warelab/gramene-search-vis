@@ -9,33 +9,14 @@ var KBWidget = require('./kbwidget');
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 
-var calculateScore = function(node) {
+var createScale = function(dataset) {
+    var maxScore = dataset.globalResultSetStats().maxProportion,
+        maxRange = maxScore === 1 ? 2 : 5;
 
-    var score = 0;
-
-    if (node.children) {
-        for (var i = 0; i < node.children.length; i++) {
-            score += calculateScore(node.children[i]);
-        }
-    }
-
-    if (node._children) {
-        for (var i = 0; i < node._children.length; i++) {
-            score += calculateScore(node._children[i]);
-        }
-    }
-
-    if (node.model.genome) {
-        node.model.genome.eachRegion(function(region) {
-            region.eachBin(function(bin) {
-                score += bin.results ? bin.results.count : 0;
-            })
-        })
-    }
-
-    return score;
-}
-
+    return d3.scale.linear()
+      .domain([0, maxScore])
+      .range([.5, maxRange]);
+};
 
 module.exports = KBWidget({
 	    name: "WareTreeGeneDistribution",
@@ -43,9 +24,15 @@ module.exports = KBWidget({
         version: "1.0.0",
         options: {},
 
+        _accessors: [
+            {name: 'dataset', setter: 'setDataset'}
+        ],
+
         setDataset : function(dataset) {
 
             var newset = dataset;
+
+            this.treeStrokeScale = createScale(dataset);
 
             if (this.$tree.lastClicked != undefined) {
 
@@ -104,14 +91,34 @@ module.exports = KBWidget({
 
             var nodes = d.id.split('/');
 
+            var highlighted = {};
+
             while (nodes.length) {
                 var nodeID = nodes.join('/');
+
+                highlighted[nodeID] = true;
 
                 $tree.data('D3svg').select($tree.region('chart')).selectAll('[data-link-id="' + nodeID + '"]')
                         .attr('stroke', $lgv.options.highlightColor)
 
                 nodes.pop();
             }
+
+            $tree.data('D3svg').select($tree.region('chart')).selectAll('.link').sort(
+                function(a,b) {
+
+                    if (highlighted[a.target.id]) {
+                        return 1;
+                    }
+                    if (highlighted[b.target.id]) {
+                        return -1;
+                    }
+                    else {
+                        return 0;
+                    }
+                }
+            );
+
         },
 
         dehighlightTree : function($tree) {
@@ -119,6 +126,7 @@ module.exports = KBWidget({
                 .attr('fill', 'black')
                 .attr('font-style', '')
             ;
+
 
             $tree.data('D3svg').select($tree.region('chart')).selectAll('.link')
                     .attr('stroke', $tree.options.lineStroke)
@@ -160,10 +168,6 @@ module.exports = KBWidget({
         },
 
         init : function(options) {
-
-            this._super(options);
-
-
 
             var $wtgd = this;
 
@@ -272,7 +276,7 @@ module.exports = KBWidget({
                         var scoreFieldSelection = d3.select(node).selectAll('.scoreField').data([d]);
 
                         if (d.lgvID && d.$lgv || d._children) {
-                            scoreFieldSelection.text(calculateScore(d));
+                            scoreFieldSelection.text(d.results().count);
                         }
                         else {
                             scoreFieldSelection.text('');
@@ -293,7 +297,7 @@ module.exports = KBWidget({
                     },
 
 
-                    dataset         : this.options.dataset,
+                    //dataset         : this.options.dataset,
                     displayStyle    : 'Nnt',
                     circleRadius    : 2.5,
                     lineStyle       : 'square',
@@ -316,21 +320,11 @@ module.exports = KBWidget({
 
                     strokeWidth : function(d) {
 
-                        var parent = d.source;
+                        var node = d.target,
+                            targetScore = node.results().proportion;
 
-                        /*while (parent.parent != undefined && (this.filterParent == undefined || parent.parent != this.filterParent[0])) {
-                            parent = parent.parent;
-                        }*/
+                        return $wtgd.treeStrokeScale(targetScore);
 
-                        var rootScore = calculateScore(parent);
-
-                        var targetScore = calculateScore(d.target);
-
-                        var scale = d3.scale.linear()
-                            .domain([0, rootScore])
-                            .range([.5, 5]);
-
-                        return scale(targetScore);
                     },
 
                     nameFunction    : function (d) {
@@ -346,6 +340,18 @@ module.exports = KBWidget({
                             $tree.hideToolTip();
                         });
                         return d.name_truncated + '...';
+                    },
+
+                    lineOver : function(d, node) {
+
+                        var node = this.data('D3svg').selectAll(this.region('chart')).selectAll('[data-node-id="' + d.target.id + '"]')[0][0];
+                        $wtgd.highlightTree(d.target, node, { options : { highlightColor : 'red'} }, this);
+                        this.options.tooltip.call(this, d.target);
+                    },
+
+                    lineOut : function(d, node) {
+                        $wtgd.dehighlightTree(this);
+                        this.hideToolTip();
                     },
 
                     nodeOver : function(d, node) {
@@ -423,13 +429,14 @@ module.exports = KBWidget({
                         var parent = d;
                         if (this.originalRoot == undefined || this.lastClicked !== d) {
                             if (this.originalRoot == undefined) {
-                                this.originalRoot = this.options.dataset;
+                                this.originalRoot = this.dataset();
                             }
 
                             this.lastClicked = d;
                             lastRoot = this.originalRoot;
 
                             var distance = 0;
+
                             while (parent.name != 'Eukaryota') {
                                 distance++;
                                 parent = parent.parent;
@@ -469,16 +476,15 @@ module.exports = KBWidget({
 
                         if (d.children || d._children) {
 
-                            //if (d.score == undefined) {
-                                d.score = calculateScore(d);
-                            //}
-
-                            this.showToolTip({label : d.name + ' - ' + d.score + ' genes'})
+                            this.showToolTip({label : d.name + ' - ' + d.stats().genes + ' genes'})
                         }
 
                     },
+
                 }
             )
+
+            this._super(options);
 
             return this;
         },
