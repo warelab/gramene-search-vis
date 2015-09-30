@@ -26,7 +26,7 @@ module.exports = function (grunt) {
         transform: ['reactify']
       },
       dev: {
-        src: './example.js',
+        src: './example-domain.js',
         dest: 'build/bundle.js'
 
       },
@@ -41,7 +41,7 @@ module.exports = function (grunt) {
 
     watch: {
       browserify: {
-        files: ['example.js', 'kb/*.js', '*.jsx'],
+        files: ['*.js', 'kb/*.js', '*.jsx'],
         tasks: ['browserify:dev']
       }
     }

@@ -7,7 +7,7 @@ var _counterForVisId = 0;
 
 var DomainVis = React.createClass({
   propTypes: {
-
+    domains: React.PropTypes.object.isRequired
   },
 
   componentWillMount: function () {
@@ -25,7 +25,7 @@ var DomainVis = React.createClass({
 
   shouldComponentUpdate: function (newProps, newState) {
     console.log("Updating visualization with new data.");
-    this.updateVis(newProps.taxonomy);
+    this.updateVis(newProps.domains);
     return false;
   },
 
