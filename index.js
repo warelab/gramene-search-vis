@@ -1,3 +1,4 @@
 module.exports = {
-  Vis: require('./vis.js')
+  Taxagenomic: require('./vis.js'),
+  Domain: require('./domain.js')
 };
