@@ -8,6 +8,7 @@ var jqElem = require('./jqElem');
 var KBWidget = require('./kbwidget');
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
+var d3 = require('d3');
 
 var createScale = function(dataset) {
     var maxScore = dataset.globalResultSetStats().maxProportion,
@@ -18,7 +19,7 @@ var createScale = function(dataset) {
       .range([.5, maxRange]);
 };
 
-module.exports = KBWidget({
+module.exports = new KBWidget({
 	    name: "WareTreeGeneDistribution",
 
         version: "1.0.0",

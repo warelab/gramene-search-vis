@@ -278,8 +278,8 @@ KBWidget = function (def) {
         );
       } else if (typeof method === 'object' || !method) {
         //return this.data(name).init( arguments );
-        var args = arguments;
-        $w = this.data(name);
+        //var args = arguments;
+        var $w = this.data(name);
         if ($w._init === undefined) {
           $w = Widget.prototype.init.apply($w, arguments);
         }
@@ -293,7 +293,7 @@ KBWidget = function (def) {
       return this;
 
     };
-    widgetConstructor.name = name;
+    //widgetConstructor.name = name; <-- name is a reserved word in ES6
   }
 
   /**
@@ -374,7 +374,7 @@ KBWidget.resetRegistry = function () {
 
 // Create the root widget. This is added to the factory's registry and
 // is the implicit root of all KBase Widgets.
-KBWidget(
+new KBWidget(
   {
     name: 'kbaseWidget',
 
@@ -385,17 +385,17 @@ KBWidget(
     dbg: function (txt) { if (window.console) console.log(txt); },
 
 
-    callAfterInit: function (func) {
+    callAfterInit: function _callAfterInit(func) {
       var $me = this;
       var delayer = function () {
 
-        var recursion = arguments.callee;
+        //var recursion = arguments.callee;
 
         if ($me._init) {
           func();
         }
         else {
-          setTimeout(recursion, 10);
+          setTimeout(_callAfterInit, 10);
         }
       };
 
@@ -414,13 +414,13 @@ KBWidget(
       var opts = $.extend(true, {}, this.options);
       this.options = $.extend(true, {}, opts, args);
 
-      for (arg in args) {
+      for (var arg in args) {
         if (args[arg] == undefined && this.options[arg] != undefined) {
           delete this.options[arg];
         }
       }
 
-      for (attribute in this.__attributes) {
+      for (var attribute in this.__attributes) {
         if (this.options[attribute] != undefined) {
           var setter = this.__attributes[attribute].setter;
           this[setter](this.options[attribute]);
