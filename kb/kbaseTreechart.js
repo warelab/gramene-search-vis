@@ -1,3 +1,5 @@
+'use strict';
+
 var $ = require('jquery');
 var KBWidget = require('./kbaseVisWidget.js');
 var d3 = require('d3');

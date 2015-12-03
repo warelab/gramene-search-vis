@@ -1,3 +1,5 @@
+'use strict';
+
 var $ = require('jquery');
 var jqElem = require('./jqElem');
 var KBWidget = require('./kbwidget.js');

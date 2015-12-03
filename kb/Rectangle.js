@@ -1,3 +1,5 @@
+'use strict';
+
 var Point = require('./Point.js');
 var Size = require('./Size.js');
 
