@@ -1,3 +1,5 @@
+'use strict';
+
 var React = require('react');
 var d3 = require('d3');
 var taxonomyGetter = require('gramene-taxonomy-with-genomes');
@@ -24,7 +26,7 @@ var exampleQueries = [
     "filters": {},
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200_bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200_bin'}fixed_200_bin"}
+      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
 
@@ -32,72 +34,72 @@ var exampleQueries = [
     name: 'Domain filter',
     "q": "",
     "filters": {
-      "interpro_ancestors:2347": {
-        "fq": "interpro_ancestors:2347"
+      "interpro___ancestors:2347": {
+        "fq": "interpro___ancestors:2347"
       }
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200_bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200_bin'}fixed_200_bin"}
+      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'PAD4',
     "q": "",
     "filters": {
-      "ids:PAD4": {
-        "fq": "ids:PAD4"
+      "_terms:(PAD4)": {
+        "fq": "_terms:(PAD4)"
       }
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200_bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200_bin'}fixed_200_bin"}
+      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'Species filter',
     "q": "",
     "filters": {
-      "NCBITaxon_ancestors:3702": {
-        "fq": "NCBITaxon_ancestors:3702"
+      "NCBITaxon__ancestors:3702": {
+        "fq": "NCBITaxon__ancestors:3702"
       }
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200_bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200_bin'}fixed_200_bin"}
+      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'Oryzeae filter',
     "q": "",
     "filters": {
-      "NCBITaxon_ancestors:147380": {
-        "fq": "NCBITaxon_ancestors:147380"
+      "NCBITaxon__ancestors:147380": {
+        "fq": "NCBITaxon__ancestors:147380"
       }
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200_bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200_bin'}fixed_200_bin"}
+      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'No results',
     "q": "",
     "filters": {
-      "NCBITaxon_ancestors:147380": {
-        "fq": "NCBITaxon_ancestors:147380"
+      "NCBITaxon__ancestors:147380": {
+        "fq": "NCBITaxon__ancestors:147380"
       },
-      "ids:PAD4": {
-        "fq": "ids:PAD4"
+      "_terms:(PAD4)": {
+        "fq": "_terms:(PAD4)"
       }
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200_bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200_bin'}fixed_200_bin"}
+      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
 ];
@@ -124,7 +126,7 @@ Q.all(promises).spread(function (taxonomy) {
     render: function () {
       var queryName = exampleQueries[this.state.queryIndex].name;
       var results = exampleResults[this.state.queryIndex];
-      taxonomy.setResults(results.fixed_200_bin);
+      taxonomy.setResults(results.fixed_200__bin);
       return (
         <div>
           <p>{queryName}</p>

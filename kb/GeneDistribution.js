@@ -1,8 +1,9 @@
-var $ = require('jquery');
+'use strict';
+
 var KBWidget = require('./kbaseVisWidget.js');
 var d3 = require('d3');
 
-module.exports = KBWidget({
+module.exports = new KBWidget({
 
     name: "GeneDistribution",
     parent: "kbaseVisWidget",
@@ -223,7 +224,7 @@ module.exports = KBWidget({
             $gd.options.tooltip(b);
         }
         else if (b.start && b.regionObj.name) {
-            score = b.results ? b.results.count : 0;
+            var score = b.results ? b.results.count : 0;
             if (score) {
             var units = (score > 1) ? ' genes' : ' gene';
             $gd.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end + ' ' + score + units})

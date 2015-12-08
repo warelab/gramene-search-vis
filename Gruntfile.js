@@ -23,7 +23,9 @@ module.exports = function (grunt) {
         browserifyOptions: {
           debug: true
         },
-        transform: ['reactify']
+        transform: [
+          ['babelify', {presets: ["es2015", "react"]}]
+        ]
       },
       dev: {
         src: './example.js',

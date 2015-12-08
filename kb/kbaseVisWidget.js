@@ -1,3 +1,5 @@
+'use strict';
+
 var $ = require('jquery');
 var jqElem = require('./jqElem');
 var KBWidget = require('./kbwidget.js');
@@ -6,7 +8,7 @@ var Size = require('./Size.js');
 var Rectangle = require('./Rectangle.js');
 var d3 = require('d3');
 
-KBWidget({
+new KBWidget({
 
   name: "kbaseVisWidget",
 
