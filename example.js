@@ -2,9 +2,12 @@
 
 var React = require('react');
 var d3 = require('d3');
+
+// v-- these will need to be manually `npm installed`.
 var taxonomyGetter = require('gramene-taxonomy-with-genomes');
 var search = require('gramene-search-client').client;
 var Q = require('q');
+// ^--
 
 var $ = require('jquery');
 
