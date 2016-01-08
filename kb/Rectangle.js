@@ -1,7 +1,9 @@
+'use strict';
+
 var Point = require('./Point.js');
 var Size = require('./Size.js');
 
-Rectangle = function(origin,size) {
+var Rectangle = function(origin,size) {
     if (origin == undefined) {
         origin = new Point(-1,-1);
     }

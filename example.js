@@ -1,8 +1,13 @@
+'use strict';
+
 var React = require('react');
 var d3 = require('d3');
+
+// v-- these will need to be manually `npm installed`.
 var taxonomyGetter = require('gramene-taxonomy-with-genomes');
 var search = require('gramene-search-client').client;
 var Q = require('q');
+// ^--
 
 var $ = require('jquery');
 
@@ -41,7 +46,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'PAD4',
     "q": "",
@@ -55,7 +60,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'Species filter',
     "q": "",
@@ -69,7 +74,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'Oryzeae filter',
     "q": "",
@@ -83,7 +88,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-
+  
   {
     name: 'No results',
     "q": "",

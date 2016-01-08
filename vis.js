@@ -46,10 +46,10 @@ var Vis = React.createClass({
                 props.onSubtreeExpand(d);
             }
         },
-        treeRootChange : function(d) {
-            console.log('changed root to ', d);
+        treeRootChange : function(d, last) {
+            console.log('changed root to ', d, ' from ', last);
             if (props.onTreeRootChange) {
-                props.onTreeRootChange(d);
+              props.onTreeRootChange(d, last);
             }
         },
         geneSelection : function(bins) {

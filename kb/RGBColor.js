@@ -1,3 +1,5 @@
+'use strict';
+
 var jqElem = require('./jqElem');
 
 var RGBColor = function (r, g, b) {

@@ -1,8 +1,10 @@
+'use strict';
+
 var $ = require('jquery');
 var KBWidget = require('./kbaseVisWidget.js');
 var d3 = require('d3');
 
-module.exports = KBWidget({
+module.exports = new KBWidget({
 
     name: "kbaseTreechart",
     parent: "kbaseVisWidget",

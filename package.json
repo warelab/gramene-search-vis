@@ -1,6 +1,6 @@
 {
   "name": "gramene-search-vis",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "Visualization used by Gramene search",
   "main": "index.js",
   "scripts": {
@@ -10,18 +10,17 @@
   "license": "MIT",
   "dependencies": {
     "d3": "^3.5.5",
-    "gramene-search-client": "git://github.com/warelab/gramene-search-client.git#master",
-    "gramene-taxonomy-with-genomes": "git://github.com/warelab/gramene-taxonomy-with-genomes.git#master",
     "jquery": "^2.1.4",
     "lodash.debounce": "^3.1.1",
-    "q": "^1.4.1",
     "react": "^0.13.3"
   },
   "devDependencies": {
+    "babel-preset-es2015": "^6.1.18",
+    "babel-preset-react": "^6.1.18",
+    "babelify": "^7.2.0",
     "grunt": "^0.4.5",
     "grunt-browserify": "^3.5.1",
     "grunt-contrib-watch": "^0.6.1",
-    "jit-grunt": "^0.9.1",
-    "reactify": "^1.0.0"
+    "jit-grunt": "^0.9.1"
   }
 }
