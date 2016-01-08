@@ -363,6 +363,7 @@ module.exports = KBWidget({
                             if (! $gd.doubleClick) {
                                 if ($gd.options.endSelectionCallback) {
                                     $gd.options.endSelectionCallback.call($gd, {start : selectedBins[0], end : selectedBins[selectedBins.length - 1]});
+                                    setTimeout(function(){$gd.hideSelection()},2000);
                                 }
                             }
                         }, 300);
@@ -373,6 +374,7 @@ module.exports = KBWidget({
             }
             else if ($gd.options.cancelSelectionCallback) {
                 $gd.options.cancelSelectionCallback.call($gd);
+                $gd.hideSelection();
             }
 
 //            $gd.hideSelection();
@@ -418,6 +420,7 @@ module.exports = KBWidget({
 
                     if ($gd.options.endSelectionCallback) {
                         $gd.options.endSelectionCallback.call($gd, {start : firstBin, end : lastBin});
+                        setTimeout(function(){$gd.hideSelection()},2000);
                     }
 
                 }
