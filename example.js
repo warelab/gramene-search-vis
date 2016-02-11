@@ -38,8 +38,8 @@ var exampleQueries = [
     name: 'Domain filter',
     "q": "",
     "filters": {
-      "interpro___ancestors:2347": {
-        "fq": "interpro___ancestors:2347"
+      "domains__ancestors:2347": {
+        "fq": "interpro__ancestors:2347"
       }
     },
     "resultTypes": {
@@ -52,8 +52,8 @@ var exampleQueries = [
     name: 'PAD4',
     "q": "",
     "filters": {
-      "_terms:(PAD4)": {
-        "fq": "_terms:(PAD4)"
+      "_terms:PAD4": {
+        "fq": "_terms:PAD4"
       }
     },
     "resultTypes": {
@@ -66,8 +66,8 @@ var exampleQueries = [
     name: 'Species filter',
     "q": "",
     "filters": {
-      "NCBITaxon__ancestors:3702": {
-        "fq": "NCBITaxon__ancestors:3702"
+      "taxonomy__ancestors:3702": {
+        "fq": "taxonomy__ancestors:3702"
       }
     },
     "resultTypes": {
@@ -80,8 +80,8 @@ var exampleQueries = [
     name: 'Oryzeae filter',
     "q": "",
     "filters": {
-      "NCBITaxon__ancestors:147380": {
-        "fq": "NCBITaxon__ancestors:147380"
+      "taxonomy__ancestors:147380": {
+        "fq": "taxonomy__ancestors:147380"
       }
     },
     "resultTypes": {
@@ -94,11 +94,11 @@ var exampleQueries = [
     name: 'No results',
     "q": "",
     "filters": {
-      "NCBITaxon__ancestors:147380": {
-        "fq": "NCBITaxon__ancestors:147380"
+      "taxonomy__ancestors:147380": {
+        "fq": "taxonomy__ancestors:147380"
       },
-      "_terms:(PAD4)": {
-        "fq": "_terms:(PAD4)"
+      "_terms:PAD4": {
+        "fq": "_terms:PAD4"
       }
     },
     "resultTypes": {
@@ -123,6 +123,10 @@ Q.all(promises).spread(function (taxonomy) {
       return {queryIndex: 0}
     },
 
+    handleGeneSelection: function (bins) {
+      console.log("handleGeneSelection",bins);
+    },
+
     changeQuery: function () {
       this.setState({queryIndex: (++this.state.queryIndex % exampleResults.length)});
     },
@@ -135,7 +139,7 @@ Q.all(promises).spread(function (taxonomy) {
         <div>
           <p>{queryName}</p>
           <button type="button" onClick={this.changeQuery}>Change Query</button>
-          <Vis taxonomy={taxonomy}/>
+          <Vis taxonomy={taxonomy} onGeneSelection={this.handleGeneSelection}/>
         </div>
       );
     }
