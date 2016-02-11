@@ -1,6 +1,7 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var d3 = require('d3');
 
 // v-- these will need to be manually `npm installed`.
@@ -141,7 +142,7 @@ Q.all(promises).spread(function (taxonomy) {
   });
 
   // TODO: in the real world we will pass in the search object so we can infer correct tree state from taxonomy filters.
-  React.render(<AppComponent />, document.getElementById('the-test-vis'));
+  ReactDOM.render(<AppComponent />, document.getElementById('the-test-vis'));
 }).catch(function (err) {
   console.error(err);
 });

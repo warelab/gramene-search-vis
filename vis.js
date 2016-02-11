@@ -10,10 +10,10 @@ var _counterForVisId = 0;
 var Vis = React.createClass({
   propTypes: {
     taxonomy: React.PropTypes.object.isRequired,
-    onSubtreeCollapse: React.PropTypes.function,
-    onSubtreeExpand: React.PropTypes.function,
-    onTreeRootChange: React.PropTypes.function,
-    onGeneSelection: React.PropTypes.function
+    onSubtreeCollapse: React.PropTypes.func,
+    onSubtreeExpand: React.PropTypes.func,
+    onTreeRootChange: React.PropTypes.func,
+    onGeneSelection: React.PropTypes.func
   },
 
   componentWillMount: function () {
