@@ -43,7 +43,7 @@ module.exports = function (grunt) {
 
     watch: {
       browserify: {
-        files: ['example.js', 'kb/*.js', '*.jsx'],
+        files: ['example.js', 'kb/*.js', '*.jsx', '*.js'],
         tasks: ['browserify:dev']
       }
     }

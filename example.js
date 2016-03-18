@@ -12,8 +12,7 @@ var Q = require('q');
 
 var $ = require('jquery');
 
-var WareTreeGeneDistribution = require('./kb/WareTreeGeneDistribution.js');
-
+var VisOld = require('./vis-old.js');
 var Vis = require('./vis.js');
 
 // Example query objects.
@@ -47,7 +46,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-  
+
   {
     name: 'PAD4',
     "q": "",
@@ -61,7 +60,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-  
+
   {
     name: 'Species filter',
     "q": "",
@@ -75,7 +74,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-  
+
   {
     name: 'Oryzeae filter',
     "q": "",
@@ -89,7 +88,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-  
+
   {
     name: 'No results',
     "q": "",
@@ -140,10 +139,13 @@ Q.all(promises).spread(function (taxonomy) {
           <p>{queryName}</p>
           <button type="button" onClick={this.changeQuery}>Change Query</button>
           <Vis taxonomy={taxonomy} onGeneSelection={this.handleGeneSelection}/>
+          <h3>And before I broke it all was (disabled):</h3>
         </div>
       );
     }
   });
+
+  //          <VisOld taxonomy={taxonomy} onGeneSelection={this.handleGeneSelection}/>
 
   // TODO: in the real world we will pass in the search object so we can infer correct tree state from taxonomy filters.
   ReactDOM.render(<AppComponent />, document.getElementById('the-test-vis'));
