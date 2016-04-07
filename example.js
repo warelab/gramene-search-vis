@@ -12,7 +12,7 @@ var Q = require('q');
 
 var $ = require('jquery');
 
-var VisOld = require('./vis-old.js');
+// var VisOld = require('./vis-old.js');
 var Vis = require('./vis.js');
 
 // Example query objects.
