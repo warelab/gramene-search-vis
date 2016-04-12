@@ -28,7 +28,7 @@ module.exports = function (grunt) {
         ]
       },
       dev: {
-        src: './example.js',
+        src: './rewriteExample.js',
         dest: 'build/bundle.js'
 
       },

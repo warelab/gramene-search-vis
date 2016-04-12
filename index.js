@@ -1,3 +1,3 @@
 module.exports = {
-  Vis: require('./vis.js')
+  Vis: require('./reactVis.jsx')
 };
