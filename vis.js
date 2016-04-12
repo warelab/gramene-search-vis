@@ -4,6 +4,7 @@ var $ = require('jquery');
 var React = require('react');
 var d3 = require('d3');
 var ReactDOM = require('react-dom');
+var ReactFauxDOM = require('react-faux-dom');
 
 var _counterForVisId = 0;
 
@@ -26,8 +27,6 @@ var Vis = React.createClass({
       openCircleFill  : '#547b74',
       closedCircleFill: '#FFF',
 
-      circleStroke    : '#547b74',
-
       lineStroke      : '#dde5e3',
 
       highlightColor  : '#ea8e75',
@@ -36,6 +35,13 @@ var Vis = React.createClass({
 
       svgID : 1,
     }
+  },
+
+  getInitialState: function() {
+    return {
+      showTooltip: false,
+      collapsedNodes: []
+    };
   },
 
   uniqueFunc : function (d) {
@@ -61,12 +67,18 @@ var Vis = React.createClass({
   },
 
   render : function() {
-
     return (
       <div>
-        <svg ref = 'svg'></svg>
-        <div ref = 'tooltip'
-          style = {{
+        {this.renderSvg()}
+        {this.renderTooltip()}
+      </div>
+    );
+  },
+
+  renderTooltip: function() {
+    if(this.state.showTooltip) {
+      return (
+        <div style={{
             position              : 'absolute',
             'maxWidth'            : '300px',
             height                : 'auto',
@@ -82,18 +94,19 @@ var Vis = React.createClass({
             'display'             : 'none',
             'fontFamily'          : 'sans-serif',
             'fontSize'            : '12px',
-            'lineHeight'          : '20px',
-          }}
-        ></div>
-      </div>
-    );
+            'lineHeight'          : '20px'
+          }}>
+        </div>
+      )
+    }
   },
 
-  componentDidMount : function() {
-    this.prepare(ReactDOM.findDOMNode(this.refs.svg));
-  },
+  // componentDidMount : function() {
+  //   this.prepare(ReactDOM.findDOMNode(this.refs.svg));
+  // },
 
-  prepare: function (svg) {
+  renderSvg: function () {
+    var svg = ReactFauxDOM.createElement('svg');
 
     var self = this;
 
@@ -114,7 +127,7 @@ var Vis = React.createClass({
       .domain([0, maxScore])
       .range([.5, maxRange]);
 
-    var layout = d3.layout.cluster().separation(function(a,b){return 1}).size([treeHeight, treeWidth])
+    var layout = d3.layout.cluster().separation(function(a,b){return 1}).size([treeHeight, treeWidth]);
     var nodes = layout.nodes(dataset).reverse();
 
     var edgeCount = 0;
@@ -133,12 +146,12 @@ var Vis = React.createClass({
           maxDepth = myDepth;
         }
       }
-    })
+    });
 
     var newTreeHeight = edgeCount * nodeHeight;
     if (newTreeHeight != treeHeight) {
       treeHeight = newTreeHeight;
-      layout.size([treeHeight, treeWidth])
+      layout.size([treeHeight, treeWidth]);
       nodes = layout.nodes(dataset).reverse();
     }
 
@@ -245,7 +258,7 @@ var Vis = React.createClass({
         var bounds = this.getBBox();
 
         if (coordinates[1] < -4 || coordinates[1] > bounds.height + 4) {
-          self.hideToolTip();
+          // self.setState({showTooltip: false});
           self.validDrag = false;
         }
         else {
@@ -347,7 +360,7 @@ var Vis = React.createClass({
         var regionDomain = function (data) {
 
           var length = 0;
-          var lastVal = {end: 0}
+          var lastVal = {end: 0};
           data.forEach(
             function (val, idx) {
               length    += val.size;
@@ -355,21 +368,21 @@ var Vis = React.createClass({
               val.end   = val.start + val.size;
               lastVal   = val;
             }
-          )
+          );
 
           return [0, length];
-        }
+        };
 
         var regionColors = ['#547b74', '#9abe6c'];
         var regionColorScales = [
           d3.scale.linear().domain([0, 1]).range(['#FFFFFF', regionColors[0]]),
           d3.scale.linear().domain([0, 1]).range(['#FFFFFF', regionColors[1]])
-        ]
+        ];
 
         var binColorScales = [
           d3.scale.linear().domain([0, 1]).range([regionColorScales[0](0.5), regionColors[0]]),
           d3.scale.linear().domain([0, 1]).range([regionColorScales[1](0.5), regionColors[1]])
-        ]
+        ];
 
         var xScale = d3.scale.linear()
           .domain( regionDomain(regions) )
@@ -467,7 +480,7 @@ var Vis = React.createClass({
               initialBox = this.getBBox();
               initialBin = bin;
 
-              dragBox.attr('x', initialBox.x)
+              dragBox.attr('x', initialBox.x);
               dragBox.attr('width', initialBox.width);
               dragBox.attr('visibility', 'visible');
 
@@ -540,10 +553,14 @@ var Vis = React.createClass({
                     score += bin.results.count;
                   }
                 }
-              )
+              );
 
               var units = (score > 1) ? ' genes' : ' gene';
-              self.showToolTip({label: bin.regionObj.name + ':' + (bin.regionObj.dragRange[0] - bin.regionObj.start) + '-' + (bin.regionObj.dragRange[1] - bin.regionObj.start) + ' ' + score + units})
+              // self.setState({
+              //   showTooltip: {
+              //     label: bin.regionObj.name + ':' + (bin.regionObj.dragRange[0] - bin.regionObj.start) + '-' + (bin.regionObj.dragRange[1] - bin.regionObj.start) + ' ' + score + units
+              //   }
+              // })
 
             }
 
@@ -569,10 +586,10 @@ var Vis = React.createClass({
             var score = b.results ? b.results.count : 0;
             if (score) {
               var units = (score > 1) ? ' genes' : ' gene';
-              self.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end + ' ' + score + units})
+              // self.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end + ' ' + score + units})
             }
             else {
-              self.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end})
+              // self.showToolTip({label: b.regionObj.name + ':' + b.start + '-' + b.end})
             }
           })
           .call(drag)
@@ -661,7 +678,7 @@ var Vis = React.createClass({
       })
     ;
 
-    link.transition().duration(duration).attr("d", self.diagonal)
+    link.transition().duration(duration).attr("d", self.diagonal);
 
      // Transition exiting nodes to the parent's new position.
     link.exit().transition()
@@ -674,7 +691,7 @@ var Vis = React.createClass({
       .remove();
 
     this.initialized = true;
-
+    return svg.toReact();
   },
 
   nodeTranslate : function (d, maxDepth) {
@@ -730,7 +747,7 @@ var Vis = React.createClass({
 
       highlighted[nodeID] = true;
 
-      d3.selectAll(this.selectorForVisId(nodeID, 'link')).attr('stroke','#ea8e75')
+      d3.selectAll(this.selectorForVisId(nodeID, 'link')).attr('stroke','#ea8e75');
 
       nodes.pop();
     }
@@ -755,7 +772,7 @@ var Vis = React.createClass({
 
     if (! self.dragging) {
       if (d.children || d._children) {
-        this.showToolTip({label : d.model.name + ' - ' + d.stats().genes + ' genes'})
+        // this.showToolTip({label : d.model.name + ' - ' + d.stats().genes + ' genes'})
       }
     }
   },
@@ -767,7 +784,7 @@ var Vis = React.createClass({
     ;
 
     d3.selectAll('.link').attr('stroke', this.props.lineStroke);
-    this.hideToolTip();
+    // this.hideToolTip();
   },
 
   handleClick : function(d) {
@@ -789,78 +806,78 @@ var Vis = React.createClass({
   },
 
   collapseTree : function(d) {
-
-    if (d.children != undefined) {
-      d._children = d.children;
-      delete d.children;
-      d.open = false;
-
-      if (this.props.onSubtreeCollapse) {
-        this.props.onSubtreeCollapse(d);
-      }
-
-    }
-    else {
-      d.children = d._children;
-      delete d._children;
-      d.open = true;
-
-      if (this.props.onSubtreeExpand) {
-        this.props.onSubtreeExpand(d);
-      }
-    }
-
-    if (this.props.taxonClick) {
-      this.props.taxonClick.call(this, d);
-    }
-
-    this.prepare(ReactDOM.findDOMNode(this.refs.svg));
+    //
+    // if (d.children != undefined) {
+    //   d._children = d.children;
+    //   delete d.children;
+    //   d.open = false;
+    //
+    //   if (this.props.onSubtreeCollapse) {
+    //     this.props.onSubtreeCollapse(d);
+    //   }
+    //
+    // }
+    // else {
+    //   d.children = d._children;
+    //   delete d._children;
+    //   d.open = true;
+    //
+    //   if (this.props.onSubtreeExpand) {
+    //     this.props.onSubtreeExpand(d);
+    //   }
+    // }
+    //
+    // if (this.props.taxonClick) {
+    //   this.props.taxonClick.call(this, d);
+    // }
+    //
+    // this.renderSvg(ReactDOM.findDOMNode(this.refs.svg));
   },
 
   rerootTree : function(d) {
-
-    var self = this;
-
-    //clicks on the root node shouldn't do anything, so bail out.
-    if (d.model.name == 'Eukaryota') {
-      return;
-    }
-
-    var isRoot    = true;
-    var lastRoot  = undefined;
-
-    var parent = d;
-    if (this.originalRoot == undefined || this.lastClicked !== d) {
-      if (this.originalRoot == undefined) {
-        this.originalRoot = this.dataset;
-        this.subRoot      = d;
-      }
-
-      this.lastClicked  = d;
-      lastRoot          = this.originalRoot;
-    }
-    else {
-      lastRoot          = d;
-      d                 = this.originalRoot;
-      this.originalRoot = undefined;
-      this.lastClicked  = undefined;
-      isRoot            = false;
-    }
-
-    self.relayout(d);
-
-    d.stroke = this.originalRoot ? '#ea8e75' : '#547b74';
-
-    this.dataset = d;
-    this.prepare(ReactDOM.findDOMNode(this.refs.svg));
-
-    if (self.props.taxonDblClick != undefined) {
-      self.props.taxonDblClick(d, isRoot);
-    }
-
-    if (self.props.onTreeRootChange) {
-      self.props.onTreeRootChange(d, lastRoot);
-    }
+    //
+    // var self = this;
+    //
+    // //clicks on the root node shouldn't do anything, so bail out.
+    // if (d.model.name == 'Eukaryota') {
+    //   return;
+    // }
+    //
+    // var isRoot    = true;
+    // var lastRoot  = undefined;
+    //
+    // var parent = d;
+    // if (this.originalRoot == undefined || this.lastClicked !== d) {
+    //   if (this.originalRoot == undefined) {
+    //     this.originalRoot = this.dataset;
+    //     this.subRoot      = d;
+    //   }
+    //
+    //   this.lastClicked  = d;
+    //   lastRoot          = this.originalRoot;
+    // }
+    // else {
+    //   lastRoot          = d;
+    //   d                 = this.originalRoot;
+    //   this.originalRoot = undefined;
+    //   this.lastClicked  = undefined;
+    //   isRoot            = false;
+    // }
+    //
+    // self.relayout(d);
+    //
+    // d.stroke = this.originalRoot ? '#ea8e75' : '#547b74';
+    //
+    // this.dataset = d;
+    // this.renderSvg(ReactDOM.findDOMNode(this.refs.svg));
+    //
+    // if (self.props.taxonDblClick != undefined) {
+    //   self.props.taxonDblClick(d, isRoot);
+    // }
+    //
+    // if (self.props.onTreeRootChange) {
+    //   self.props.onTreeRootChange(d, lastRoot);
+    // }
 
   },
 
@@ -898,24 +915,24 @@ var Vis = React.createClass({
 
     return d;
   },
-
-  showToolTip : function showToolTip (args) {
-
-    if (args.event == undefined) {
-      args.event = d3.event;
-    }
-
-    d3.select(ReactDOM.findDOMNode(this.refs.tooltip))
-      .style('display', 'block')
-      .html(args.label)
-      .style("left", (args.event.pageX + 10) + "px")
-       .style("top", (args.event.pageY - 10) + "px")
-      .style('max-width', (args.maxWidth || '300') + 'px')
-    },
-
-    hideToolTip : function hideToolTip (args) {
-      d3.select(ReactDOM.findDOMNode(this.refs.tooltip)).style('display', 'none');
-    },
+  //
+  // showToolTip : function showToolTip (args) {
+  //
+  //   if (args.event == undefined) {
+  //     args.event = d3.event;
+  //   }
+  //
+  //   d3.select(ReactDOM.findDOMNode(this.refs.tooltip))
+  //     .style('display', 'block')
+  //     .html(args.label)
+  //     .style("left", (args.event.pageX + 10) + "px")
+  //      .style("top", (args.event.pageY - 10) + "px")
+  //     .style('max-width', (args.maxWidth || '300') + 'px')
+  //   },
+  //
+  //   hideToolTip : function hideToolTip (args) {
+  //     d3.select(ReactDOM.findDOMNode(this.refs.tooltip)).style('display', 'none');
+  //   },
 
     binsInRange: function (bins, start, end) {
       var results = [];
@@ -926,7 +943,7 @@ var Vis = React.createClass({
             results.push(bin);
           }
         }
-      )
+      );
 
       return results;
 
