@@ -27,5 +27,18 @@
     "grunt-contrib-watch": "^0.6.1",
     "jit-grunt": "^0.9.1",
     "q": "^1.4.1"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015",
+            "react"
+          ]
+        }
+      ]
+    ]
   }
 }
