@@ -1,6 +1,11 @@
 import React from "react";
 import _ from "lodash";
 
+import layoutNodes from './taxogenomic/util/layout';
+import visibleLeafCount from './taxogenomic/util/visibleLeafCount';
+
+import Taxonomy from './taxogenomic/Taxonomy.jsx';
+
 const WIDTH = 400;
 const LEAF_NODE_HEIGHT = 12;
 
@@ -8,45 +13,49 @@ export default class Vis extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodes: this.updateNodeState(props.taxonomy)
+      nodeDisplayInfo: this.initNodeState(props.taxonomy)
     };
   }
 
-  updateNodeState(taxonomy = this.props.taxonomy) {
-    return _.mapValues(taxonomy.indices.id, ()=> {
-      return {
-        expanded: true
-      }
-    });
+  initNodeState(taxonomy = this.props.taxonomy) {
+    return _(taxonomy.all())
+      .keyBy('model.id')
+      .mapValues(()=>({ expanded: true }))
+      .value();
+  }
+
+  componentWillMount() {
+    this.updateDisplayInfo();
+  }
+
+  componentWillReceiveProps(newProps) {
+    this.updateDisplayInfo(newProps);
+  }
+
+  updateDisplayInfo(props = this.props) {
+    const newDisplayInfo = layoutNodes(
+      this.width() / 2,
+      this.height(),
+      props.taxonomy,
+      this.state.nodeDisplayInfo
+    );
+    
+    this.setState({nodeDisplayInfo: newDisplayInfo})
   }
   
-  visibleLeafNodes() {
-    var count = 0;
-
-    this.props.taxonomy.filterWalk(function (n) {
-      // if a node has no children, it's a leaf node (with a reference genome)
-      if(!n.hasChildren()) {
-        if(!n.model.genome) {
-          throw new Error(`Node ${_.get(n, 'model.id')} has no genome`);
-        }
-        ++count;
-      }
-
-      // only look at the children if they are visible in the chart.
-      return this.state.nodes[n.model.id].expanded;
-    }.bind(this));
-
-    return count;
+  height() {
+    return visibleLeafCount(this.props.taxonomy, this.state.nodeDisplayInfo) * LEAF_NODE_HEIGHT;
   }
-  
-  svgHeight() {
-    return this.visibleLeafNodes() * LEAF_NODE_HEIGHT;
+
+  width() {
+    return WIDTH;
   }
 
   renderSvg() {
     return (
-      <svg width={WIDTH} height={this.svgHeight()}>
-        <text x="20" y="20">{_.get(this.props, 'taxonomy.model.results.count')}</text>
+      <svg width={this.width()} height={this.height()}>
+        <Taxonomy rootNode={this.props.taxonomy}
+                  nodeDisplayInfo={this.state.nodeDisplayInfo} />
       </svg>
     )
   }
