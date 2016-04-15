@@ -23,7 +23,6 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
     for(let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
       const displayInfo = incompleteNodeDisplayInfo[node.id];
-      // console.log(node.id, displayInfo, node);
       displayInfo.x = node.x;
       displayInfo.y = node.y;
       displayInfo.lineThickness = strokeScale(node.results.proportion);
@@ -47,7 +46,6 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
       const id = node.model.id;
       const isExpanded = nodeDisplayInfo[id].expanded;
       const datum = _.cloneDeep(_.omit(node.model, 'children'));
-      console.log(++count, isExpanded, datum);
       if(isExpanded && node.hasChildren()) {
         datum.children = node.children.map(d3dataRecursive);
       }
@@ -69,8 +67,6 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
       }
       displayInfo.offsetX = displayInfo.x - parentX;
       displayInfo.offsetY = displayInfo.y - parentY;
-
-      // console.log(_.repeat('  ', depth) + `${displayInfo.x},${displayInfo.y} gives ${displayInfo.offsetX},${displayInfo.offsetY}`);
 
       if(displayInfo.expanded && node.hasChildren()) {
         node.children.map((child)=>updateRecursive(

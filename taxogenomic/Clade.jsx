@@ -4,7 +4,7 @@ import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
 import microsoftBrowser from "./util/microsoftBrowser";
 
-const textWidth = 200;
+const textWidth = 190;
 const genomePadding = 2;
 import { genomesWidth, leafNodeHeight } from '../reactVis.jsx';
 
