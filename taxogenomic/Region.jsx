@@ -1,7 +1,5 @@
 import React from "react";
 
-import Bin from './Bin.jsx';
-
 export default class Region extends React.Component {
   render() {
     const width = this.props.region.binCount() * this.props.binWidth;
@@ -29,19 +27,20 @@ export default class Region extends React.Component {
       translateX += this.props.binWidth;
 
       return (
-        <g key={bin.idx}
-           transform={transform}>
-          <rect x="0"
-                y="0"
-                width={this.props.binWidth}
-                height={this.props.height}
-                fill="yellow"
-                shapeRendering="crispEdges"
-          />
-        </g>
+        <rect key={bin.idx}
+              transform={transform}
+              x="0"
+              y="0"
+              width={this.props.binWidth}
+              height={this.props.height}
+              fill="yellow"
+              shapeRendering="crispEdges"
+              onMouseOver={(e)=>console.log(bin)}
+        />
       );
       // return (
-      //   <g key={bin.name}
+      //
+      // <g key={bin.name}
       //      transform={transform}>
       //     <Bin bin={bin}
       //          width={this.props.binWidth}
