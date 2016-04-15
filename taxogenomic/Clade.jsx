@@ -1,9 +1,12 @@
-import React from 'react';
+import React from "react";
+import Edge from "./Edge.jsx";
+import Node from "./Node.jsx";
+import Genome from "./Genome.jsx";
+import microsoftBrowser from "./util/microsoftBrowser";
 
-import Edge from './Edge.jsx';
-import Node from './Node.jsx';
-
-import microsoftBrowser from './util/microsoftBrowser';
+const textWidth = 200;
+const genomePadding = 2;
+import { genomesWidth, leafNodeHeight } from '../reactVis.jsx';
 
 export default class Clade extends React.Component {
   render() {
@@ -13,40 +16,88 @@ export default class Clade extends React.Component {
         {this.renderNode()}
         {this.renderText()}
         {this.renderSubclades()}
+        {this.renderGenome()}
       </g>
     )
   }
 
   renderEdge() {
-    if(!this.props.node.isRoot()) {
+    if (!this.props.isRoot) {
       return <Edge node={this.props.node}
                    displayInfo={this.displayInfo()}
-                   onSelect={()=>{}} />
+                   onSelect={()=>{}}/>
     }
   }
 
   renderNode() {
     return <Node node={this.props.node}
                  displayInfo={this.displayInfo()}
-                 onSelect={()=>{}} />
+                 onSelect={()=>{}}/>
 
   }
 
   renderText() {
-    // return <text>{this.props.node.model.results.count}</text>
+    if (!this.props.node.hasChildren()) {
+      return (
+        <g>
+          <text className="species-name">
+            <textPath xlinkHref="#species-name-path">
+              {this.speciesName()}
+            </textPath>
+          </text>
+          <text x={textWidth} y="5" className="results-count" textAnchor="end">
+            {this.props.node.model.results.count.toLocaleString()}
+          </text>
+        </g>
+      )
+    }
+  }
+
+  speciesName() {
+    const fullName = this.props.node.model.name;
+    const removedExtraineousWords = fullName.replace(/( Group$| subsp\.| var\.| strain)/, '');
+    let finalVersion;
+    if (removedExtraineousWords.length > 20) {
+      // abrreviate first word.
+      finalVersion = removedExtraineousWords.replace(/^([A-Z])[a-z]+/, '$1.')
+    }
+    else {
+      finalVersion = removedExtraineousWords;
+    }
+    return finalVersion;
   }
 
   renderSubclades() {
-    if(this.showChildren()) {
-      return this.props.node.children.map( (child) => {
+    if (this.showChildren()) {
+      return this.props.node.children.map((child) => {
         const key = _.get(child, 'model.id');
-        if(!_.isNumber(key)) {
+        if (!_.isNumber(key)) {
           throw new Error("No node id for child!");
         }
         return (
           <Clade key={key} node={child} nodeDisplayInfo={this.props.nodeDisplayInfo}/>
         );
       });
+    }
+  }
+
+  renderGenome() {
+    const genome = this.props.node.model.genome;
+
+    if (genome) {
+      const translateX = textWidth + genomePadding;
+      const translateY = (leafNodeHeight / 2) - genomePadding;
+      const transform = `translate(${translateX}, -${translateY})`;
+      const width = genomesWidth - genomePadding;
+      const height = leafNodeHeight - genomePadding;
+
+      return (
+        <g className="genome-padding" transform={transform}>
+          <Genome genome={genome}
+                  width={width}
+                  height={height}/>
+        </g>
+      )
     }
   }
 
@@ -61,11 +112,11 @@ export default class Clade extends React.Component {
       return `translate(${y}${px}, ${x}${px})`;
     };
 
-    if(microsoftBrowser) {
+    if (microsoftBrowser) {
       props.transform = transform(false);
     }
     else {
-      props.style = { transform: transform(true) };
+      props.style = {transform: transform(true)};
     }
 
     return props;
@@ -74,7 +125,7 @@ export default class Clade extends React.Component {
   componentWillMount() {
     const node = this.props.node;
     this.nodeId = _.get(node, 'model.id');
-    if(!_.isNumber(this.nodeId)) {
+    if (!_.isNumber(this.nodeId)) {
       throw new Error(`No node id found!`);
     }
   }
@@ -90,7 +141,10 @@ export default class Clade extends React.Component {
   }
 }
 
+export {textWidth};
+
 Clade.propTypes = {
   node: React.PropTypes.object.isRequired,
-  nodeDisplayInfo: React.PropTypes.object.isRequired
+  nodeDisplayInfo: React.PropTypes.object.isRequired,
+  isRoot: React.PropTypes.bool
 };

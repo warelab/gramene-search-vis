@@ -1,0 +1,25 @@
+@import 'colors';
+
+text {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+}
+
+.clade {
+  cursor: pointer;
+
+  .results-count {
+    font-size: 10px;
+    fill: gray;
+  }
+
+  .node circle {
+    stroke: @gramene-darkgreen;
+    stroke-width: 1px; // This is referenced in Edge.jsx
+    fill: @gramene-offwhite;
+  }
+
+  .edge rect {
+    fill: #cccccc;
+  }
+}

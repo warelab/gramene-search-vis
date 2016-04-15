@@ -75,7 +75,7 @@ var promises = exampleQueries.map(function (eg) {
 promises.unshift(taxonomyGetter.get());
 
 Q.all(promises).spread(function (taxonomy) {
-  var exampleResults = Array.prototype.slice.call(arguments, 1);
+  const exampleResults = Array.prototype.slice.call(arguments, 1);
   taxonomy.setBinType('fixed', 200);
   ReactDOM.render(
     <App taxonomy={taxonomy}

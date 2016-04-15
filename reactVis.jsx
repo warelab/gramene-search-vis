@@ -6,14 +6,25 @@ import visibleLeafCount from './taxogenomic/util/visibleLeafCount';
 
 import Taxonomy from './taxogenomic/Taxonomy.jsx';
 
-const WIDTH = 400;
-const LEAF_NODE_HEIGHT = 12;
+import {textWidth} from './taxogenomic/Clade.jsx';
+
+const visWidth = 750;
+const leafNodeHeight = 12;
+
+const speciesTreeProportion = 0.18;
+const textProportion = textWidth / visWidth;
+const genomesProportion = 1 - speciesTreeProportion - textProportion;
+
+const speciesTreeWidth = visWidth * speciesTreeProportion;
+const genomesWidth = visWidth * genomesProportion;
+const genomesStart = visWidth - genomesWidth;
 
 export default class Vis extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodeDisplayInfo: this.initNodeState(props.taxonomy)
+      nodeDisplayInfo: this.initNodeState(props.taxonomy),
+      rootNodeId: 2759 // eukaryota
     };
   }
 
@@ -25,44 +36,61 @@ export default class Vis extends React.Component {
   }
 
   componentWillMount() {
-    this.updateDisplayInfo();
+    this.updateTaxonomyDisplayInfo();
   }
 
   componentWillReceiveProps(newProps) {
-    this.updateDisplayInfo(newProps);
+    this.updateTaxonomyDisplayInfo(newProps);
   }
 
-  updateDisplayInfo(props = this.props) {
+  updateTaxonomyDisplayInfo(props = this.props) {
     const newDisplayInfo = layoutNodes(
-      this.width() / 2,
+      speciesTreeWidth,
       this.height(),
       props.taxonomy,
-      this.state.nodeDisplayInfo
+      this.state.nodeDisplayInfo,
+      this.state.rootNodeId
     );
     
     this.setState({nodeDisplayInfo: newDisplayInfo})
   }
+
+  rootNode() {
+    return this.props.taxonomy.indices.id[this.state.rootNodeId];
+  }
   
   height() {
-    return visibleLeafCount(this.props.taxonomy, this.state.nodeDisplayInfo) * LEAF_NODE_HEIGHT;
+    return visibleLeafCount(this.props.taxonomy, this.state.nodeDisplayInfo) * leafNodeHeight;
   }
 
   width() {
-    return WIDTH;
+    return visWidth;
+  }
+
+  margin() {
+    return 10;
+  }
+
+  marginTransform() {
+    const m = this.margin() / 2;
+    return `translate(${m},${m})`;
   }
 
   renderSvg() {
     return (
-      <svg width={this.width()} height={this.height()}>
-        <Taxonomy rootNode={this.props.taxonomy}
-                  nodeDisplayInfo={this.state.nodeDisplayInfo} />
+      <svg width={this.width() + this.margin()}
+           height={this.height() + this.margin()}>
+        <g className="margin" transform={this.marginTransform()}>
+          <Taxonomy rootNode={this.rootNode()}
+                    nodeDisplayInfo={this.state.nodeDisplayInfo} />
+        </g>
       </svg>
     )
   }
 
   render() {
     return (
-      <div>
+      <div className="taxogenomic-vis">
         {this.renderSvg()}
       </div>
     )
@@ -76,3 +104,5 @@ Vis.propTypes = {
   onTreeRootChange: React.PropTypes.func,
   onGeneSelection: React.PropTypes.func
 };
+
+export { leafNodeHeight, genomesWidth, genomesStart };

@@ -3,7 +3,8 @@ import d3 from 'd3';
 
 const UNSIZED_LAYOUT = d3.layout.cluster().separation(function(a,b){return 1});
 
-export default function layoutNodes(width, height, taxonomy, currentDisplayInfo) {
+export default function layoutNodes(width, height, taxonomy, currentDisplayInfo, rootNodeId) {
+  const rootNode = taxonomy.indices.id[rootNodeId];
   return updateNodeCoordinates();
 
   // update x and y coordinates for currently visible nodes
@@ -53,7 +54,7 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo)
       return datum;
     };
 
-    return d3dataRecursive(taxonomy);
+    return d3dataRecursive(rootNode);
   }
 
   function updateRelativeNodeCoordinates(incompleteNodeDisplayInfo) {
