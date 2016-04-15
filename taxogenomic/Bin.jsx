@@ -4,10 +4,10 @@ export default class Bin extends React.Component {
   render() {
     return (
       <rect x="0"
-            y="0"
-            width={this.props.width}
-            height={this.props.height}
-            fill="yellow"
+    y="0"
+    width={this.props.width}
+    height={this.props.height}
+    fill="yellow"
       />
     )
   }

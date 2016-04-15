@@ -8,7 +8,13 @@ export default class Region extends React.Component {
 
     return (
       <g>
-        <rect x="0" y="0" width={width} height={this.props.height} fill="red"/>
+        <rect x="0"
+              y="0"
+              width={width}
+              height={this.props.height}
+              fill="red"
+              shapeRendering="crispEdges"
+        />
         {this.renderBins()}
       </g>
     );
@@ -23,13 +29,25 @@ export default class Region extends React.Component {
       translateX += this.props.binWidth;
 
       return (
-        <g key={bin.name}
+        <g key={bin.idx}
            transform={transform}>
-          <Bin bin={bin}
-               width={this.props.binWidth}
-               height={this.props.height}/>
+          <rect x="0"
+                y="0"
+                width={this.props.binWidth}
+                height={this.props.height}
+                fill="yellow"
+                shapeRendering="crispEdges"
+          />
         </g>
       );
+      // return (
+      //   <g key={bin.name}
+      //      transform={transform}>
+      //     <Bin bin={bin}
+      //          width={this.props.binWidth}
+      //          height={this.props.height}/>
+      //   </g>
+      // );
     })
   }
 }

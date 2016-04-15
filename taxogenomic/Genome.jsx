@@ -13,7 +13,8 @@ export default class Genome extends React.Component {
               y={0}
               width={this.props.width}
               height={this.props.height}
-              fill="steelblue"/>
+              fill="steelblue"
+              shapeRendering="crispEdges"/>
         {this.renderRegions()}
       </g>
     )
@@ -33,10 +34,10 @@ export default class Genome extends React.Component {
       translateX += region.binCount() * binWidth;
 
       return (
-        <g key={region.name} 
+        <g key={region.name}
            transform={transform}>
-          <Region region={region} 
-                  binWidth={binWidth} 
+          <Region region={region}
+                  binWidth={binWidth}
                   height={this.props.height}/>
         </g>
       );
