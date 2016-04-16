@@ -10,12 +10,6 @@ export default class Genome extends React.Component {
   render() {
     return (
       <g className="genome">
-        <rect x={0}
-              y={0}
-              width={this.props.width}
-              height={this.props.height}
-              fill="steelblue"
-              shapeRendering="crispEdges"/>
         {this.renderRegions()}
       </g>
     )
@@ -27,21 +21,25 @@ export default class Genome extends React.Component {
   
   renderRegions() {
     const binWidth = this.binWidth();
+    const numRegions = this.props.genome.regionCount();
     var translateX = 0;
 
     return this.props.genome.mapRegions((region, idx) => {
       const transform = `translate(${translateX}, 0)`;
+      const isLastRegion = (idx + 1) === numRegions;
 
       // SIDE EFFECTS
       translateX += region.binCount() * binWidth;
 
       return (
-        <g key={idx}
+        <g className="region-wrapper"
+           key={idx}
            transform={transform}>
           <Region regionIdx={idx}
                   region={region}
                   color={regionColor(idx)}
                   binWidth={binWidth}
+                  isLastRegion={isLastRegion}
                   height={this.props.height}
                   globalStats={this.props.globalStats}
           />
