@@ -12,6 +12,7 @@ export default class Region extends React.Component {
               height={this.props.height}
               fill={this.props.color}
               shapeRendering="crispEdges"
+              onMouseOver={()=>console.log(this.props.region)}
         />
         {this.renderBins()}
       </g>
