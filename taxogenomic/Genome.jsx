@@ -15,12 +15,12 @@ export default class Genome extends React.Component {
     )
   }
 
-  binWidth() {
-    return genomesWidth / this.props.genome.nbins;
+  baseWidth() {
+    return genomesWidth / this.props.genome.fullGenomeSize;
   }
   
   renderRegions() {
-    const binWidth = this.binWidth();
+    const baseWidth = this.baseWidth();
     const numRegions = this.props.genome.regionCount();
     var translateX = 0;
 
@@ -29,7 +29,7 @@ export default class Genome extends React.Component {
       const isLastRegion = (idx + 1) === numRegions;
 
       // SIDE EFFECTS
-      translateX += region.binCount() * binWidth;
+      translateX += region.size * baseWidth;
 
       return (
         <g className="region-wrapper"
@@ -37,8 +37,8 @@ export default class Genome extends React.Component {
            transform={transform}>
           <Region regionIdx={idx}
                   region={region}
-                  color={regionColor(idx)}
-                  binWidth={binWidth}
+                  color={regionColor(idx, region.name === 'UNANCHORED')}
+                  baseWidth={baseWidth}
                   isLastRegion={isLastRegion}
                   height={this.props.height}
                   globalStats={this.props.globalStats}

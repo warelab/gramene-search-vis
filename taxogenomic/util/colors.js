@@ -12,12 +12,22 @@ const regionColors = regionColorScales.map((scale) =>
   scale(0.20)
 );
 
-export function regionColor(regionIdx) {
+export function regionColor(regionIdx, isUnanchored) {
+  if(isUnanchored) {
+    return unanchoredColor();
+  }
   const idx = regionIdx % baseColors.length;
   return regionColors[idx];
 }
 
-export function binColor(regionIdx, binScore) {
+export function binColor(regionIdx, binScore, isUnanchored) {
+  if(isUnanchored) {
+    return unanchoredColor();
+  }
   const idx = regionIdx % baseColors.length;
   return binColorScales[idx](binScore);
+}
+
+function unanchoredColor() {
+  return '#d3d3d3';
 }
