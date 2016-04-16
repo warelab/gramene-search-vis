@@ -85,6 +85,7 @@ export default class Clade extends React.Component {
     const genome = this.props.node.model.genome;
 
     if (genome) {
+      const globalStats = this.props.node.globalResultSetStats();
       const translateX = textWidth + genomePadding;
       const translateY = (leafNodeHeight / 2) - genomePadding;
       const transform = `translate(${translateX}, -${translateY})`;
@@ -94,6 +95,7 @@ export default class Clade extends React.Component {
       return (
         <g className="genome-padding" transform={transform}>
           <Genome genome={genome}
+                  globalStats={globalStats}
                   width={width}
                   height={height}/>
         </g>

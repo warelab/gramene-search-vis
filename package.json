@@ -20,7 +20,7 @@
     "babel-preset-react": "^6.3.13",
     "babelify": "^7.2.0",
     "gramene-search-client": "^2.6.3",
-    "gramene-taxonomy-with-genomes": "^3.0.1",
+    "gramene-taxonomy-with-genomes": "^3.0.3",
     "grunt": "^0.4.5",
     "grunt-browserify": "^4.0.1",
     "grunt-contrib-less": "^1.3.0",

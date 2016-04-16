@@ -1,5 +1,7 @@
 import React from "react";
 
+import { binColor } from './util/colors';
+
 export default class Region extends React.Component {
   render() {
     const width = this.props.region.binCount() * this.props.binWidth;
@@ -10,7 +12,7 @@ export default class Region extends React.Component {
               y="0"
               width={width}
               height={this.props.height}
-              fill="red"
+              fill={binColor}
               shapeRendering="crispEdges"
         />
         {this.renderBins()}
@@ -20,9 +22,14 @@ export default class Region extends React.Component {
 
   renderBins() {
     var translateX = 0;
+    const maxScore = this.props.globalStats.bins.max || 1;
+
     return this.props.region.mapBins((bin) => {
       const transform = `translate(${translateX}, 0)`;
-
+      const score = bin.results.count / maxScore;
+      const fillColor = this.props.region.name === 'UNANCHORED' ?
+        '#d3d3d3' :
+        binColor(this.props.regionIdx, score);
       // SIDE EFFECTS
       translateX += this.props.binWidth;
 
@@ -33,7 +40,7 @@ export default class Region extends React.Component {
               y="0"
               width={this.props.binWidth}
               height={this.props.height}
-              fill="yellow"
+              fill={fillColor}
               shapeRendering="crispEdges"
               onMouseOver={(e)=>console.log(bin)}
         />
@@ -52,7 +59,10 @@ export default class Region extends React.Component {
 }
 
 Region.propTypes = {
+  regionIdx: React.PropTypes.number.isRequired,
   region: React.PropTypes.object.isRequired,
+  globalStats: React.PropTypes.object.isRequired,
   binWidth: React.PropTypes.number.isRequired,
-  height: React.PropTypes.number.isRequired
+  height: React.PropTypes.number.isRequired,
+  color: React.PropTypes.string.isRequired
 };
