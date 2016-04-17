@@ -45,7 +45,8 @@ export default class App extends React.Component {
         <p>{this.state.queryIndex} {this.state.queryName}</p>
         <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
         <Vis taxonomy={this.state.taxonomy}
-             onGeneSelection={this.logFactory('GeneSelection')}
+             onTaxonSelection={this.logFactory('TaxonSelection')}
+             onTaxonHighlight={this.logFactory('TaxonHighlight')}
              onSubtreeCollapse={this.logFactory('SubtreeCollapse')}
              onSubtreeExpand={this.logFactory('SubtreeExpand')}
              onTreeRootChange={this.logFactory('TreeRootChange')}

@@ -22,4 +22,22 @@ text {
   .edge rect {
     fill: #cccccc;
   }
+
+  .clade.highlight {
+    > .node > circle,
+    > .edge > rect {
+      fill: @gramene-orange;
+    }
+  }
+
+  .node:hover,
+  .edge:hover {
+    > circle,
+    > rect,
+    ~ .node > circle,
+    ~ .clade .edge > rect,
+    ~ .clade .node > circle {
+      fill: @gramene-orange;
+    }
+  }
 }

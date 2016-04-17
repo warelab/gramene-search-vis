@@ -3,15 +3,48 @@ import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
 import microsoftBrowser from "./util/microsoftBrowser";
+import {genomesWidth, leafNodeHeight} from "../reactVis.jsx";
 
 const textWidth = 190;
 const genomePadding = 2;
-import { genomesWidth, leafNodeHeight } from '../reactVis.jsx';
 
 export default class Clade extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {className: 'clade'}
+  }
+
+  addHighlightClass() {
+    this.setClassNameState('clade highlight');
+  }
+
+  removeHighlightClass() {
+    this.setClassNameState('clade');
+  }
+
+  notifyOfHover(e) {
+    e.stopPropagation();
+    this.props.onNodeHighlight(this.props.node);
+  }
+
+  setClassNameState(className) {
+    if(this.state.className !== className) {
+      this.setState({className: className});
+    }
+  }
+
   render() {
     return (
-      <g className="clade" {...this.gProps()}>
+      <g className={this.state.className}
+        {...this.gProps()}
+
+        // use mouse enter/leave to set class for coloring path
+         onMouseEnter={this.addHighlightClass.bind(this)}
+         onMouseLeave={this.removeHighlightClass.bind(this)}
+
+         // mouse over (with propagation stopped) for notifying others
+         // of mouse over.
+         onMouseOver={this.notifyOfHover.bind(this)}>
         {this.renderEdge()}
         {this.renderNode()}
         {this.renderText()}
@@ -75,7 +108,10 @@ export default class Clade extends React.Component {
           throw new Error("No node id for child!");
         }
         return (
-          <Clade key={key} node={child} nodeDisplayInfo={this.props.nodeDisplayInfo}/>
+          <Clade key={key}
+                 node={child}
+                 nodeDisplayInfo={this.props.nodeDisplayInfo}
+                 onNodeHighlight={this.props.onNodeHighlight} />
         );
       });
     }
@@ -148,5 +184,6 @@ export {textWidth};
 Clade.propTypes = {
   node: React.PropTypes.object.isRequired,
   nodeDisplayInfo: React.PropTypes.object.isRequired,
-  isRoot: React.PropTypes.bool
+  isRoot: React.PropTypes.bool,
+  onNodeHighlight: React.PropTypes.func.isRequired
 };

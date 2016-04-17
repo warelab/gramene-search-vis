@@ -12,7 +12,8 @@ export default class Taxonomy extends React.Component {
         </defs>
         <Clade node={this.props.rootNode}
                nodeDisplayInfo={this.props.nodeDisplayInfo}
-               isRoot={true} />
+               isRoot={true}
+               onNodeHighlight={this.props.onNodeHighlight} />
       </g>
     )
   }
@@ -20,5 +21,6 @@ export default class Taxonomy extends React.Component {
 
 Taxonomy.propTypes = {
   rootNode: React.PropTypes.object.isRequired,
-  nodeDisplayInfo: React.PropTypes.object.isRequired
+  nodeDisplayInfo: React.PropTypes.object.isRequired,
+  onNodeHighlight: React.PropTypes.func.isRequired
 };

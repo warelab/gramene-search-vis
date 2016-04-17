@@ -31,7 +31,7 @@ export default class Vis extends React.Component {
   initNodeState(taxonomy = this.props.taxonomy) {
     return _(taxonomy.all())
       .keyBy('model.id')
-      .mapValues(()=>({ expanded: true }))
+      .mapValues(()=>({ expanded: true, highlight: false }))
       .value();
   }
 
@@ -82,7 +82,8 @@ export default class Vis extends React.Component {
            height={this.height() + this.margin()}>
         <g className="margin" transform={this.marginTransform()}>
           <Taxonomy rootNode={this.rootNode()}
-                    nodeDisplayInfo={this.state.nodeDisplayInfo} />
+                    nodeDisplayInfo={this.state.nodeDisplayInfo}
+                    onNodeHighlight={this.props.onTaxonHighlight} />
         </g>
       </svg>
     )
@@ -102,7 +103,9 @@ Vis.propTypes = {
   onSubtreeCollapse: React.PropTypes.func,
   onSubtreeExpand: React.PropTypes.func,
   onTreeRootChange: React.PropTypes.func,
-  onGeneSelection: React.PropTypes.func
+  
+  onTaxonSelection: React.PropTypes.func,
+  onTaxonHighlight: React.PropTypes.func
 };
 
 export { leafNodeHeight, genomesWidth, genomesStart };
