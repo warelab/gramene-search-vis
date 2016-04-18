@@ -72,7 +72,7 @@ export default class Clade extends React.Component {
   renderText() {
     if (!this.props.node.hasChildren()) {
       return (
-        <g>
+        <g className="node-label">
           <text className="species-name">
             <textPath xlinkHref="#species-name-path">
               {this.speciesName()}
@@ -120,7 +120,7 @@ export default class Clade extends React.Component {
   renderGenome() {
     const genome = this.props.node.model.genome;
 
-    if (false && genome) {
+    if (genome) {
       const globalStats = this.props.node.globalResultSetStats();
       const translateX = textWidth + genomePadding;
       const translateY = (leafNodeHeight / 2) - genomePadding;

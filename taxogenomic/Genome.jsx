@@ -9,8 +9,30 @@ export default class Genome extends React.Component {
 
   constructor(props) {
     super(props);
+    this.updateResultsCount(props);
   }
 
+  getSetResultsCallCount(props) {
+    return props.globalStats.timesSetResultsHasBeenCalled;
+  }
+
+  didResultsChange(props) {
+    const newResultsState = this.getSetResultsCallCount(props);
+    console.log("change?", newResultsState, this.genomeResultsState);
+    return this.genomeResultsState !== newResultsState;
+  }
+
+  updateResultsCount(props) {
+    this.genomeResultsState = this.getSetResultsCallCount(props);;
+  }
+
+  shouldComponentUpdate(newProps) {
+    // only re-render this component if the results changed.
+    const decision = this.didResultsChange(newProps);
+    this.updateResultsCount(newProps);
+    return decision;
+  }
+  
   render() {
     return (
       <g className="genome">
