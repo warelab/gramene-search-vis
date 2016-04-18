@@ -39,9 +39,9 @@ export default class Vis extends React.Component {
     this.updateTaxonomyDisplayInfo();
   }
 
-  componentWillReceiveProps(newProps) {
-    this.updateTaxonomyDisplayInfo(newProps);
-  }
+  // componentWillReceiveProps(newProps) {
+  //   this.updateTaxonomyDisplayInfo(newProps);
+  // }
 
   updateTaxonomyDisplayInfo(props = this.props) {
     const newDisplayInfo = layoutNodes(
