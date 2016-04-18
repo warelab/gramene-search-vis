@@ -6,13 +6,13 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.numQueries = this.props.exampleQueries.length;
-    this.state = this.updateQueryState();
+    this.state = {qs: this.updateQueryState()};
   }
 
   updateQueryState() {
     var currentIdx, newIdx, results, qName, taxonomy;
 
-    currentIdx = _.get(this.state, 'queryIndex', -1);
+    currentIdx = _.get(this.state, 'qs.queryIndex', -1);
     newIdx = ((currentIdx + 1) % this.numQueries);
     results = this.props.exampleResults[newIdx];
     qName = this.props.exampleQueries[newIdx].name;
@@ -32,7 +32,7 @@ export default class App extends React.Component {
   }
 
   changeQuery() {
-    this.setState(this.updateQueryState());
+    this.setState({qs: this.updateQueryState()});
   }
 
   logFactory(name) {
@@ -42,17 +42,35 @@ export default class App extends React.Component {
   render() {
     return (
       <div>
-        <p>{this.state.queryIndex} {this.state.queryName}</p>
+        <p>{this.state.qs.queryIndex} {this.state.qs.queryName}</p>
         <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
-        <Vis taxonomy={this.state.taxonomy}
+        <Vis taxonomy={this.state.qs.taxonomy}
              onTaxonSelection={this.logFactory('TaxonSelection')}
-             onTaxonHighlight={this.logFactory('TaxonHighlight')}
+             onTaxonHighlight={(node)=>this.setState({nodes:{highlight:node}})}
              onSubtreeCollapse={this.logFactory('SubtreeCollapse')}
              onSubtreeExpand={this.logFactory('SubtreeExpand')}
              onTreeRootChange={this.logFactory('TreeRootChange')}
         />
+        {this.renderSelectedTaxa()}
       </div>
     );
+  }
+
+  renderSelectedTaxa() {
+    if(this.state.nodes) {
+      const Node = ({node})=><li>{node.model.name}</li>
+      const nodes = [];
+      if(this.state.nodes.highlight) {
+        nodes.push(<Node key="highlight"
+                         node={this.state.nodes.highlight} />)
+      }
+
+      return (
+        <ul>
+          {nodes}
+        </ul>
+      )
+    }
   }
 }
 

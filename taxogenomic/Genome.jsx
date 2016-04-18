@@ -7,6 +7,10 @@ import { genomesWidth } from '../reactVis.jsx';
 
 export default class Genome extends React.Component {
 
+  constructor(props) {
+    super(props);
+  }
+
   render() {
     return (
       <g className="genome">
