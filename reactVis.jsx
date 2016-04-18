@@ -5,6 +5,7 @@ import layoutNodes from './taxogenomic/util/layout';
 import visibleLeafCount from './taxogenomic/util/visibleLeafCount';
 
 import Taxonomy from './taxogenomic/Taxonomy.jsx';
+import Genomes from './taxogenomic/Genomes.jsx';
 
 import {textWidth} from './taxogenomic/Clade.jsx';
 
@@ -84,6 +85,11 @@ export default class Vis extends React.Component {
           <Taxonomy rootNode={this.rootNode()}
                     nodeDisplayInfo={this.state.nodeDisplayInfo}
                     onNodeHighlight={this.props.onTaxonHighlight} />
+          <Genomes rootNode={this.rootNode()}
+                   genomeHeight={leafNodeHeight}
+                   genomeWidth={genomesWidth}
+                   xOffset={genomesStart}
+                   nodeDisplayInfo={this.state.nodeDisplayInfo} />
         </g>
       </svg>
     )

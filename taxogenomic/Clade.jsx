@@ -120,7 +120,7 @@ export default class Clade extends React.Component {
   renderGenome() {
     const genome = this.props.node.model.genome;
 
-    if (genome) {
+    if (false && genome) {
       const globalStats = this.props.node.globalResultSetStats();
       const translateX = textWidth + genomePadding;
       const translateY = (leafNodeHeight / 2) - genomePadding;
