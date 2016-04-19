@@ -3,13 +3,18 @@ import {binColor} from "./util/colors";
 import transform from "./util/transform";
 
 export default class Region extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
   render() {
     const width = (this.props.region.size * this.props.baseWidth)
       // avoid antialiasing artifacts by increasing width by 1px
       // unless it's the last one.
       + (this.props.isLastRegion ? 0 : 1);
     return (
-      <g className="region">
+      <g className="region" onMouseOut={()=>this.setState({hoveredBin:undefined})}>
         <rect x="0"
               y="0"
               className="full-region"
@@ -31,29 +36,30 @@ export default class Region extends React.Component {
     return this.props.region.mapBins((bin) => {
       const isLastBin = (++binCounter === binCount);
       const w = this.props.baseWidth * (bin.end - bin.start + 1);
-
       const translate = transform(translateX, 0);
+
       translateX += w;
 
       if (bin.results.count) {
+        const isHighlighted = this.state.hoveredBin === bin.idx;
         const score = bin.results.count / maxScore;
-        const fillColor = binColor(this.props.regionIdx, score, 
+        const fillColor = binColor(this.props.regionIdx, score,
           this.props.region.name === 'UNANCHORED');
+
+        const props = {
+          key: bin.idx,
+          className: 'bin' + (isHighlighted ? ' hovered' : ''),
+          // work with antialiasing artifacts by making the bins bigger, unless it's teh last on or highlighted.
+          width: w + (isLastBin || isHighlighted ? 0 : 1),
+          height: this.props.height,
+          fill: fillColor,
+          onMouseOver: ()=>this.setState({hoveredBin: bin.idx})
+        };
         
         // SIDE EFFECTS
         return (
-          <rect key={bin.idx}
-                className="bin"
-                {...translate}
-                x="0"
-                y="0"
-                // work around antialiasing by increasing width of each bin
-                // by one px, except the last one.
-                width={w + (isLastBin ? 0 : 1)}
-                height={this.props.height}
-                fill={fillColor}
-                onMouseOver={(e)=>console.log(bin)}
-          />
+          <rect {...props}
+                {...translate} />
         );
       }
     });
