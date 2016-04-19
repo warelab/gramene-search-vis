@@ -2,8 +2,10 @@ import React from "react";
 import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
-import microsoftBrowser from "./util/microsoftBrowser";
+// import microsoftBrowser from "./util/microsoftBrowser";
+import transform from './util/transform';
 import {leafNodeHeight} from "./ReactVis.jsx";
+
 
 export default class Clade extends React.Component {
   constructor(props) {
@@ -121,12 +123,12 @@ export default class Clade extends React.Component {
       const globalStats = this.props.node.globalResultSetStats();
       const translateX = metrics.width.text + genomePadding;
       const translateY = (leafNodeHeight / 2) - genomePadding;
-      const transform = `translate(${translateX}, -${translateY})`;
+      const translate = transform(translateX, -translateY);
       const width = metrics.width.genomes - genomePadding;
       const height = leafNodeHeight - genomePadding;
 
       return (
-        <g className="genome-padding" transform={transform}>
+        <g className="genome-padding" {...translate}>
           <Genome genome={genome}
                   globalStats={globalStats}
                   svgMetrics={this.props.svgMetrics}
@@ -138,24 +140,7 @@ export default class Clade extends React.Component {
   }
 
   gProps() {
-    const props = {};
-
-    const transform = (isStyle = !microsoftBrowser) => {
-      const px = isStyle ? 'px' : '';
-      const x = this.displayInfo().offsetX;
-      const y = this.displayInfo().offsetY;
-
-      return `translate(${y}${px}, ${x}${px})`;
-    };
-
-    if (microsoftBrowser) {
-      props.transform = transform(false);
-    }
-    else {
-      props.style = {transform: transform(true)};
-    }
-
-    return props;
+    return transform(this.displayInfo().offsetY, this.displayInfo().offsetX);
   }
 
   componentWillMount() {

@@ -41,7 +41,6 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
 
   // get data structure of currently visible nodes
   function d3data(nodeDisplayInfo) {
-    let count = 0;
     const d3dataRecursive = (node) => {
       const id = node.model.id;
       const proportion = node.model.results.proportion;

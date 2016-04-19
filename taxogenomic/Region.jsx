@@ -1,5 +1,6 @@
 import React from "react";
 import {binColor} from "./util/colors";
+import transform from "./util/transform";
 
 export default class Region extends React.Component {
   render() {
@@ -31,18 +32,19 @@ export default class Region extends React.Component {
       const isLastBin = (++binCounter === binCount);
       const w = this.props.baseWidth * (bin.end - bin.start + 1);
 
-      const transform = `translate(${translateX}, 0)`;
+      const translate = transform(translateX, 0);
       translateX += w;
 
       if (bin.results.count) {
         const score = bin.results.count / maxScore;
         const fillColor = binColor(this.props.regionIdx, score, 
           this.props.region.name === 'UNANCHORED');
+        
         // SIDE EFFECTS
         return (
           <rect key={bin.idx}
                 className="bin"
-                transform={transform}
+                {...translate}
                 x="0"
                 y="0"
                 // work around antialiasing by increasing width of each bin

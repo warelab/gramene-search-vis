@@ -2,6 +2,7 @@ import React from 'react';
 
 import Region from './Region.jsx';
 import { regionColor } from './util/colors';
+import transform from './util/transform';
 
 export default class Genome extends React.Component {
 
@@ -42,15 +43,22 @@ export default class Genome extends React.Component {
   render() {
     return (
       <g className="genome">
-        <rect className="interaction-helper"
-              x={0} y={0}
-              width={this.props.width}
-              height={this.props.height}/>
         <g className="regions">
           {this.renderRegions()}
         </g>
       </g>
-    )
+    );
+    // return (
+    //   <g className="genome">
+    //     <rect className="interaction-helper"
+    //           x={0} y={0}
+    //           width={this.props.width}
+    //           height={this.props.height}/>
+    //     <g className="regions">
+    //       {this.renderRegions()}
+    //     </g>
+    //   </g>
+    // )
   }
 
   baseWidth() {
@@ -63,7 +71,7 @@ export default class Genome extends React.Component {
     var translateX = 0;
 
     return this.props.genome.mapRegions((region, idx) => {
-      const transform = `translate(${translateX}, 0)`;
+      const translate = transform(translateX, 0);
       const isLastRegion = (idx + 1) === numRegions;
 
       // SIDE EFFECTS
@@ -72,7 +80,7 @@ export default class Genome extends React.Component {
       return (
         <g className="region-wrapper"
            key={idx}
-           transform={transform}>
+           {...translate}>
           <Region regionIdx={idx}
                   region={region}
                   color={regionColor(idx, region.name === 'UNANCHORED')}
