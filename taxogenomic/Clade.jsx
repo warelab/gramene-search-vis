@@ -72,7 +72,7 @@ export default class Clade extends React.Component {
   renderText() {
     if (!this.props.node.hasChildren()) {
       return (
-        <g>
+        <g className="node-label">
           <text className="species-name">
             <textPath xlinkHref="#species-name-path">
               {this.speciesName()}

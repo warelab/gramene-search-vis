@@ -23,13 +23,22 @@ text {
     fill: #cccccc;
   }
 
+  // color the nodes above the hovered node
+  // (the highlight class is added dynamically
+  // in code)
   .clade.highlight {
     > .node > circle,
     > .edge > rect {
       fill: @gramene-orange;
     }
+    > .node-label text {
+      font-style: italic;
+      font-weight: bold;
+      fill: @gramene-darkgreen;
+    }
   }
 
+  // color the clade underneath the hovered node.
   .node:hover,
   .edge:hover {
     > circle,
@@ -38,6 +47,18 @@ text {
     ~ .clade .edge > rect,
     ~ .clade .node > circle {
       fill: @gramene-orange;
+    }
+  }
+
+  .node:hover,
+  .edge:hover,
+  .node-label:hover {
+    text,
+    ~ .node-label text,
+    ~ .clade text {
+      font-style: italic;
+      font-weight: bold;
+      fill: @gramene-darkgreen;
     }
   }
 }
