@@ -25,7 +25,7 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
       const displayInfo = incompleteNodeDisplayInfo[node.id];
       displayInfo.x = node.x;
       displayInfo.y = node.y;
-      displayInfo.lineThickness = strokeScale(node.results.proportion);
+      displayInfo.lineThickness = strokeScale(node.proportion);
     }
 
     return updateRelativeNodeCoordinates(incompleteNodeDisplayInfo);
@@ -44,8 +44,9 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
     let count = 0;
     const d3dataRecursive = (node) => {
       const id = node.model.id;
+      const proportion = node.model.results.proportion;
       const isExpanded = nodeDisplayInfo[id].expanded;
-      const datum = _.cloneDeep(_.omit(node.model, 'children'));
+      const datum = {id: id, proportion: proportion};
       if(isExpanded && node.hasChildren()) {
         datum.children = node.children.map(d3dataRecursive);
       }

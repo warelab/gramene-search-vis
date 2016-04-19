@@ -4,6 +4,9 @@ text {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
   fill: gray;
+
+  /* since font weight transition is not smooth, emulate
+  bold font with text stroke, and transition opacity. */
   stroke: @gramene-darkgreen;
   stroke-opacity: 0;
   stroke-width: 0.5px;
@@ -11,7 +14,8 @@ text {
 
 .taxonomy * {
   transition: fill 300ms ease-in-out,
-              stroke-opacity 300ms ease-in-out;
+              stroke-opacity 300ms ease-in-out,
+              translate 300ms ease-in-out;
 }
 
 .clade {
@@ -31,16 +35,13 @@ text {
     fill: #cccccc;
   }
 
-  .genome .interaction-helper {
-    stroke-opacity: 0;
-    fill-opacity: 0;
-    stroke: @gramene-darkgreen;
-    stroke-width: 1.2px;
-  }
-
-  .genome:hover .interaction-helper {
-    stroke-opacity: 1;
-  }
+  //
+  //.genome .interaction-helper {
+  //  stroke-opacity: 0;
+  //  fill-opacity: 0;
+  //  stroke: @gramene-darkgreen;
+  //  stroke-width: 1.5px;
+  //}
 
   // color the nodes above the hovered node
   // (the highlight class is added dynamically
@@ -65,10 +66,6 @@ text {
     ~ .clade .edge > rect,
     ~ .clade .node > circle {
       fill: @gramene-orange;
-    }
-
-    ~ .clade .genome .interaction-helper {
-      stroke-opacity: 1;
     }
   }
 

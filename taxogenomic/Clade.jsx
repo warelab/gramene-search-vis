@@ -3,10 +3,7 @@ import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
 import microsoftBrowser from "./util/microsoftBrowser";
-import {genomesWidth, leafNodeHeight} from "../reactVis.jsx";
-
-const textWidth = 190;
-const genomePadding = 2;
+import {leafNodeHeight} from "./ReactVis.jsx";
 
 export default class Clade extends React.Component {
   constructor(props) {
@@ -66,7 +63,6 @@ export default class Clade extends React.Component {
     return <Node node={this.props.node}
                  displayInfo={this.displayInfo()}
                  onSelect={()=>{}}/>
-
   }
 
   renderText() {
@@ -76,23 +72,11 @@ export default class Clade extends React.Component {
           <text x="10" y="4.75" className="species-name">
             {this.speciesName()}
           </text>
-          <text x={textWidth} y="4.75" className="results-count" textAnchor="end">
+          <text x={this.props.svgMetrics.width.text} y="4.75" className="results-count" textAnchor="end">
             {this.props.node.model.results.count.toLocaleString()}
           </text>
         </g>
-      )
-      // return (
-      //   <g className="node-label">
-      //     <text className="species-name">
-      //       <textPath xlinkHref="#species-name-path">
-      //         {this.speciesName()}
-      //       </textPath>
-      //     </text>
-      //     <text x={textWidth} y="5" className="results-count" textAnchor="end">
-      //       {this.props.node.model.results.count.toLocaleString()}
-      //     </text>
-      //   </g>
-      // )
+      );
     }
   }
 
@@ -121,7 +105,8 @@ export default class Clade extends React.Component {
           <Clade key={key}
                  node={child}
                  nodeDisplayInfo={this.props.nodeDisplayInfo}
-                 onNodeHighlight={this.props.onNodeHighlight}/>
+                 onNodeHighlight={this.props.onNodeHighlight}
+                 svgMetrics={this.props.svgMetrics} />
         );
       });
     }
@@ -129,19 +114,22 @@ export default class Clade extends React.Component {
 
   renderGenome() {
     const genome = this.props.node.model.genome;
+    const metrics = this.props.svgMetrics;
+    const genomePadding = metrics.layout.genomePadding;
 
     if (genome) {
       const globalStats = this.props.node.globalResultSetStats();
-      const translateX = textWidth + genomePadding;
+      const translateX = metrics.width.text + genomePadding;
       const translateY = (leafNodeHeight / 2) - genomePadding;
       const transform = `translate(${translateX}, -${translateY})`;
-      const width = genomesWidth - genomePadding;
+      const width = metrics.width.genomes - genomePadding;
       const height = leafNodeHeight - genomePadding;
 
       return (
         <g className="genome-padding" transform={transform}>
           <Genome genome={genome}
                   globalStats={globalStats}
+                  svgMetrics={this.props.svgMetrics}
                   width={width}
                   height={height}/>
         </g>
@@ -189,11 +177,10 @@ export default class Clade extends React.Component {
   }
 }
 
-export {textWidth};
-
 Clade.propTypes = {
   node: React.PropTypes.object.isRequired,
   nodeDisplayInfo: React.PropTypes.object.isRequired,
   isRoot: React.PropTypes.bool,
-  onNodeHighlight: React.PropTypes.func.isRequired
+  onNodeHighlight: React.PropTypes.func.isRequired,
+  svgMetrics: React.PropTypes.object.isRequired
 };

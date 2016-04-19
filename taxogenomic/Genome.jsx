@@ -3,13 +3,12 @@ import React from 'react';
 import Region from './Region.jsx';
 import { regionColor } from './util/colors';
 
-import { genomesWidth } from '../reactVis.jsx';
-
 export default class Genome extends React.Component {
 
   constructor(props) {
     super(props);
     this.updateResultsCount(props);
+    this.svgMetrics = props.svgMetrics;
   }
 
   getSetResultsCallCount(props) {
@@ -25,9 +24,17 @@ export default class Genome extends React.Component {
     this.genomeResultsState = this.getSetResultsCallCount(props);;
   }
 
+  didMetricsUpdate(newMetrics) {
+    const result = !_.isEqual(this.svgMetrics, newMetrics);
+    if(result) {
+      this.svgMetrics = newMetrics;
+    }
+    return result;
+  }
+
   shouldComponentUpdate(newProps) {
     // only re-render this component if the results changed.
-    const decision = this.didResultsChange(newProps);
+    const decision = this.didResultsChange(newProps) || this.didMetricsUpdate(newProps.svgMetrics);
     this.updateResultsCount(newProps);
     return decision;
   }
@@ -47,7 +54,7 @@ export default class Genome extends React.Component {
   }
 
   baseWidth() {
-    return genomesWidth / this.props.genome.fullGenomeSize;
+    return this.props.svgMetrics.width.genomes / this.props.genome.fullGenomeSize;
   }
   
   renderRegions() {
@@ -84,5 +91,6 @@ Genome.propTypes = {
   genome: React.PropTypes.object.isRequired,
   globalStats: React.PropTypes.object.isRequired,
   width: React.PropTypes.number.isRequired,
-  height: React.PropTypes.number.isRequired
+  height: React.PropTypes.number.isRequired,
+  svgMetrics: React.PropTypes.object.isRequired
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import Vis from './reactVis.jsx';
+import Vis from './taxogenomic/ReactVis.jsx';
 
 export default class App extends React.Component {
   constructor(props) {
@@ -41,10 +41,11 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="app">
         <p>{this.state.qs.queryIndex} {this.state.qs.queryName}</p>
         <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
         <Vis taxonomy={this.state.qs.taxonomy}
+             parentWidth={this.state.elementWidthPx}
              onTaxonSelection={this.logFactory('TaxonSelection')}
              onTaxonHighlight={(node)=>this.setState({nodes:{highlight:node}})}
              onSubtreeCollapse={this.logFactory('SubtreeCollapse')}
