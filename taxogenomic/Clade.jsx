@@ -28,7 +28,7 @@ export default class Clade extends React.Component {
   }
 
   setClassNameState(className) {
-    if(this.state.className !== className) {
+    if (this.state.className !== className) {
       this.setState({className: className});
     }
   }
@@ -42,8 +42,8 @@ export default class Clade extends React.Component {
          onMouseEnter={this.addHighlightClass.bind(this)}
          onMouseLeave={this.removeHighlightClass.bind(this)}
 
-         // mouse over (with propagation stopped) for notifying others
-         // of mouse over.
+        // mouse over (with propagation stopped) for notifying others
+        // of mouse over.
          onMouseOver={this.notifyOfHover.bind(this)}>
         {this.renderEdge()}
         {this.renderNode()}
@@ -73,16 +73,26 @@ export default class Clade extends React.Component {
     if (!this.props.node.hasChildren()) {
       return (
         <g className="node-label">
-          <text className="species-name">
-            <textPath xlinkHref="#species-name-path">
-              {this.speciesName()}
-            </textPath>
+          <text x="10" y="4.75" className="species-name">
+            {this.speciesName()}
           </text>
-          <text x={textWidth} y="5" className="results-count" textAnchor="end">
+          <text x={textWidth} y="4.75" className="results-count" textAnchor="end">
             {this.props.node.model.results.count.toLocaleString()}
           </text>
         </g>
       )
+      // return (
+      //   <g className="node-label">
+      //     <text className="species-name">
+      //       <textPath xlinkHref="#species-name-path">
+      //         {this.speciesName()}
+      //       </textPath>
+      //     </text>
+      //     <text x={textWidth} y="5" className="results-count" textAnchor="end">
+      //       {this.props.node.model.results.count.toLocaleString()}
+      //     </text>
+      //   </g>
+      // )
     }
   }
 
@@ -111,7 +121,7 @@ export default class Clade extends React.Component {
           <Clade key={key}
                  node={child}
                  nodeDisplayInfo={this.props.nodeDisplayInfo}
-                 onNodeHighlight={this.props.onNodeHighlight} />
+                 onNodeHighlight={this.props.onNodeHighlight}/>
         );
       });
     }

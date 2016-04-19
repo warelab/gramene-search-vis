@@ -40,7 +40,6 @@ export default class Vis extends React.Component {
 
   didResultsChange(props) {
     const newResultsState = this.getSetResultsCallCount(props);
-    console.log("change?", newResultsState, this.genomeResultsState);
     return this.genomeResultsState !== newResultsState;
   }
 
