@@ -35,7 +35,13 @@ export default class Genome extends React.Component {
   render() {
     return (
       <g className="genome">
-        {this.renderRegions()}
+        <rect className="interaction-helper"
+              x={0} y={0}
+              width={this.props.width}
+              height={this.props.height}/>
+        <g className="regions">
+          {this.renderRegions()}
+        </g>
       </g>
     )
   }

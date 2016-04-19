@@ -31,6 +31,17 @@ text {
     fill: #cccccc;
   }
 
+  .genome .interaction-helper {
+    stroke-opacity: 0;
+    fill-opacity: 0;
+    stroke: @gramene-darkgreen;
+    stroke-width: 1.2px;
+  }
+
+  .genome:hover .interaction-helper {
+    stroke-opacity: 1;
+  }
+
   // color the nodes above the hovered node
   // (the highlight class is added dynamically
   // in code)
@@ -55,11 +66,21 @@ text {
     ~ .clade .node > circle {
       fill: @gramene-orange;
     }
+
+    ~ .clade .genome .interaction-helper {
+      stroke-opacity: 1;
+    }
   }
 
   .node:hover,
   .edge:hover,
   .node-label:hover {
+
+
+    ~ .genome-padding .genome .interaction-helper {
+      stroke-opacity: 1;
+    }
+
     text,
     ~ .node-label text,
     ~ .clade text {
