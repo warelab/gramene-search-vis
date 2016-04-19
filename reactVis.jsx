@@ -40,7 +40,6 @@ export default class Vis extends React.Component {
 
   didResultsChange(props) {
     const newResultsState = this.getSetResultsCallCount(props);
-    console.log("change?", newResultsState, this.genomeResultsState);
     return this.genomeResultsState !== newResultsState;
   }
 
@@ -106,14 +105,24 @@ export default class Vis extends React.Component {
           <Taxonomy rootNode={this.rootNode()}
                     nodeDisplayInfo={this.state.nodeDisplayInfo}
                     onNodeHighlight={this.props.onTaxonHighlight}/>
-          <Genomes rootNode={this.rootNode()}
-                   genomeHeight={leafNodeHeight}
-                   genomeWidth={genomesWidth}
-                   xOffset={genomesStart}
-                   nodeDisplayInfo={this.state.nodeDisplayInfo}/>
         </g>
       </svg>
-    )
+    );
+    // return (
+    //   <svg width={this.width() + this.margin()}
+    //        height={this.height() + this.margin()}>
+    //     <g className="margin" transform={this.marginTransform()}>
+    //       <Taxonomy rootNode={this.rootNode()}
+    //                 nodeDisplayInfo={this.state.nodeDisplayInfo}
+    //                 onNodeHighlight={this.props.onTaxonHighlight}/>
+    //       <Genomes rootNode={this.rootNode()}
+    //                genomeHeight={leafNodeHeight}
+    //                genomeWidth={genomesWidth}
+    //                xOffset={genomesStart}
+    //                nodeDisplayInfo={this.state.nodeDisplayInfo}/>
+    //     </g>
+    //   </svg>
+    // )
   }
 
   render() {

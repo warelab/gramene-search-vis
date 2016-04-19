@@ -3,6 +3,15 @@
 text {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
+  fill: gray;
+  stroke: @gramene-darkgreen;
+  stroke-opacity: 0;
+  stroke-width: 0.5px;
+}
+
+.taxonomy * {
+  transition: fill 300ms ease-in-out,
+              stroke-opacity 300ms ease-in-out;
 }
 
 .clade {
@@ -10,7 +19,6 @@ text {
 
   .results-count {
     font-size: 10px;
-    fill: gray;
   }
 
   .node circle {
@@ -32,9 +40,8 @@ text {
       fill: @gramene-orange;
     }
     > .node-label text {
-      font-style: italic;
-      font-weight: bold;
       fill: @gramene-darkgreen;
+      stroke-opacity: 1;
     }
   }
 
@@ -56,9 +63,8 @@ text {
     text,
     ~ .node-label text,
     ~ .clade text {
-      font-style: italic;
-      font-weight: bold;
       fill: @gramene-darkgreen;
+      stroke-opacity: 1;
     }
   }
 }

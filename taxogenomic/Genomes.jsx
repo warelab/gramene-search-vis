@@ -61,8 +61,7 @@ export default class Genomes extends React.Component {
       )
     }
   }
-
-
+  
   renderGenome(node) {
     const genome = node.model.genome;
     const globalStats = node.globalResultSetStats();
