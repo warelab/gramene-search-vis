@@ -3,7 +3,6 @@ import _ from "lodash";
 import layoutNodes from "./taxogenomic/util/layout";
 import visibleLeafCount from "./taxogenomic/util/visibleLeafCount";
 import Taxonomy from "./taxogenomic/Taxonomy.jsx";
-import Genomes from "./taxogenomic/Genomes.jsx";
 import {textWidth} from "./taxogenomic/Clade.jsx";
 
 const visWidth = 750;
