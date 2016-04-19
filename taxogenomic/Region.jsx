@@ -32,11 +32,12 @@ export default class Region extends React.Component {
     var translateX = 0, binCounter = 0;
     const maxScore = this.props.globalStats.bins.max || 1;
     const binCount = this.props.region.binCount();
+    let previousBinIsHighlighted = false;
 
     return this.props.region.mapBins((bin) => {
       const isLastBin = (++binCounter === binCount);
       const w = this.props.baseWidth * (bin.end - bin.start + 1);
-      const translate = transform(translateX, 0);
+      const translate = transform(translateX + (previousBinIsHighlighted ? 1 : 0), 0);
 
       translateX += w;
 
@@ -55,6 +56,8 @@ export default class Region extends React.Component {
           fill: fillColor,
           onMouseOver: ()=>this.setState({hoveredBin: bin.idx})
         };
+
+        previousBinIsHighlighted = isHighlighted;
         
         // SIDE EFFECTS
         return (
@@ -69,6 +72,8 @@ export default class Region extends React.Component {
 Region.propTypes = {
   regionIdx: React.PropTypes.number.isRequired,
   region: React.PropTypes.object.isRequired,
+  selection: React.PropTypes.object.isRequired,
+  onSelection: React.PropTypes.func.isRequired,
   globalStats: React.PropTypes.object.isRequired,
   baseWidth: React.PropTypes.number.isRequired,
   height: React.PropTypes.number.isRequired,

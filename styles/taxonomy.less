@@ -13,9 +13,9 @@ text {
 }
 
 .taxonomy * {
-  transition: fill 300ms ease-in-out,
-              stroke-opacity 300ms ease-in-out,
-              transform 300ms ease-in-out;
+  transition: fill 200ms ease-in-out,
+              stroke-opacity 200ms ease-in-out,
+              transform 200ms ease-in-out;
 }
 
 .clade {
@@ -86,8 +86,18 @@ text {
     }
   }
 
-  .bin:hover {
-    stroke: @gramene-orange;
-    stroke-width: 1px;
+  .bin {
+    transition: none;
+    stroke: @gramene-darkgreen;
+    stroke-width: 0;
+  }
+
+  .bin.hovered {
+    stroke-width: 2px;
+  }
+
+  .bin.selected {
+    stroke-opacity: 1;
+    stroke: @gramene-orange
   }
 }

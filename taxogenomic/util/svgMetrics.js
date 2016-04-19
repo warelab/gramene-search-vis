@@ -1,7 +1,9 @@
 export default function metrics(width) {
   const visWidth = width;
 
-  const textWidth = 190;
+  const showSpeciesNames = visWidth > 480;
+
+  const textWidth = showSpeciesNames ? 190 : 40;
   const genomePadding = 2;
 
   const speciesTreeProportion = 0.18;
@@ -15,7 +17,8 @@ export default function metrics(width) {
   return {
     layout: {
       genomesXStart: genomesStart,
-      genomePadding: genomePadding
+      genomePadding: genomePadding,
+      showSpeciesNames: showSpeciesNames
     },
     proportion: {
       text: textProportion,

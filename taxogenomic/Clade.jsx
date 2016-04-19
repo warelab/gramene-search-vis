@@ -71,13 +71,21 @@ export default class Clade extends React.Component {
     if (!this.props.node.hasChildren()) {
       return (
         <g className="node-label">
-          <text x="10" y="4.75" className="species-name">
-            {this.speciesName()}
-          </text>
+          {this.renderSpeciesName()}
           <text x={this.props.svgMetrics.width.text} y="4.75" className="results-count" textAnchor="end">
             {this.props.node.model.results.count.toLocaleString()}
           </text>
         </g>
+      );
+    }
+  }
+
+  renderSpeciesName() {
+    if(this.props.svgMetrics.layout.showSpeciesNames) {
+      return (
+        <text x="10" y="4.75" className="species-name">
+          {this.speciesName()}
+        </text>
       );
     }
   }
