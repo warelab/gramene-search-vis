@@ -4,18 +4,6 @@ module.exports = function (grunt) {
   require('jit-grunt')(grunt);
 
   grunt.initConfig({
-    less: {
-      development: {
-        options: {
-          compress: false,
-          yuicompress: true,
-          optimization: 2
-        },
-        files: {
-          "build/style.css": "styles/*.less"
-        }
-      }
-    },
 
     browserify: {
       options: {
@@ -28,7 +16,7 @@ module.exports = function (grunt) {
         ]
       },
       dev: {
-        src: './example.js',
+        src: './rewriteExample.js',
         dest: 'build/bundle.js'
 
       },
@@ -41,14 +29,31 @@ module.exports = function (grunt) {
       }
     },
 
+    less: {
+      dev: {
+        options: {
+          compress: false,
+          yuicompress: true,
+          optimization: 2
+        },
+        files: {
+          "build/styles.css": "styles/main.less"
+        }
+      }
+    },
+
     watch: {
       browserify: {
-        files: ['example.js', 'kb/*.js', '*.jsx'],
+        files: ['rewriteExample.js', 'taxogenomic/**/*.js', 'taxogenomic/**/*.jsx', '*.js', '*.jsx'],
         tasks: ['browserify:dev']
+      },
+      styles: {
+        files: ['styles/**/*.less'],
+        tasks: ['less']
       }
     }
   });
 
-  grunt.registerTask('default', ['browserify:dev', 'watch']);
-  grunt.registerTask('package', ['browserify:production']);
+  grunt.registerTask('default', ['less', 'browserify:dev', 'watch']);
+  grunt.registerTask('package', ['less', 'browserify:production']);
 };

@@ -1,19 +1,9 @@
-'use strict';
-
-var React = require('react');
-var ReactDOM = require('react-dom');
-var d3 = require('d3');
-
-// v-- these will need to be manually `npm installed`.
-var taxonomyGetter = require('gramene-taxonomy-with-genomes');
-var search = require('gramene-search-client').client;
-var Q = require('q');
-// ^--
-
-var $ = require('jquery');
-
-// var VisOld = require('./vis-old.js');
-var Vis = require('./vis.js');
+import React from "react";
+import ReactDOM from "react-dom";
+import taxonomyGetter from "gramene-taxonomy-with-genomes";
+import {client} from "gramene-search-client";
+import Q from "q";
+import App from './App.jsx';
 
 // Example query objects.
 // This is usually generated in code by gramoogle.
@@ -32,7 +22,7 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
-  
+
   {
     name: 'PAD4',
     "q": "",
@@ -80,48 +70,19 @@ var exampleQueries = [
 ];
 
 var promises = exampleQueries.map(function (eg) {
-  return search.geneSearch(eg);
+  return client.geneSearch(eg);
 });
 promises.unshift(taxonomyGetter.get());
 
 Q.all(promises).spread(function (taxonomy) {
-  var exampleResults = Array.prototype.slice.call(arguments, 1);
+  const exampleResults = Array.prototype.slice.call(arguments, 1);
   taxonomy.setBinType('fixed', 200);
-
-  //var visComponent = new Vis({taxonomy: taxonomy, results: results, derp: derp});
-  var AppComponent = React.createClass({
-    getInitialState: function () {
-      return {queryIndex: 0}
-    },
-
-    handleGeneSelection: function (bins) {
-      console.log("handleGeneSelection",bins);
-    },
-
-    changeQuery: function () {
-      this.setState({queryIndex: (++this.state.queryIndex % exampleResults.length)});
-    },
-
-    render: function () {
-      var queryName = exampleQueries[this.state.queryIndex].name;
-      var results = exampleResults[this.state.queryIndex];
-      taxonomy.setResults(results.fixed_200__bin);
-      return (
-        <div>
-          <p>{queryName}</p>
-          <button type="button" onClick={this.changeQuery}>Change Query</button>
-          <Vis taxonomy={taxonomy} onGeneSelection={this.handleGeneSelection}/>
-          <h3>And before I broke it all was (disabled):</h3>
-        </div>
-      );
-    }
-  });
-
-  //          <VisOld taxonomy={taxonomy} onGeneSelection={this.handleGeneSelection}/>
-
-  // TODO: in the real world we will pass in the search object so we can infer correct tree state from taxonomy filters.
-  ReactDOM.render(<AppComponent />, document.getElementById('the-test-vis'));
-}).catch(function (err) {
-  console.error(err);
-});
+  ReactDOM.render(
+    <App taxonomy={taxonomy}
+         exampleQueries={exampleQueries}
+         exampleResults={exampleResults}
+    />,
+    document.getElementById('the-test-vis')
+  )
+}).catch((e) => console.log(e.message, e.stack));
 

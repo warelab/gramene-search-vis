@@ -1,0 +1,101 @@
+@import 'colors';
+
+text {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  fill: gray;
+
+  /* since font weight transition is not smooth, emulate
+  bold font with text stroke, and transition opacity. */
+  stroke: @gramene-darkgreen;
+  stroke-opacity: 0;
+  stroke-width: 0.5px;
+}
+
+.taxonomy * {
+  transition: fill 200ms ease-in-out,
+              stroke-opacity 200ms ease-in-out,
+              transform 200ms ease-in-out;
+}
+
+.clade {
+  cursor: pointer;
+
+  .results-count {
+    font-size: 10px;
+  }
+
+  .node circle {
+    stroke: @gramene-darkgreen;
+    stroke-width: 1px; // This is referenced in Edge.jsx
+    fill: @gramene-offwhite;
+  }
+
+  .edge rect {
+    fill: #cccccc;
+  }
+
+  //
+  //.genome .interaction-helper {
+  //  stroke-opacity: 0;
+  //  fill-opacity: 0;
+  //  stroke: @gramene-darkgreen;
+  //  stroke-width: 1.5px;
+  //}
+
+  // color the nodes above the hovered node
+  // (the highlight class is added dynamically
+  // in code)
+  .clade.highlight {
+    > .node > circle,
+    > .edge > rect {
+      fill: @gramene-orange;
+    }
+    > .node-label text {
+      fill: @gramene-darkgreen;
+      stroke-opacity: 1;
+    }
+  }
+
+  // color the clade underneath the hovered node.
+  .node:hover,
+  .edge:hover {
+    > circle,
+    > rect,
+    ~ .node > circle,
+    ~ .clade .edge > rect,
+    ~ .clade .node > circle {
+      fill: @gramene-orange;
+    }
+  }
+
+  .node:hover,
+  .edge:hover {
+    ~ .node-label text,
+    ~ .clade text {
+      fill: @gramene-darkgreen;
+      stroke-opacity: 1;
+    }
+  }
+
+  .node-label:hover text {
+    fill: @gramene-darkgreen;
+    stroke-opacity: 1;
+  }
+
+  .bin {
+    transition: none;
+    stroke: @gramene-darkgreen;
+    stroke-width: 0;
+  }
+
+  .bin.hovered {
+    stroke-width: 2px;
+  }
+
+  .bin.selected {
+    stroke-width: 2px;
+    stroke: @gramene-red;
+    fill: @gramene-red;
+  }
+}
