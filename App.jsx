@@ -6,7 +6,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.numQueries = this.props.exampleQueries.length;
-    this.state = {qs: this.updateQueryState()};
+    this.state = {qs: this.updateQueryState(), selection: {}};
   }
 
   updateQueryState() {
@@ -46,11 +46,9 @@ export default class App extends React.Component {
         <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
         <Vis taxonomy={this.state.qs.taxonomy}
              parentWidth={this.state.elementWidthPx}
-             onTaxonSelection={this.logFactory('TaxonSelection')}
-             onTaxonHighlight={(node)=>this.setState({nodes:{highlight:node}})}
-             onSubtreeCollapse={this.logFactory('SubtreeCollapse')}
-             onSubtreeExpand={this.logFactory('SubtreeExpand')}
-             onTreeRootChange={this.logFactory('TreeRootChange')}
+             onSelection={this.logFactory('Selection')}
+             onSelectionStart={this.logFactory('SelectionStart')}
+             onHighlight={(node)=>this.setState({highlight:node})}
         />
         {this.renderSelectedTaxa()}
       </div>
@@ -58,17 +56,18 @@ export default class App extends React.Component {
   }
 
   renderSelectedTaxa() {
-    if(this.state.nodes) {
-      const Node = ({node})=><li>{node.model.name}</li>
-      const nodes = [];
-      if(this.state.nodes.highlight) {
-        nodes.push(<Node key="highlight"
-                         node={this.state.nodes.highlight} />)
+    if(this.state.highlight) {
+      const Selection = ({selection})=><li>{selection.name}</li>;
+      const state = [];
+      if(this.state.highlight) {
+        console.log("HIGHLIGHT", this.state.highlight);
+        state.push(<Selection key="highlight"
+                         selection={this.state.highlight} />)
       }
 
       return (
         <ul>
-          {nodes}
+          {state}
         </ul>
       )
     }

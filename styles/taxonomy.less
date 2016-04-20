@@ -70,20 +70,17 @@ text {
   }
 
   .node:hover,
-  .edge:hover,
-  .node-label:hover {
-
-
-    ~ .genome-padding .genome .interaction-helper {
-      stroke-opacity: 1;
-    }
-
-    text,
+  .edge:hover {
     ~ .node-label text,
     ~ .clade text {
       fill: @gramene-darkgreen;
       stroke-opacity: 1;
     }
+  }
+
+  .node-label:hover text {
+    fill: @gramene-darkgreen;
+    stroke-opacity: 1;
   }
 
   .bin {
@@ -97,7 +94,8 @@ text {
   }
 
   .bin.selected {
-    stroke-opacity: 1;
-    stroke: @gramene-orange
+    stroke-width: 2px;
+    stroke: @gramene-red;
+    fill: @gramene-red;
   }
 }

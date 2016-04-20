@@ -1,11 +1,12 @@
 import React from "react";
+import numeral from 'numeral';
+
 import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
-// import microsoftBrowser from "./util/microsoftBrowser";
+
 import transform from './util/transform';
 import {leafNodeHeight} from "./ReactVis.jsx";
-
 
 export default class Clade extends React.Component {
   constructor(props) {
@@ -23,7 +24,15 @@ export default class Clade extends React.Component {
 
   notifyOfHover(e) {
     e.stopPropagation();
-    this.props.onNodeHighlight(this.props.node);
+    this.props.onHighlight({taxon: this.props.node.model});
+  }
+
+  handleCladeSelection(e) {
+    e.stopPropagation();
+    this.props.onSelection({
+      name: this.props.node.model.name,
+      taxon: this.props.node.model
+    });
   }
 
   setClassNameState(className) {
@@ -43,7 +52,8 @@ export default class Clade extends React.Component {
 
         // mouse over (with propagation stopped) for notifying others
         // of mouse over.
-         onMouseOver={this.notifyOfHover.bind(this)}>
+         onMouseOver={this.notifyOfHover.bind(this)}
+         onSelect={this.handleCladeSelection.bind(this)}>
         {this.renderEdge()}
         {this.renderNode()}
         {this.renderText()}
@@ -56,15 +66,13 @@ export default class Clade extends React.Component {
   renderEdge() {
     if (!this.props.isRoot) {
       return <Edge node={this.props.node}
-                   displayInfo={this.displayInfo()}
-                   onSelect={()=>{}}/>
+                   displayInfo={this.displayInfo()} />
     }
   }
 
   renderNode() {
     return <Node node={this.props.node}
-                 displayInfo={this.displayInfo()}
-                 onSelect={()=>{}}/>
+                 displayInfo={this.displayInfo()} />
   }
 
   renderText() {
@@ -73,7 +81,7 @@ export default class Clade extends React.Component {
         <g className="node-label">
           {this.renderSpeciesName()}
           <text x={this.props.svgMetrics.width.text} y="4.75" className="results-count" textAnchor="end">
-            {this.props.node.model.results.count.toLocaleString()}
+            {numeral(this.props.node.model.results.count).format('0,0')}
           </text>
         </g>
       );
@@ -106,6 +114,14 @@ export default class Clade extends React.Component {
 
   renderSubclades() {
     if (this.showChildren()) {
+      const propsPassthrough = _.pick(this.props, [
+        'nodeDisplayInfo',
+        'svgMetrics',
+        'state',
+        'onSelection',
+        'onSelectionStart',
+        'onHighlight'
+      ]);
       return this.props.node.children.map((child) => {
         const key = _.get(child, 'model.id');
         if (!_.isNumber(key)) {
@@ -114,9 +130,7 @@ export default class Clade extends React.Component {
         return (
           <Clade key={key}
                  node={child}
-                 nodeDisplayInfo={this.props.nodeDisplayInfo}
-                 onNodeHighlight={this.props.onNodeHighlight}
-                 svgMetrics={this.props.svgMetrics} />
+                 {...propsPassthrough} />
         );
       });
     }
@@ -134,14 +148,15 @@ export default class Clade extends React.Component {
       const translate = transform(translateX, -translateY);
       const width = metrics.width.genomes - genomePadding;
       const height = leafNodeHeight - genomePadding;
+      const propsPassthrough = _.pick(this.props, ['svgMetrics', 'state', 'onSelection', 'onSelectionStart', 'onHighlight']);
 
       return (
         <g className="genome-padding" {...translate}>
           <Genome genome={genome}
                   globalStats={globalStats}
-                  svgMetrics={this.props.svgMetrics}
                   width={width}
-                  height={height}/>
+                  height={height}
+                  {...propsPassthrough} />
         </g>
       )
     }
@@ -174,6 +189,10 @@ Clade.propTypes = {
   node: React.PropTypes.object.isRequired,
   nodeDisplayInfo: React.PropTypes.object.isRequired,
   isRoot: React.PropTypes.bool,
-  onNodeHighlight: React.PropTypes.func.isRequired,
-  svgMetrics: React.PropTypes.object.isRequired
+  svgMetrics: React.PropTypes.object.isRequired,
+  
+  state: React.PropTypes.object.isRequired,
+  onSelection: React.PropTypes.func.isRequired,
+  onSelectionStart: React.PropTypes.func.isRequired,
+  onHighlight: React.PropTypes.func.isRequired
 };

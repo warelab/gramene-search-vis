@@ -48,17 +48,6 @@ export default class Genome extends React.Component {
         </g>
       </g>
     );
-    // return (
-    //   <g className="genome">
-    //     <rect className="interaction-helper"
-    //           x={0} y={0}
-    //           width={this.props.width}
-    //           height={this.props.height}/>
-    //     <g className="regions">
-    //       {this.renderRegions()}
-    //     </g>
-    //   </g>
-    // )
   }
 
   baseWidth() {
@@ -83,11 +72,16 @@ export default class Genome extends React.Component {
            {...translate}>
           <Region regionIdx={idx}
                   region={region}
+                  genome={this.props.genome}
                   color={regionColor(idx, region.name === 'UNANCHORED')}
                   baseWidth={baseWidth}
                   isLastRegion={isLastRegion}
                   height={this.props.height}
                   globalStats={this.props.globalStats}
+                  onHighlight={this.props.onHighlight}
+                  onSelection={this.props.onSelection}
+                  onSelectionStart={this.props.onSelectionStart}
+                  state={this.props.state}
           />
         </g>
       );
@@ -100,5 +94,10 @@ Genome.propTypes = {
   globalStats: React.PropTypes.object.isRequired,
   width: React.PropTypes.number.isRequired,
   height: React.PropTypes.number.isRequired,
-  svgMetrics: React.PropTypes.object.isRequired
+  svgMetrics: React.PropTypes.object.isRequired,
+  
+  state: React.PropTypes.object.isRequired,
+  onSelectionStart: React.PropTypes.func.isRequired,
+  onSelection: React.PropTypes.func.isRequired,
+  onHighlight: React.PropTypes.func.isRequired
 };
