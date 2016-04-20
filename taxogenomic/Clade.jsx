@@ -83,9 +83,7 @@ export default class Clade extends React.Component {
       return (
         <g className="node-label">
           {this.renderSpeciesName()}
-          <text x={this.props.svgMetrics.width.text} y="4.75" className="results-count" textAnchor="end">
-            {numeral(this.props.node.model.results.count).format('0,0')}
-          </text>
+          {this.renderResultsCount()}
         </g>
       );
     }
@@ -96,6 +94,16 @@ export default class Clade extends React.Component {
       return (
         <text x="10" y="4.75" className="species-name">
           {this.speciesName()}
+        </text>
+      );
+    }
+  }
+
+  renderResultsCount() {
+    if(this.props.svgMetrics.layout.showSpeciesNames) {
+      return (
+        <text x={this.props.svgMetrics.width.text} y="4.75" className="results-count" textAnchor="end">
+          {numeral(this.props.node.model.results.count).format('0,0')}
         </text>
       );
     }

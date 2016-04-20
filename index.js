@@ -1,3 +1,1 @@
-module.exports = {
-  Vis: require('./taxogenomic/ReactVis.jsx').default
-};
+export { default as Vis } from './taxogenomic/ReactVis.jsx';
