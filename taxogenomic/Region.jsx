@@ -12,7 +12,7 @@ let dragging = undefined;
 export default class Region extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {selectedBins: []};
+    this.state = {};
   }
 
   render() {
@@ -20,8 +20,10 @@ export default class Region extends React.Component {
       // avoid antialiasing artifacts by increasing width by 1px
       // unless it's the last one.
       + (this.props.isLastRegion ? 0 : 1);
+
+
     return (
-      <g className="region" onMouseOut={this.regionLostFocus.bind(this)}>
+      <g className={this.regionClassName()} onMouseOut={this.regionLostFocus.bind(this)}>
         <rect x="0"
               y="0"
               className="full-region"
@@ -33,6 +35,39 @@ export default class Region extends React.Component {
         {this.renderBins()}
       </g>
     );
+  }
+
+  regionClassName() {
+    const isSelected = !_.isEmpty(this.props.state.selection) && this.isEntireRegionSelected();
+    const isHighlighted = !!this.state.hoveredBin;
+
+    return 'region' + (isSelected ? ' selected' : '') + (isHighlighted ? ' hovered' : '');
+  }
+
+  isEntireRegionSelected() {
+    const firstBinIdx = this.props.region.firstBin().idx;
+    const binIdxLimit = firstBinIdx + this.props.region.binCount();
+
+    for(let i = firstBinIdx; i < binIdxLimit; i++) {
+      if(!this.props.state.selection[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  handleRegionSelection(e) {
+    e.stopPropagation();
+    const r = this.props.region;
+    const binFrom = r.firstBin();
+    const binTo = r.bin(r.binCount() - 1);
+    this.props.onSelection({
+      name: `Selected ${this.props.genome.system_name}:${this.props.region.name}`,
+      binFrom: binFrom,
+      binTo: binTo,
+      region: this.props.region,
+      genome: this.props.genome
+    })
   }
 
   handleRegionHighlight(e) {
@@ -155,6 +190,7 @@ export default class Region extends React.Component {
           fill: fillColor,
           onMouseOver: (e)=>this.handleBinHighlight(bin, e),
           onMouseOut: (e)=>this.handleMouseOut(bin, e),
+          onDoubleClick: (e)=>this.handleRegionSelection(e),
           // onClick: (e)=>this.handleBinSelection(bin, e),
           onMouseDown: (e)=>this.handleBinSelectionStart(bin, e),
           onMouseUp: (e)=>this.handleBinSelectionEnd(bin, e)
