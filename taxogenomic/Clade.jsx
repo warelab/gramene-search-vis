@@ -24,7 +24,10 @@ export default class Clade extends React.Component {
 
   notifyOfHover(e) {
     e.stopPropagation();
-    this.props.onHighlight({taxon: this.props.node.model});
+    this.props.onHighlight({
+      name: `${this.props.node.model.name} has ${this.props.node.model.results.count} results`,
+      taxon: this.props.node.model
+    });
   }
 
   handleCladeSelection(e) {

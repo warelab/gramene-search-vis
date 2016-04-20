@@ -130,7 +130,8 @@ export default class Vis extends React.Component {
           <g className="margin" transform={this.marginTransform()}>
             <Taxonomy rootNode={this.rootNode()}
                       nodeDisplayInfo={this.state.nodeDisplayInfo}
-                      onNodeHighlight={this.props.onTaxonHighlight}
+                      onHighlight={this.props.onHighlight}
+                      onSelection={this.props.onSelection}
                       svgMetrics={this.state.metrics} />
           </g>
         </svg>
@@ -151,12 +152,9 @@ Vis.propTypes = {
   parentWidth: React.PropTypes.number,
   
   taxonomy: React.PropTypes.object.isRequired,
-  onSubtreeCollapse: React.PropTypes.func,
-  onSubtreeExpand: React.PropTypes.func,
-  onTreeRootChange: React.PropTypes.func,
 
-  onTaxonSelection: React.PropTypes.func,
-  onTaxonHighlight: React.PropTypes.func
+  onSelection: React.PropTypes.func,
+  onHighlight: React.PropTypes.func
 };
 
 export {leafNodeHeight};

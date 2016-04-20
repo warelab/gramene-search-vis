@@ -10,6 +10,7 @@ export default class Genome extends React.Component {
     super(props);
     this.updateResultsCount(props);
     this.svgMetrics = props.svgMetrics;
+    this.selection = props.state.selection;
   }
 
   getSetResultsCallCount(props) {
@@ -33,9 +34,19 @@ export default class Genome extends React.Component {
     return result;
   }
 
+  didSelectionChange(selection) {
+    const result = !_.isEqual(this.selection, selection);
+    if(result) {
+      this.selection = selection;
+    }
+    return result;
+  }
+
   shouldComponentUpdate(newProps) {
     // only re-render this component if the results changed.
-    const decision = this.didResultsChange(newProps) || this.didMetricsUpdate(newProps.svgMetrics);
+    const decision = this.didResultsChange(newProps)
+      || this.didMetricsUpdate(newProps.svgMetrics)
+      || this.didSelectionChange(newProps.state.selection);
     this.updateResultsCount(newProps);
     return decision;
   }
@@ -95,7 +106,7 @@ Genome.propTypes = {
   width: React.PropTypes.number.isRequired,
   height: React.PropTypes.number.isRequired,
   svgMetrics: React.PropTypes.object.isRequired,
-  
+
   state: React.PropTypes.object.isRequired,
   onSelectionStart: React.PropTypes.func.isRequired,
   onSelection: React.PropTypes.func.isRequired,

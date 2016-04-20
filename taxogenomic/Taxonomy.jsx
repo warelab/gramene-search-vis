@@ -7,7 +7,7 @@ export default class Taxonomy extends React.Component {
     super(props);
     this.state = {
       inProgressSelection: {},
-      selection: {},
+      selection: [],
       highlight: {}
     };
   }
@@ -17,8 +17,34 @@ export default class Taxonomy extends React.Component {
   }
 
   handleSelection(selection) {
-    this.setState({selection: selection});
-    if(this.props.onSelection) this.props.onSelection(selection);
+    const newSelection = this.updateSelection(selection);
+    if(newSelection) {
+      this.setState({selection: newSelection});
+      if (this.props.onSelection) this.props.onSelection(selection);
+    }
+  }
+
+  updateSelection(selectionObj) {
+    const idxA = _.get(selectionObj, 'binFrom.idx');
+    const idxB = _.get(selectionObj, 'binTo.idx');
+
+    if (_.isNumber(idxA) && _.isNumber(idxB)) {
+      const start = Math.min(idxA, idxB);
+      const end = Math.max(idxA, idxB);
+      const selectedIds = _.clone(this.state.selection);
+      const regionBins = _.keyBy(selectionObj.region._bins, 'idx');
+
+      for (let i = start; i <= end; i++) {
+        const curSelection = selectedIds[i];
+        if (curSelection) {
+          delete selectedIds[i];
+        }
+        else {
+          selectedIds[i] = regionBins[i];
+        }
+      }
+      return selectedIds;
+    }
   }
 
   handleHighlight(highlight) {

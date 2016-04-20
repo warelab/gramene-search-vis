@@ -6,7 +6,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
     this.numQueries = this.props.exampleQueries.length;
-    this.state = {qs: this.updateQueryState(), selection: {}};
+    this.state = {qs: this.updateQueryState()};
   }
 
   updateQueryState() {
@@ -46,9 +46,8 @@ export default class App extends React.Component {
         <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
         <Vis taxonomy={this.state.qs.taxonomy}
              parentWidth={this.state.elementWidthPx}
-             onSelection={this.logFactory('Selection')}
-             onSelectionStart={this.logFactory('SelectionStart')}
-             onHighlight={(node)=>this.setState({highlight:node})}
+             onSelection={(s)=>this.setState({selection:s})}
+             onHighlight={(h)=>this.setState({highlight:h})}
         />
         {this.renderSelectedTaxa()}
       </div>

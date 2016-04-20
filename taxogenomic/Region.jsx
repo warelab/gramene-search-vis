@@ -38,7 +38,10 @@ export default class Region extends React.Component {
   handleRegionHighlight(e) {
     e.stopPropagation();
     console.log("region highlight", this.props.region);
-    this.props.onHighlight({region: this.props.region, genome: this.props.genome});
+    this.props.onHighlight({
+      region: this.props.region,
+      genome: this.props.genome
+    });
   }
 
   handleBinHighlight(bin, e) {
@@ -49,7 +52,8 @@ export default class Region extends React.Component {
       this.props.onHighlight({
         bin: bin,
         region: this.props.region,
-        genome: this.props.genome
+        genome: this.props.genome,
+        name: `${this.props.genome.system_name} ${this.props.region.name}:${bin.start}-${bin.end} has ${bin.results.count} results`
       });
     }
     else {
@@ -168,7 +172,7 @@ export default class Region extends React.Component {
   }
 
   isBinSelected(bin) {
-    return this.isInDraggingRange(bin) || this.isInSelection()
+    return this.isInDraggingRange(bin) || this.isInSelection(bin)
   }
 
   isInDraggingRange(bin) {
@@ -182,7 +186,8 @@ export default class Region extends React.Component {
   }
 
   isInSelection(bin) {
-    return false;
+    const selected = _.get(this.props, 'state.selection');
+    return selected && !!selected[bin.idx];
   }
 }
 
