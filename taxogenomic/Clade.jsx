@@ -6,7 +6,7 @@ import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
 
 import transform from './util/transform';
-import {leafNodeHeight} from "./ReactVis.jsx";
+import {leafNodeHeight} from "./Vis.jsx";
 
 export default class Clade extends React.Component {
   constructor(props) {

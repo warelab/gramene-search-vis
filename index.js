@@ -1,1 +1,1 @@
-export { default as Vis } from './taxogenomic/ReactVis.jsx';
+export { default as Vis } from './taxogenomic/Vis.jsx';

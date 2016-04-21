@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import Vis from './taxogenomic/ReactVis.jsx';
+import Vis from './taxogenomic/Vis.jsx';
 
 export default class App extends React.Component {
   constructor(props) {
