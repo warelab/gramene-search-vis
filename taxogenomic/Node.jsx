@@ -2,8 +2,7 @@
 
 import React from "react";
 
-const radius = 2.5;
-const Node = ({node, displayInfo, onSelect}) =>
+const Node = ({node, displayInfo, onSelect, radius}) =>
   <g className={className(displayInfo)}
      onClick={onSelect}>
     <circle className="circle" r={radius}/>
@@ -17,5 +16,4 @@ function className(displayInfo) {
   return className;
 }
 
-export { radius };
 export default Node;

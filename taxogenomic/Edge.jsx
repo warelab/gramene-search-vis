@@ -1,9 +1,7 @@
 import React from "react";
-import {radius} from "./Node.jsx";
 import microsoftBrowser from "./util/microsoftBrowser";
 
-const circleStroke = 1; // px, defined in taxonomy.less;
-const circleWidth = radius + (circleStroke/2);
+// const circleWidth = radius + (circleStroke/2);
 
 export default class Edge extends React.Component {
   render() {
@@ -32,7 +30,12 @@ export default class Edge extends React.Component {
     )
   }
 
+  circleWidth() {
+    return this.props.nodeRadius + (this.props.strokeWidth / 2)
+  }
+
   rect2Props() {
+    const circleWidth = this.circleWidth();
     return this.rectProps((di, size, px) => {
         // we need to take into account the size of the parent node.
         const scaleY = di.offsetX > 0 ? circleWidth - di.offsetX : -circleWidth - di.offsetX;
@@ -52,5 +55,7 @@ export default class Edge extends React.Component {
 
 Edge.propTypes = {
   node: React.PropTypes.object.isRequired,
+  nodeRadius: React.PropTypes.number.isRequired,
+  strokeWidth: React.PropTypes.number.isRequired,
   displayInfo: React.PropTypes.object.isRequired
 };

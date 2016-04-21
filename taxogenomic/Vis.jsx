@@ -56,7 +56,7 @@ export default class Vis extends React.Component {
     if(metrics) {
       const newDisplayInfo = layoutNodes(
         _.get(metrics, 'width.speciesTree'), // speciesTreeWidth,
-        this.height(),
+        this.height(metrics),
         props.taxonomy,
         this.state.nodeDisplayInfo,
         this.state.rootNodeId
@@ -104,8 +104,9 @@ export default class Vis extends React.Component {
     return this.props.taxonomy.indices.id[this.state.rootNodeId];
   }
 
-  height() {
-    return visibleLeafCount(this.props.taxonomy, this.state.nodeDisplayInfo) * leafNodeHeight;
+  height(metrics = this.state.metrics) {
+    if(!metrics) throw new Error("No svg metrics available for call to height()");
+    return visibleLeafCount(this.props.taxonomy, this.state.nodeDisplayInfo) * metrics.height.leafNode;
   }
 
   width() {
@@ -156,5 +157,3 @@ Vis.propTypes = {
   onSelection: React.PropTypes.func,
   onHighlight: React.PropTypes.func
 };
-
-export {leafNodeHeight};

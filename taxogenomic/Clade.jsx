@@ -6,7 +6,6 @@ import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
 
 import transform from './util/transform';
-import {leafNodeHeight} from "./Vis.jsx";
 
 export default class Clade extends React.Component {
   constructor(props) {
@@ -69,13 +68,16 @@ export default class Clade extends React.Component {
   renderEdge() {
     if (!this.props.isRoot) {
       return <Edge node={this.props.node}
-                   displayInfo={this.displayInfo()} />
+                   displayInfo={this.displayInfo()}
+                   nodeRadius={this.props.svgMetrics.layout.circleRadius}
+                   strokeWidth={this.props.svgMetrics.layout.strokeWidth} />
     }
   }
 
   renderNode() {
     return <Node node={this.props.node}
-                 displayInfo={this.displayInfo()} />
+                 displayInfo={this.displayInfo()}
+                 radius={this.props.svgMetrics.layout.circleRadius} />
   }
 
   renderText() {
@@ -155,10 +157,10 @@ export default class Clade extends React.Component {
     if (genome) {
       const globalStats = this.props.node.globalResultSetStats();
       const translateX = metrics.width.text + genomePadding;
-      const translateY = (leafNodeHeight / 2) - genomePadding;
+      const translateY = (metrics.height.leafNode + (2 * genomePadding)) / 4;
       const translate = transform(translateX, -translateY);
       const width = metrics.width.genomes - genomePadding;
-      const height = leafNodeHeight - genomePadding;
+      const height = metrics.height.leafNode - genomePadding;
       const propsPassthrough = _.pick(this.props, ['svgMetrics', 'state', 'onSelection', 'onSelectionStart', 'onHighlight']);
 
       return (
