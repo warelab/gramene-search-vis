@@ -32,7 +32,7 @@ export default class Vis extends React.Component {
     this.updateAvailableWidth();
   }
 
-  componentDidUnmount() {
+  componentWillUnmount() {
     if(this.resizeListener) {
       global.removeEventListener('resize', this.resizeListener);
     }
