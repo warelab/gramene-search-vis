@@ -1,6 +1,6 @@
 {
   "name": "gramene-search-vis",
-  "version": "2.0.0-beta1d",
+  "version": "2.0.0-beta2",
   "description": "Visualization used by Gramene search",
   "main": "index.js",
   "scripts": {
