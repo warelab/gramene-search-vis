@@ -6,7 +6,6 @@ import visibleLeafCount from "./util/visibleLeafCount";
 import svgMetrics from './util/svgMetrics';
 import Taxonomy from "./Taxonomy.jsx";
 
-const leafNodeHeight = 12;
 const EUKARYOTA = 2759;
 const windowResizeDebounceMs = 250;
 
@@ -20,17 +19,23 @@ export default class Vis extends React.Component {
     };
     
     if(!_.isUndefined(global.addEventListener)) {
-      global.addEventListener('resize',
-        _.debounce(
-          this.updateAvailableWidth.bind(this),
-          windowResizeDebounceMs
-        )
+      this.resizeListener = _.debounce(
+        this.updateAvailableWidth.bind(this),
+        windowResizeDebounceMs
       );
+
+      global.addEventListener('resize', this.resizeListener);
     }
   }
 
   componentDidMount() {
     this.updateAvailableWidth();
+  }
+
+  componentDidUnmount() {
+    if(this.resizeListener) {
+      global.removeEventListener('resize', this.resizeListener);
+    }
   }
 
   updateAvailableWidth() {
