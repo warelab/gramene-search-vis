@@ -10,7 +10,9 @@ export default class Genome extends React.Component {
     super(props);
     this.updateResultsCount(props);
     this.svgMetrics = props.svgMetrics;
-    this.selection = props.state.selection;
+    this.firstBin = props.genome.startBin;
+    this.lastBin = props.genome.startBin + props.genome.nbins - 1;
+    this.genomeSelection = this.getRelevantSelection(props.state.selection);
   }
 
   getSetResultsCallCount(props) {
@@ -23,7 +25,7 @@ export default class Genome extends React.Component {
   }
 
   updateResultsCount(props) {
-    this.genomeResultsState = this.getSetResultsCallCount(props);;
+    this.genomeResultsState = this.getSetResultsCallCount(props);
   }
 
   didMetricsUpdate(newMetrics) {
@@ -34,11 +36,24 @@ export default class Genome extends React.Component {
     return result;
   }
 
+  getRelevantSelection(selection) {
+    return _.pickBy(selection, (bin, idx)=> idx >= this.firstBin && idx <= this.lastBin);
+  }
+
   didSelectionChange(selection) {
-    const result = !_.isEqual(this.selection, selection);
+    const relevantSelection = this.getRelevantSelection(selection);
+    const result = !_.isEqual(this.genomeSelection, relevantSelection);
     if(result) {
-      this.selection = selection;
+      this.genomeSelection = relevantSelection;
     }
+    return result;
+  }
+
+  didHighlightChange(highlight) {
+    const isHighlighted = _.get(highlight, 'genome.taxon_id') === this.props.genome.taxon_id;
+    const result = isHighlighted || !!this.wasHighlighted;
+
+    this.wasHighlighted = isHighlighted;
     return result;
   }
 
@@ -46,7 +61,8 @@ export default class Genome extends React.Component {
     // only re-render this component if the results changed.
     const decision = this.didResultsChange(newProps)
       || this.didMetricsUpdate(newProps.svgMetrics)
-      || this.didSelectionChange(newProps.state.selection);
+      || this.didSelectionChange(newProps.state.selection)
+      || this.didHighlightChange(newProps.state.highlight);
     this.updateResultsCount(newProps);
     return decision;
   }

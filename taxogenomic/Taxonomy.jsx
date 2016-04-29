@@ -20,7 +20,7 @@ export default class Taxonomy extends React.Component {
     const newSelection = this.updateSelection(selection);
     if(newSelection) {
       this.setState({selection: newSelection});
-      if (this.props.onSelection) this.props.onSelection(selection);
+      if (this.props.onSelection) this.props.onSelection(newSelection);
     }
   }
 

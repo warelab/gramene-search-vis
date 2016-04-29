@@ -19,17 +19,18 @@ export default class Region extends React.Component {
     const width = (this.props.region.size * this.props.baseWidth)
       // avoid antialiasing artifacts by increasing width by 1px
       // unless it's the last one.
-      + (this.props.isLastRegion ? 0 : 1);
+      + ((this.props.isLastRegion || this.isRegionHighlighted()) ? -1 : 1);
 
 
     return (
-      <g className={this.regionClassName()} onMouseOut={this.regionLostFocus.bind(this)}>
+      <g className="region" onMouseOut={this.regionLostFocus.bind(this)}>
         <rect x="0"
               y="0"
-              className="full-region"
-              width={width + 1} // overdraw by 1 px to get around aliasing problem
+              className={this.regionClassName()}
+              width={width} // overdraw by 1 px to get around aliasing problem
               height={this.props.height}
               fill={this.props.color}
+              onClick={this.handleRegionSelection.bind(this)}
               onMouseOver={this.handleRegionHighlight.bind(this)}
         />
         {this.renderBins()}
@@ -39,9 +40,18 @@ export default class Region extends React.Component {
 
   regionClassName() {
     const isSelected = !_.isEmpty(this.props.state.selection) && this.isEntireRegionSelected();
-    const isHighlighted = !!this.state.hoveredBin;
 
-    return 'region' + (isSelected ? ' selected' : '') + (isHighlighted ? ' hovered' : '');
+    return 'full-region'
+      + (isSelected ? ' selected' : '')
+      + (this.isRegionHighlighted() ? ' hovered' : '');
+  }
+
+  isRegionHighlighted() {
+    const isHighlightedRegion = _.get(this.props.state.highlight, 'region.startBin')
+                                      === this.props.region.startBin;
+    const noBinHighlighted = _.isUndefined(this.props.state.highlight.bin);
+
+    return isHighlightedRegion && noBinHighlighted;
   }
 
   isEntireRegionSelected() {
@@ -72,10 +82,12 @@ export default class Region extends React.Component {
 
   handleRegionHighlight(e) {
     e.stopPropagation();
-    console.log("region highlight", this.props.region);
+    // console.log("region highlight", this.props.region);
     this.props.onHighlight({
       region: this.props.region,
-      genome: this.props.genome
+      genome: this.props.genome,
+      name: `${this.props.genome.system_name} ${this.props.region.name} ` +
+            `has ${this.props.region.results.count} results`
     });
   }
 
@@ -83,7 +95,7 @@ export default class Region extends React.Component {
     e.stopPropagation();
     this.setState({hoveredBin: bin});
     if (!dragging) {
-      console.log("bin highlight", bin, this.props.region);
+      // console.log("bin highlighthlight", bin, this.props.region);
       this.props.onHighlight({
         bin: bin,
         region: this.props.region,
@@ -92,7 +104,7 @@ export default class Region extends React.Component {
       });
     }
     else {
-      console.log("dragging");
+      // console.log("dragging");
     }
   }
 
@@ -140,7 +152,7 @@ export default class Region extends React.Component {
   }
 
   handleMouseOut(bin, e) {
-    console.log('bin mouseout', bin, dragging);
+    // console.log('bin mouseout', bin, dragging);
     if (dragging &&
       dragging.region === bin.region &&
       dragging.taxon_id === bin.taxon_id) {
@@ -152,7 +164,7 @@ export default class Region extends React.Component {
   }
 
   regionLostFocus() {
-    console.log('focus lost');
+    // console.log('focus lost');
     if (dragging) {
       this.handleBinSelectionEnd(this.state.hoveredBin);
     }
@@ -213,9 +225,10 @@ export default class Region extends React.Component {
 
   isInDraggingRange(bin) {
     const dragStartBin = dragging;
-    if (dragStartBin) {
-      const startIdx = Math.min(dragStartBin.idx, this.state.hoveredBin.idx);
-      const endIdx = Math.max(dragStartBin.idx, this.state.hoveredBin.idx);
+    const hoveredBin = this.state.hoveredBin;
+    if (dragStartBin && hoveredBin) {
+      const startIdx = Math.min(dragStartBin.idx, hoveredBin.idx);
+      const endIdx = Math.max(dragStartBin.idx, hoveredBin.idx);
 
       return bin.idx >= startIdx && bin.idx <= endIdx;
     }

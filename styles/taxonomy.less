@@ -83,7 +83,7 @@ text {
     stroke-opacity: 1;
   }
 
-  .bin {
+  .bin, .full-region {
     transition: none;
     stroke: @gramene-darkgreen;
     stroke-width: 0;
@@ -97,5 +97,14 @@ text {
     stroke-width: 2px;
     stroke: @gramene-red;
     fill: @gramene-red;
+  }
+
+  .full-region.selected {
+    stroke-width: 2px;
+    stroke: @gramene-red;
+  }
+
+  .full-region.hovered {
+    stroke-width: 2px;
   }
 }
