@@ -217,7 +217,7 @@ export default class Region extends React.Component {
           // onMouseOver: (e)=>this.handleBinHighlight(bin, e),
           // onMouseOut: (e)=>this.handleMouseOut(bin, e),
           onDoubleClick: (e)=>this.handleRegionSelection(e),
-          onClick: (e)=>this.handleBinSelection(bin, e),
+          // onClick: (e)=>this.handleBinSelection(bin, e),
           onMouseDown: (e)=>this.handleBinSelectionStart(bin, e),
           onMouseUp: (e)=>this.handleBinSelectionEnd(bin, e)
         };
