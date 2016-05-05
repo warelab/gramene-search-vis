@@ -6,6 +6,7 @@ import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
 
 import transform from './util/transform';
+import pickNumericKeys from "./util/pickNumericKeys";
 
 export default class Clade extends React.Component {
   constructor(props) {
@@ -58,6 +59,7 @@ export default class Clade extends React.Component {
          onSelect={this.handleCladeSelection.bind(this)}>
         {this.renderEdge()}
         {this.renderNode()}
+        {this.renderBackground()}
         {this.renderText()}
         {this.renderSubclades()}
         {this.renderGenome()}
@@ -98,6 +100,17 @@ export default class Clade extends React.Component {
           {this.speciesName()}
         </text>
       );
+    }
+  }
+
+  renderBackground() {
+    if(this.props.node.model.genome) {
+      const {width, height} = this.props.svgMetrics;
+      const y = 1 - height.leafNode / 2;
+
+      return (
+        <rect className="species-background" x="10" y={y} width={width.text + width.genomes} height={height.leafNode} />
+      )
     }
   }
 
@@ -150,29 +163,53 @@ export default class Clade extends React.Component {
   }
 
   renderGenome() {
+    if (this.props.node.model.genome) {
+      return (
+        <g className="genome-padding" {...this.genomeTranslate()}>
+          <Genome {...this.genomeProps()} />
+        </g>
+      )
+    }
+  }
+
+  genomeProps() {
+    const genome = this.props.node.model.genome;
+    const metrics = this.props.svgMetrics;
+    const genomePadding = metrics.layout.genomePadding;
+    const globalStats = this.props.node.globalResultSetStats();
+    const width = metrics.width.genomes - genomePadding;
+    const height = metrics.height.leafNode - genomePadding;
+    const highlight = this.highlightForGenome(genome, this.props.state.highlight);
+    const selection = this.selectionForGenome(genome, this.props.state.selection);
+
+    const globalProps = _.pick(this.props, ['svgMetrics', 'onSelection', 'onSelectionStart', 'onHighlight']);
+
+    return _.assign(globalProps, {genome, globalStats, selection, highlight, width, height});
+  }
+
+  genomeTranslate() {
     const genome = this.props.node.model.genome;
     const metrics = this.props.svgMetrics;
     const genomePadding = metrics.layout.genomePadding;
 
     if (genome) {
-      const globalStats = this.props.node.globalResultSetStats();
       const translateX = metrics.width.text + genomePadding;
       const translateY = (metrics.height.leafNode + (2 * genomePadding)) / 4;
-      const translate = transform(translateX, -translateY);
-      const width = metrics.width.genomes - genomePadding;
-      const height = metrics.height.leafNode - genomePadding;
-      const propsPassthrough = _.pick(this.props, ['svgMetrics', 'state', 'onSelection', 'onSelectionStart', 'onHighlight']);
-
-      return (
-        <g className="genome-padding" {...translate}>
-          <Genome genome={genome}
-                  globalStats={globalStats}
-                  width={width}
-                  height={height}
-                  {...propsPassthrough} />
-        </g>
-      )
+      return transform(translateX, -translateY);
     }
+  }
+
+  highlightForGenome(genome, highlight) {
+    const hlStart = _.get(highlight, 'genome.startBin');
+    if(_.isNumber(hlStart) && hlStart === genome.startBin) {
+      return highlight;
+    }
+  }
+  
+  selectionForGenome(genome, selection) {
+    const firstBin = genome.startBin;
+    const lastBin = firstBin + genome.nbins - 1;
+    return pickNumericKeys(selection, firstBin, lastBin);
   }
 
   gProps() {

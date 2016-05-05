@@ -14,8 +14,8 @@ text {
 
 .taxonomy * {
   transition: fill 200ms ease-in-out,
-              stroke-opacity 200ms ease-in-out,
-              transform 200ms ease-in-out;
+      stroke-opacity 200ms ease-in-out,
+      transform 200ms ease-in-out;
 }
 
 .clade {
@@ -55,6 +55,7 @@ text {
       fill: @gramene-darkgreen;
       stroke-opacity: 1;
     }
+
   }
 
   // color the clade underneath the hovered node.
@@ -87,9 +88,10 @@ text {
     transition: none;
     stroke: @gramene-darkgreen;
     stroke-width: 0;
+    shape-rendering: crispEdges;
   }
 
-  .bin.hovered {
+  .bin:hover {
     stroke-width: 2px;
   }
 
@@ -104,7 +106,20 @@ text {
     stroke: @gramene-red;
   }
 
-  .full-region.hovered {
-    stroke-width: 2px;
+  .full-region:hover {
+    stroke-width: 1px;
   }
+
+  .species-background {
+    fill: none;
+  }
+
+  .node:hover ~ .species-background,
+  .edge:hover ~ .species-background,
+  .node:hover ~ .clade .species-background,
+  .edge:hover ~ .clade .species-background,
+  .clade.highlight > .species-background {
+    fill: lighten(@gramene-orange, 15%);
+  }
+
 }

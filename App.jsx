@@ -59,7 +59,6 @@ export default class App extends React.Component {
       const Selection = ({selection})=><li>{selection.name}</li>;
       const state = [];
       if(this.state.highlight) {
-        console.log("HIGHLIGHT", this.state.highlight);
         state.push(<Selection key="highlight"
                          selection={this.state.highlight} />)
       }

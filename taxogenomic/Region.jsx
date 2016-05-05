@@ -1,6 +1,7 @@
 import React from "react";
 import {binColor} from "./util/colors";
 import transform from "./util/transform";
+import PropsComparer from "./util/PropsComparer";
 
 // dragging state is a global state, but using
 // the Taxonomy object's state is not working --
@@ -11,15 +12,24 @@ let dragging = undefined;
 
 export default class Region extends React.Component {
   constructor(props) {
+    const regionStartBinIdx = props.region.startBin;
+    const regionEndBinIdx = props.region.startBin + props.region.binCount() - 1;
+
     super(props);
     this.state = {};
+    this.propsComparer = new PropsComparer(
+      'globalStats.timesSetResultsHasBeenCalled',
+      'selection',
+      'baseWidth',
+      'height'
+    );
   }
 
   render() {
-    const width = (this.props.region.size * this.props.baseWidth)
+    const width = (this.props.region.size * this.props.baseWidth);
       // avoid antialiasing artifacts by increasing width by 1px
       // unless it's the last one.
-      + ((this.props.isLastRegion || this.isRegionHighlighted()) ? -1 : 1);
+      // + ((this.props.isLastRegion || this.isRegionHighlighted()) ? -1 : 1);
 
 
     return (
@@ -27,7 +37,7 @@ export default class Region extends React.Component {
         <rect x="0"
               y="0"
               className={this.regionClassName()}
-              width={width} // overdraw by 1 px to get around aliasing problem
+              width={width}
               height={this.props.height}
               fill={this.props.color}
               onClick={this.handleRegionSelection.bind(this)}
@@ -39,33 +49,36 @@ export default class Region extends React.Component {
   }
 
   regionClassName() {
-    const isSelected = !_.isEmpty(this.props.state.selection) && this.isEntireRegionSelected();
+    const isSelected = !_.isEmpty(this.props.selection) && this.isEntireRegionSelected();
 
     return 'full-region'
-      + (isSelected ? ' selected' : '')
-      + (this.isRegionHighlighted() ? ' hovered' : '');
+      + (isSelected ? ' selected' : '');
+      // + (this.isRegionHighlighted() ? ' hovered' : '');
   }
 
   isRegionHighlighted() {
-    const isHighlightedRegion = _.get(this.props.state.highlight, 'region.startBin')
-                                      === this.props.region.startBin;
-    const noBinHighlighted = _.isUndefined(this.props.state.highlight.bin);
+    const isHighlightedRegion = _.get(this.props.highlight, 'region.startBin')
+      === this.props.region.startBin;
+    if (isHighlightedRegion) {
+      const noBinHighlighted = _.isUndefined(this.props.highlight.bin);
+      return noBinHighlighted;
+    }
 
-    return isHighlightedRegion && noBinHighlighted;
+    return false;
   }
 
   isEntireRegionSelected() {
     const firstBinIdx = this.props.region.firstBin().idx;
     const binIdxLimit = firstBinIdx + this.props.region.binCount();
 
-    for(let i = firstBinIdx; i < binIdxLimit; i++) {
-      if(!this.props.state.selection[i]) {
+    for (let i = firstBinIdx; i < binIdxLimit; i++) {
+      if (!this.props.selection[i]) {
         return false;
       }
     }
     return true;
   }
-  
+
   handleRegionSelection(e) {
     e.stopPropagation();
     const r = this.props.region;
@@ -87,7 +100,7 @@ export default class Region extends React.Component {
       region: this.props.region,
       genome: this.props.genome,
       name: `${this.props.genome.system_name} ${this.props.region.name} ` +
-            `has ${this.props.region.results.count} results`
+      `has ${this.props.region.results.count} results`
     });
   }
 
@@ -106,6 +119,10 @@ export default class Region extends React.Component {
     else {
       // console.log("dragging");
     }
+  }
+
+  shouldComponentUpdate(newProps) {
+    return this.propsComparer.differ(this.props, newProps);
   }
 
   handleBinSelection(bin, e) {
@@ -174,43 +191,37 @@ export default class Region extends React.Component {
   }
 
   renderBins() {
-    var translateX = 0, binCounter = 0;
+    var translateX = 0;
     const maxScore = this.props.globalStats.bins.max || 1;
-    const binCount = this.props.region.binCount();
-    let previousBinIsHighlighted = false;
 
     return this.props.region.mapBins((bin) => {
-      const isLastBin = (++binCounter === binCount);
       const w = this.props.baseWidth * (bin.end - bin.start + 1);
-      const translate = transform(translateX + (previousBinIsHighlighted ? 1 : 0), 0);
+      const translate = transform(translateX, 0);
 
+      // SIDE EFFECT
       translateX += w;
 
       if (bin.results.count) {
         const isSelected = this.isBinSelected(bin);
-        const isHighlighted = !isSelected && this.state.hoveredBin && this.state.hoveredBin.idx === bin.idx;
         const score = bin.results.count / maxScore;
         const fillColor = binColor(this.props.regionIdx, score,
           this.props.region.name === 'UNANCHORED');
 
         const props = {
           key: bin.idx,
-          className: 'bin' + (isSelected ? ' selected' : '') + (isHighlighted ? ' hovered' : ''),
-          // work with antialiasing artifacts by making the bins bigger, unless it's teh last on or highlighted.
-          width: w + (isLastBin || isHighlighted || isSelected ? 0 : 1),
+          id: `bin${bin.idx}`,
+          className: 'bin' + (isSelected ? ' selected' : ''),
+          width: w,
           height: this.props.height,
           fill: fillColor,
-          onMouseOver: (e)=>this.handleBinHighlight(bin, e),
-          onMouseOut: (e)=>this.handleMouseOut(bin, e),
+          // onMouseOver: (e)=>this.handleBinHighlight(bin, e),
+          // onMouseOut: (e)=>this.handleMouseOut(bin, e),
           onDoubleClick: (e)=>this.handleRegionSelection(e),
-          // onClick: (e)=>this.handleBinSelection(bin, e),
+          onClick: (e)=>this.handleBinSelection(bin, e),
           onMouseDown: (e)=>this.handleBinSelectionStart(bin, e),
           onMouseUp: (e)=>this.handleBinSelectionEnd(bin, e)
         };
 
-        previousBinIsHighlighted = isHighlighted || isSelected;
-
-        // SIDE EFFECTS
         return (
           <rect {...props}
             {...translate} />
@@ -235,7 +246,7 @@ export default class Region extends React.Component {
   }
 
   isInSelection(bin) {
-    const selected = _.get(this.props, 'state.selection');
+    const selected = _.get(this.props, 'selection');
     return selected && !!selected[bin.idx];
   }
 }
@@ -244,7 +255,8 @@ Region.propTypes = {
   regionIdx: React.PropTypes.number.isRequired,
   region: React.PropTypes.object.isRequired,
   genome: React.PropTypes.object.isRequired,
-  state: React.PropTypes.object.isRequired,
+  highlight: React.PropTypes.object.isRequired,
+  selection: React.PropTypes.object.isRequired,
   onSelectionStart: React.PropTypes.func.isRequired,
   onSelection: React.PropTypes.func.isRequired,
   onHighlight: React.PropTypes.func.isRequired,
