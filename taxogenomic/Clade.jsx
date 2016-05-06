@@ -1,11 +1,10 @@
 import React from "react";
-import numeral from 'numeral';
-
+import numeral from "numeral";
 import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
 import Genome from "./Genome.jsx";
-
-import transform from './util/transform';
+import {OverlayTrigger, Popover} from "react-bootstrap";
+import transform from "./util/transform";
 import pickNumericKeys from "./util/pickNumericKeys";
 
 export default class Clade extends React.Component {
@@ -72,29 +71,41 @@ export default class Clade extends React.Component {
       return <Edge node={this.props.node}
                    displayInfo={this.displayInfo()}
                    nodeRadius={this.props.svgMetrics.layout.circleRadius}
-                   strokeWidth={this.props.svgMetrics.layout.strokeWidth} />
+                   strokeWidth={this.props.svgMetrics.layout.strokeWidth}/>
     }
   }
 
   renderNode() {
     return <Node node={this.props.node}
                  displayInfo={this.displayInfo()}
-                 radius={this.props.svgMetrics.layout.circleRadius} />
+                 onSelect={this.handleCladeSelection.bind(this)}
+                 popover={this.renderPopover()}
+                 radius={this.props.svgMetrics.layout.circleRadius}/>
+  }
+
+  renderPopover() {
+    return <Popover>Hello Node {this.props.node.model.id}</Popover>
   }
 
   renderText() {
     if (!this.props.node.hasChildren()) {
       return (
         <g className="node-label">
-          {this.renderSpeciesName()}
-          {this.renderResultsCount()}
+          <OverlayTrigger trigger={['focus', 'click']} rootClose
+                          placement="bottom"
+                          overlay={this.renderPopover()}>
+            <g>
+              {this.renderSpeciesName()}
+              {this.renderResultsCount()}
+            </g>
+          </OverlayTrigger>
         </g>
       );
     }
   }
 
   renderSpeciesName() {
-    if(this.props.svgMetrics.layout.showSpeciesNames) {
+    if (this.props.svgMetrics.layout.showSpeciesNames) {
       return (
         <text x="10" y="4.75" className="species-name">
           {this.speciesName()}
@@ -104,18 +115,18 @@ export default class Clade extends React.Component {
   }
 
   renderBackground() {
-    if(this.props.node.model.genome) {
+    if (this.props.node.model.genome) {
       const {width, height} = this.props.svgMetrics;
       const y = 1 - height.leafNode / 2;
 
       return (
-        <rect className="species-background" x="10" y={y} width={width.text + width.genomes} height={height.leafNode} />
+        <rect className="species-background" x="10" y={y} width={width.text + width.genomes} height={height.leafNode}/>
       )
     }
   }
 
   renderResultsCount() {
-    if(this.props.svgMetrics.layout.showSpeciesNames) {
+    if (this.props.svgMetrics.layout.showSpeciesNames) {
       return (
         <text x={this.props.svgMetrics.width.text} y="4.75" className="results-count" textAnchor="end">
           {numeral(this.props.node.model.results.count).format('0,0')}
@@ -156,7 +167,7 @@ export default class Clade extends React.Component {
         return (
           <Clade key={key}
                  node={child}
-                 {...propsPassthrough} />
+            {...propsPassthrough} />
         );
       });
     }
@@ -201,11 +212,11 @@ export default class Clade extends React.Component {
 
   highlightForGenome(genome, highlight) {
     const hlStart = _.get(highlight, 'genome.startBin');
-    if(_.isNumber(hlStart) && hlStart === genome.startBin) {
+    if (_.isNumber(hlStart) && hlStart === genome.startBin) {
       return highlight;
     }
   }
-  
+
   selectionForGenome(genome, selection) {
     const firstBin = genome.startBin;
     const lastBin = firstBin + genome.nbins - 1;
@@ -240,7 +251,7 @@ Clade.propTypes = {
   nodeDisplayInfo: React.PropTypes.object.isRequired,
   isRoot: React.PropTypes.bool,
   svgMetrics: React.PropTypes.object.isRequired,
-  
+
   state: React.PropTypes.object.isRequired,
   onSelection: React.PropTypes.func.isRequired,
   onSelectionStart: React.PropTypes.func.isRequired,

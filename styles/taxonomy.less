@@ -41,19 +41,18 @@ text::selection {
   }
 
   //
-  //.genome .interaction-helper {
-  //  stroke-opacity: 0;
-  //  fill-opacity: 0;
-  //  stroke: @gramene-darkgreen;
-  //  stroke-width: 1.5px;
-  //}
+  .interaction-helper {
+    stroke-opacity: 0;
+    fill: black;
+    fill-opacity: 0;
+  }
 
   // color the nodes above the hovered node
   // (the highlight class is added dynamically
   // in code)
   .clade.highlight {
-    > .node > circle,
-    > .edge > rect {
+    > .node circle,
+    > .edge rect {
       fill: @gramene-orange;
     }
     > .node-label text {
@@ -66,11 +65,11 @@ text::selection {
   // color the clade underneath the hovered node.
   .node:hover,
   .edge:hover {
-    > circle,
-    > rect,
-    ~ .node > circle,
-    ~ .clade .edge > rect,
-    ~ .clade .node > circle {
+    circle,
+    rect,
+    ~ .node circle,
+    ~ .clade .edge rect,
+    ~ .clade .node circle {
       fill: @gramene-orange;
     }
   }
