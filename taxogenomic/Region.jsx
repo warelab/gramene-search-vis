@@ -1,6 +1,5 @@
 import React from "react";
-import {binColor} from "./util/colors";
-import transform from "./util/transform";
+import Bin from "./Bin.jsx";
 import PropsComparer from "./util/PropsComparer";
 
 // dragging state is a global state, but using
@@ -172,43 +171,24 @@ export default class Region extends React.Component {
   }
 
   renderBins() {
-    var translateX = 0;
-    const maxScore = this.props.globalStats.bins.max || 1;
+    const binProps = {
+      maxScore: this.props.globalStats.bins.max || 1,
+      region: this.props.region,
+      regionIdx: this.props.regionIdx,
+      baseWidth: this.props.baseWidth,
+      height: this.props.height,
+      onRegionSelect: this.handleRegionSelection.bind(this),
+      onBinHighlight: this.handleBinHighlight.bind(this),
+      onBinUnhighlight: this.handleMouseOut.bind(this),
+      onBinSelectionStart: this.handleBinSelectionStart.bind(this),
+      onBinSelectionEnd: this.handleBinSelectionEnd.bind(this)
+    };
 
-    return this.props.region.mapBins((bin) => {
-      const w = this.props.baseWidth * (bin.end - bin.start + 1);
-      const translate = transform(translateX, 0);
-
-      // SIDE EFFECT
-      translateX += w;
-
-      if (bin.results.count) {
-        const isSelected = this.isBinSelected(bin);
-        const score = bin.results.count / maxScore;
-        const fillColor = binColor(this.props.regionIdx, score,
-          this.props.region.name === 'UNANCHORED');
-
-        const props = {
-          key: bin.idx,
-          id: `bin${bin.idx}`,
-          className: 'bin' + (isSelected ? ' selected' : ''),
-          width: w,
-          height: this.props.height,
-          fill: fillColor,
-          // onMouseOver: (e)=>this.handleBinHighlight(bin, e),
-          // onMouseOut: (e)=>this.handleMouseOut(bin, e),
-          onDoubleClick: (e)=>this.handleRegionSelection(e),
-          // onClick: (e)=>this.handleBinSelection(bin, e),
-          onMouseDown: (e)=>this.handleBinSelectionStart(bin, e),
-          onMouseUp: (e)=>this.handleBinSelectionEnd(bin, e)
-        };
-
-        return (
-          <rect {...props}
-            {...translate} />
-        );
-      }
-    });
+    return _.filter(this.props.region._bins, (bin)=>bin.results.count)
+      .map((bin) => <Bin key={bin.idx}
+                         bin={bin}
+                         isSelected={this.isBinSelected(bin)}
+                         {...binProps} />);
   }
 
   isBinSelected(bin) {
