@@ -12,9 +12,6 @@ let dragging = undefined;
 
 export default class Region extends React.Component {
   constructor(props) {
-    const regionStartBinIdx = props.region.startBin;
-    const regionEndBinIdx = props.region.startBin + props.region.binCount() - 1;
-
     super(props);
     this.state = {};
     this.propsComparer = new PropsComparer(
@@ -26,11 +23,7 @@ export default class Region extends React.Component {
   }
 
   render() {
-    const width = (this.props.region.size * this.props.baseWidth);
-      // avoid antialiasing artifacts by increasing width by 1px
-      // unless it's the last one.
-      // + ((this.props.isLastRegion || this.isRegionHighlighted()) ? -1 : 1);
-
+    const width = this.props.region.size * this.props.baseWidth;
 
     return (
       <g className="region" onMouseOut={this.regionLostFocus.bind(this)}>
@@ -53,18 +46,6 @@ export default class Region extends React.Component {
 
     return 'full-region'
       + (isSelected ? ' selected' : '');
-      // + (this.isRegionHighlighted() ? ' hovered' : '');
-  }
-
-  isRegionHighlighted() {
-    const isHighlightedRegion = _.get(this.props.highlight, 'region.startBin')
-      === this.props.region.startBin;
-    if (isHighlightedRegion) {
-      const noBinHighlighted = _.isUndefined(this.props.highlight.bin);
-      return noBinHighlighted;
-    }
-
-    return false;
   }
 
   isEntireRegionSelected() {
@@ -255,8 +236,8 @@ Region.propTypes = {
   regionIdx: React.PropTypes.number.isRequired,
   region: React.PropTypes.object.isRequired,
   genome: React.PropTypes.object.isRequired,
-  highlight: React.PropTypes.object.isRequired,
-  selection: React.PropTypes.object.isRequired,
+  highlight: React.PropTypes.object,
+  selection: React.PropTypes.object,
   onSelectionStart: React.PropTypes.func.isRequired,
   onSelection: React.PropTypes.func.isRequired,
   onHighlight: React.PropTypes.func.isRequired,

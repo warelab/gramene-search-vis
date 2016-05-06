@@ -97,8 +97,8 @@ Genome.propTypes = {
   height: React.PropTypes.number.isRequired,
   svgMetrics: React.PropTypes.object.isRequired,
 
-  highlight: React.PropTypes.object.isRequired,
-  selection: React.PropTypes.object.isRequired,
+  highlight: React.PropTypes.object,
+  selection: React.PropTypes.object,
   onSelectionStart: React.PropTypes.func.isRequired,
   onSelection: React.PropTypes.func.isRequired,
   onHighlight: React.PropTypes.func.isRequired
