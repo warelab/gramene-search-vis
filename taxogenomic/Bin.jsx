@@ -42,4 +42,23 @@ const Bin = ({
   );
 };
 
+const o = React.PropTypes.object.isRequired;
+const f = React.PropTypes.func.isRequired;
+const n = React.PropTypes.number.isRequired;
+const b = React.PropTypes.bool.isRequired;
+Bin.propTypes = {
+  bin: o,
+  isSelected: b,
+  maxScore: n,
+  region: o,
+  regionIdx: n,
+  baseWidth: n,
+  height: n,
+  onRegionSelect: f,
+  onBinHighlight: f,
+  onBinUnhighlight: f,
+  onBinSelectionStart: f,
+  onBinSelectionEnd: f
+};
+
 export default Bin;

@@ -143,7 +143,9 @@ export default class Clade extends React.Component {
       const propsPassthrough = _.pick(this.props, [
         'nodeDisplayInfo',
         'svgMetrics',
-        'state',
+        'highlight',
+        'selection',
+        'inProgressSelection',
         'onSelection',
         'onSelectionStart',
         'onHighlight'
@@ -179,12 +181,27 @@ export default class Clade extends React.Component {
     const globalStats = this.props.node.globalResultSetStats();
     const width = metrics.width.genomes - genomePadding;
     const height = metrics.height.leafNode - genomePadding;
-    const highlight = this.highlightForGenome(genome, this.props.state.highlight);
-    const selection = this.selectionForGenome(genome, this.props.state.selection);
+    const highlight = this.highlightForGenome(genome, this.props.highlight);
+    const selection = this.selectionForGenome(genome, this.props.selection);
+    const inProgressSelection = _.get(this.props.inProgressSelection, 'genome.taxon_id') === genome.taxon_id
+                                  ? this.props.inProgressSelection : undefined;
 
-    const globalProps = _.pick(this.props, ['svgMetrics', 'onSelection', 'onSelectionStart', 'onHighlight']);
+    const globalProps = _.pick(this.props, [
+      'svgMetrics',
+      'onSelection',
+      'onSelectionStart',
+      'onHighlight'
+    ]);
 
-    return _.assign(globalProps, {genome, globalStats, selection, highlight, width, height});
+    return _.assign(globalProps, {
+      genome,
+      globalStats,
+      selection,
+      highlight,
+      inProgressSelection,
+      width,
+      height
+    });
   }
 
   genomeTranslate() {
@@ -240,8 +257,10 @@ Clade.propTypes = {
   nodeDisplayInfo: React.PropTypes.object.isRequired,
   isRoot: React.PropTypes.bool,
   svgMetrics: React.PropTypes.object.isRequired,
-  
-  state: React.PropTypes.object.isRequired,
+
+  highlight: React.PropTypes.object,
+  selection: React.PropTypes.object,
+  inProgressSelection: React.PropTypes.object,
   onSelection: React.PropTypes.func.isRequired,
   onSelectionStart: React.PropTypes.func.isRequired,
   onHighlight: React.PropTypes.func.isRequired

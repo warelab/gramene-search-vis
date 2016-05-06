@@ -13,7 +13,8 @@ export default class Genome extends React.Component {
     this.propsComparer = new PropsComparer(
       'globalStats.timesSetResultsHasBeenCalled',
       'svgMetrics',
-      'selection'
+      'selection',
+      'inProgressSelection'
     );
   }
 
@@ -48,6 +49,7 @@ export default class Genome extends React.Component {
         'height',
         'width',
         'globalStats',
+        'inProgressSelection',
         'onHighlight',
         'onSelection',
         'onSelectionStart',
@@ -99,6 +101,7 @@ Genome.propTypes = {
 
   highlight: React.PropTypes.object,
   selection: React.PropTypes.object,
+  inProgressSelection: React.PropTypes.object,
   onSelectionStart: React.PropTypes.func.isRequired,
   onSelection: React.PropTypes.func.isRequired,
   onHighlight: React.PropTypes.func.isRequired

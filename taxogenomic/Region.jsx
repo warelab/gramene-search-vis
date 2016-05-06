@@ -2,13 +2,6 @@ import React from "react";
 import Bin from "./Bin.jsx";
 import PropsComparer from "./util/PropsComparer";
 
-// dragging state is a global state, but using
-// the Taxonomy object's state is not working --
-// either it's not updated in time or it's being
-// blocked in Genome.jsx to prevent excessive
-// redrawing. Let's try using a simple variable.
-let dragging = undefined;
-
 export default class Region extends React.Component {
   constructor(props) {
     super(props);
@@ -25,7 +18,9 @@ export default class Region extends React.Component {
     const width = this.props.region.size * this.props.baseWidth;
 
     return (
-      <g className="region" onMouseOut={this.regionLostFocus.bind(this)}>
+      <g className="region" 
+         onMouseOut={this.regionLostFocus.bind(this)}
+         onMouseOver={this.regionGainedFocus.bind(this)} >
         <rect x="0"
               y="0"
               className={this.regionClassName()}
@@ -87,7 +82,7 @@ export default class Region extends React.Component {
   handleBinHighlight(bin, e) {
     e.stopPropagation();
     this.setState({hoveredBin: bin});
-    if (!dragging) {
+    if (!this.draggingFromBin()) {
       // console.log("bin highlighthlight", bin, this.props.region);
       this.props.onHighlight({
         bin: bin,
@@ -102,7 +97,7 @@ export default class Region extends React.Component {
   }
 
   shouldComponentUpdate(newProps) {
-    return this.propsComparer.differ(this.props, newProps);
+    return this.draggingFromBin() || this.propsComparer.differ(this.props, newProps);
   }
 
   handleBinSelection(bin, e) {
@@ -120,8 +115,6 @@ export default class Region extends React.Component {
     e.stopPropagation();
     console.log("start dragging at", bin.idx);
 
-    dragging = bin;
-
     this.props.onSelectionStart({
       name: `Selection in progress on ${this.props.genome.name}:${this.props.region.name}`,
       binFrom: bin,
@@ -133,6 +126,7 @@ export default class Region extends React.Component {
   handleBinSelectionEnd(bin, e) {
     if (e) e.stopPropagation();
 
+    const dragging = this.draggingFromBin();
     if (dragging) {
       console.log("done dragging", dragging.idx, bin.idx);
 
@@ -143,17 +137,25 @@ export default class Region extends React.Component {
         region: this.props.region,
         genome: this.props.genome
       });
+    }
+  }
 
-      dragging = undefined;
+  draggingFromBin() {
+    const sel = this.props.inProgressSelection;
+    if (sel && sel.genome && sel.genome.taxon_id === this.props.genome.taxon_id
+      && sel.region.firstBin().idx === this.props.region.firstBin().idx) {
+      return sel.binFrom;
     }
   }
 
   handleMouseOut(bin, e) {
     // console.log('bin mouseout', bin, dragging);
+    const dragging = this.draggingFromBin();
     if (dragging &&
       dragging.region === bin.region &&
       dragging.taxon_id === bin.taxon_id) {
 
+      console.log('bin mouseout', dragging, this.state.hoveredBin);
       // stopping propagation prevents the Region's onMouseOut handler, regionLostFocus
       // from being called. We don't want to do that if we are dragging and have not strayed to a different region.
       e.stopPropagation();
@@ -161,13 +163,25 @@ export default class Region extends React.Component {
   }
 
   regionLostFocus() {
-    // console.log('focus lost');
-    if (dragging) {
+    console.log('focus lost', this.draggingFromBin(), this.state.hoveredBin);
+    if (this.draggingFromBin()) {
       this.handleBinSelectionEnd(this.state.hoveredBin);
     }
-    this.setState({
-      hoveredBin: undefined
-    });
+    // this.setState({
+    //   hoveredBin: undefined
+    // });
+  }
+
+  regionGainedFocus() {
+    // Implement this or make handleBinHighlight do this:
+    // * send a message to taxonomy with the bin/region info.
+    // * if region differs from the inProgressSelection, then select the
+    //   appropriate portion of the region.
+    // * if the genome differs, prob should abandon the selection.
+
+    // ALSO NEED to do this:
+    // * use global state for highlight stuff, rather than this.state.hoveredBin.
+    console.log('focus gained', this.props.region.name);
   }
 
   renderBins() {
@@ -188,7 +202,7 @@ export default class Region extends React.Component {
       .map((bin) => <Bin key={bin.idx}
                          bin={bin}
                          isSelected={this.isBinSelected(bin)}
-                         {...binProps} />);
+        {...binProps} />);
   }
 
   isBinSelected(bin) {
@@ -196,7 +210,7 @@ export default class Region extends React.Component {
   }
 
   isInDraggingRange(bin) {
-    const dragStartBin = dragging;
+    const dragStartBin = this.draggingFromBin();
     const hoveredBin = this.state.hoveredBin;
     if (dragStartBin && hoveredBin) {
       const startIdx = Math.min(dragStartBin.idx, hoveredBin.idx);
@@ -218,6 +232,7 @@ Region.propTypes = {
   genome: React.PropTypes.object.isRequired,
   highlight: React.PropTypes.object,
   selection: React.PropTypes.object,
+  inProgressSelection: React.PropTypes.object,
   onSelectionStart: React.PropTypes.func.isRequired,
   onSelection: React.PropTypes.func.isRequired,
   onHighlight: React.PropTypes.func.isRequired,

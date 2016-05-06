@@ -13,13 +13,19 @@ export default class Taxonomy extends React.Component {
   }
 
   handleSelectionStart(selection) {
+    console.log('selection start', selection);
     this.setState({inProgressSelection: selection});
   }
 
   handleSelection(selection) {
+    console.log('selection done', selection);
     const newSelection = this.updateSelection(selection);
     if(newSelection) {
-      this.setState({selection: newSelection});
+      this.setState({
+        selection: newSelection,
+        inProgressSelection: undefined
+      });
+
       if (this.props.onSelection) this.props.onSelection(newSelection);
     }
   }
@@ -62,7 +68,7 @@ export default class Taxonomy extends React.Component {
       <g className="taxonomy">
         <Clade node={this.props.rootNode}
                isRoot={true}
-               state={this.state}
+               {...this.state}
                onSelectionStart={this.handleSelectionStart.bind(this)}
                onSelection={this.handleSelection.bind(this)}
                onHighlight={this.handleHighlight.bind(this)}
