@@ -1,15 +1,16 @@
-import microsoftBrowser from './microsoftBrowser';
+//import microsoftBrowser from './microsoftBrowser';
 
 export default function transform(x, y) {
-  const props = {};
-  const isStyle = !microsoftBrowser;
+  let props;
+  const isStyle = false; // !microsoftBrowser;
   const px = isStyle ? 'px' : '';
+  const transform = `translate(${x}${px}, ${y}${px})`;
 
-  if (microsoftBrowser) {
-    props.transform = `translate(${x}${px}, ${y}${px})`;
+  if (isStyle) {
+    props = {style : {transform}};
   }
   else {
-    props.style = {transform: `translate(${x}${px}, ${y}${px})`};
+    props = {transform};
   }
 
   return props;
