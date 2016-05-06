@@ -96,23 +96,22 @@ text::selection {
     shape-rendering: crispEdges;
   }
 
-  .bin:hover {
-    stroke-width: 2px;
-  }
-
   .bin.selected {
-    stroke-width: 2px;
-    stroke: @gramene-red;
     fill: @gramene-red;
   }
 
+  .bin:hover {
+    fill: @gramene-darkgreen;
+  }
+
   .full-region.selected {
-    stroke-width: 2px;
+    stroke-width: 1px;
     stroke: @gramene-red;
   }
 
   .full-region:hover {
     stroke-width: 1px;
+    stroke: @gramene-darkgreen;
   }
 
   .species-background {
