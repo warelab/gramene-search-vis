@@ -19,8 +19,7 @@ export default class Region extends React.Component {
 
     return (
       <g className="region" 
-         onMouseOut={this.regionLostFocus.bind(this)}
-         onMouseOver={this.regionGainedFocus.bind(this)} >
+         onMouseOut={this.regionLostFocus.bind(this)}>
         <rect x="0"
               y="0"
               className={this.regionClassName()}
@@ -167,21 +166,6 @@ export default class Region extends React.Component {
     if (this.draggingFromBin()) {
       this.handleBinSelectionEnd(this.state.hoveredBin);
     }
-    // this.setState({
-    //   hoveredBin: undefined
-    // });
-  }
-
-  regionGainedFocus() {
-    // Implement this or make handleBinHighlight do this:
-    // * send a message to taxonomy with the bin/region info.
-    // * if region differs from the inProgressSelection, then select the
-    //   appropriate portion of the region.
-    // * if the genome differs, prob should abandon the selection.
-
-    // ALSO NEED to do this:
-    // * use global state for highlight stuff, rather than this.state.hoveredBin.
-    console.log('focus gained', this.props.region.name);
   }
 
   renderBins() {
