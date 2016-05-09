@@ -58,12 +58,15 @@ export default class Region extends React.Component {
     const r = this.props.region;
     const binFrom = r.firstBin();
     const binTo = r.bin(r.binCount() - 1);
+    const isSelectedNow = this.isEntireRegionSelected();
+    
     this.props.onSelection({
       name: `Selected ${this.props.genome.system_name}:${this.props.region.name}`,
       binFrom: binFrom,
       binTo: binTo,
       region: this.props.region,
-      genome: this.props.genome
+      genome: this.props.genome,
+      select: !isSelectedNow
     })
   }
 

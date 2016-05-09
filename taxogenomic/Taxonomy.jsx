@@ -19,7 +19,10 @@ export default class Taxonomy extends React.Component {
   handleSelection(selection) {
     const newSelection = this.updateSelection(selection);
     if (newSelection) {
-      this.setState({selection: newSelection});
+      this.setState({
+        selection: newSelection,
+        inProgressSelection: undefined
+      });
       if (this.props.onSelection) this.props.onSelection(newSelection);
     }
   }
@@ -39,7 +42,7 @@ export default class Taxonomy extends React.Component {
         const curSelection = selectedIds[i];
 
         // if the selection obj says what the new state is, use it. Otherwise toggle existing state.
-        const newSelectionState = globalSelectionDefined ? selectionObj.select : curSelection;
+        const newSelectionState = globalSelectionDefined ? selectionObj.select : !curSelection;
 
         if (newSelectionState) {
           selectedIds[i] = regionBins[i];
