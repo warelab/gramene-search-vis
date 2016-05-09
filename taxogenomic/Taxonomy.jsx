@@ -6,26 +6,20 @@ export default class Taxonomy extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      inProgressSelection: undefined,
-      selection: undefined,
-      highlight: undefined
-    }
+      inProgressSelection: {},
+      selection: {},
+      highlight: {}
+    };
   }
 
   handleSelectionStart(selection) {
-    console.log('selection start', selection);
     this.setState({inProgressSelection: selection});
   }
 
   handleSelection(selection) {
-    console.log('selection done', selection);
     const newSelection = this.updateSelection(selection);
     if (newSelection) {
-      this.setState({
-        selection: newSelection,
-        inProgressSelection: undefined
-      });
-
+      this.setState({selection: newSelection});
       if (this.props.onSelection) this.props.onSelection(newSelection);
     }
   }
@@ -33,6 +27,7 @@ export default class Taxonomy extends React.Component {
   updateSelection(selectionObj) {
     const idxA = _.get(selectionObj, 'binFrom.idx');
     const idxB = _.get(selectionObj, 'binTo.idx');
+    const globalSelectionDefined = !_.isUndefined(selectionObj.select);
 
     if (_.isNumber(idxA) && _.isNumber(idxB)) {
       const start = Math.min(idxA, idxB);
@@ -42,11 +37,15 @@ export default class Taxonomy extends React.Component {
 
       for (let i = start; i <= end; i++) {
         const curSelection = selectedIds[i];
-        if (curSelection) {
-          delete selectedIds[i];
+
+        // if the selection obj says what the new state is, use it. Otherwise toggle existing state.
+        const newSelectionState = globalSelectionDefined ? selectionObj.select : curSelection;
+
+        if (newSelectionState) {
+          selectedIds[i] = regionBins[i];
         }
         else {
-          selectedIds[i] = regionBins[i];
+          delete selectedIds[i];
         }
       }
       return selectedIds;
