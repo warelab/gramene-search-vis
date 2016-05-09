@@ -1,129 +1,131 @@
 @import 'colors';
 
-text {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 12px;
-  fill: gray;
-
-  /* since font weight transition is not smooth, emulate
-  bold font with text stroke, and transition opacity. */
-  stroke: @gramene-darkgreen;
-  stroke-opacity: 0;
-  stroke-width: 0.5px;
-  user-select: none;
-}
-
-text::selection {
-  background: none;
-}
-
-.taxonomy * {
-  transition: fill 200ms ease-in-out,
-      stroke-opacity 200ms ease-in-out,
-      transform 200ms ease-in-out;
-}
-
-.clade {
+svg.gramene-search-vis {
   cursor: pointer;
 
-  .results-count {
-    font-size: 10px;
-  }
+  text {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    fill: gray;
 
-  .node circle {
+    /* since font weight transition is not smooth, emulate
+    bold font with text stroke, and transition opacity. */
     stroke: @gramene-darkgreen;
-    stroke-width: 1px; // This is referenced in Edge.jsx
-    fill: @gramene-offwhite;
+    stroke-opacity: 0;
+    stroke-width: 0.5px;
+    user-select: none;
   }
 
-  .edge rect {
-    fill: #cccccc;
+  text::selection {
+    background: none;
   }
 
-  //
-  //.genome .interaction-helper {
-  //  stroke-opacity: 0;
-  //  fill-opacity: 0;
-  //  stroke: @gramene-darkgreen;
-  //  stroke-width: 1.5px;
-  //}
+  .taxonomy * {
+    transition: fill 200ms ease-in-out,
+    stroke-opacity 200ms ease-in-out,
+    transform 200ms ease-in-out;
+  }
 
-  // color the nodes above the hovered node
-  // (the highlight class is added dynamically
-  // in code)
-  .clade.highlight {
-    > .node > circle,
-    > .edge > rect {
-      fill: @gramene-orange;
+  .clade {
+    .results-count {
+      font-size: 10px;
     }
-    > .node-label text {
+
+    .node circle {
+      stroke: @gramene-darkgreen;
+      stroke-width: 1px; // This is referenced in Edge.jsx
+      fill: @gramene-offwhite;
+    }
+
+    .edge rect {
+      fill: #cccccc;
+    }
+
+    //
+    //.genome .interaction-helper {
+    //  stroke-opacity: 0;
+    //  fill-opacity: 0;
+    //  stroke: @gramene-darkgreen;
+    //  stroke-width: 1.5px;
+    //}
+
+    // color the nodes above the hovered node
+    // (the highlight class is added dynamically
+    // in code)
+    .clade.highlight {
+      > .node > circle,
+      > .edge > rect {
+        fill: @gramene-orange;
+      }
+      > .node-label text {
+        fill: @gramene-darkgreen;
+        stroke-opacity: 1;
+      }
+
+    }
+
+    // color the clade underneath the hovered node.
+    .node:hover,
+    .edge:hover {
+      > circle,
+      > rect,
+      ~ .node > circle,
+      ~ .clade .edge > rect,
+      ~ .clade .node > circle {
+        fill: @gramene-orange;
+      }
+    }
+
+    .node:hover,
+    .edge:hover {
+      ~ .node-label text,
+      ~ .clade text {
+        fill: @gramene-darkgreen;
+        stroke-opacity: 1;
+      }
+    }
+
+    .node-label:hover text {
       fill: @gramene-darkgreen;
       stroke-opacity: 1;
     }
 
-  }
-
-  // color the clade underneath the hovered node.
-  .node:hover,
-  .edge:hover {
-    > circle,
-    > rect,
-    ~ .node > circle,
-    ~ .clade .edge > rect,
-    ~ .clade .node > circle {
-      fill: @gramene-orange;
+    .bin, .full-region {
+      transition: none;
+      stroke: @gramene-darkgreen;
+      stroke-width: 0;
+      shape-rendering: crispEdges;
     }
-  }
 
-  .node:hover,
-  .edge:hover {
-    ~ .node-label text,
-    ~ .clade text {
+    .bin.selected {
+      fill: @gramene-red;
+    }
+
+    .bin:hover {
       fill: @gramene-darkgreen;
-      stroke-opacity: 1;
     }
-  }
 
-  .node-label:hover text {
-    fill: @gramene-darkgreen;
-    stroke-opacity: 1;
-  }
+    .full-region.selected {
+      stroke-width: 1px;
+      stroke: @gramene-red;
+    }
 
-  .bin, .full-region {
-    transition: none;
-    stroke: @gramene-darkgreen;
-    stroke-width: 0;
-    shape-rendering: crispEdges;
-  }
+    .full-region:hover {
+      stroke-width: 1px;
+      stroke: @gramene-darkgreen;
+    }
 
-  .bin.selected {
-    fill: @gramene-red;
-  }
+    .species-background {
+      fill: none;
+    }
 
-  .bin:hover {
-    fill: @gramene-darkgreen;
-  }
+    .node:hover ~ .species-background,
+    .edge:hover ~ .species-background,
+    .node:hover ~ .clade .species-background,
+    .edge:hover ~ .clade .species-background,
+    .clade.highlight > .species-background {
+      fill: lighten(@gramene-orange, 20%);
+    }
 
-  .full-region.selected {
-    stroke-width: 1px;
-    stroke: @gramene-red;
   }
-
-  .full-region:hover {
-    stroke-width: 1px;
-    stroke: @gramene-darkgreen;
-  }
-
-  .species-background {
-    fill: none;
-  }
-
-  .node:hover ~ .species-background,
-  .edge:hover ~ .species-background,
-  .node:hover ~ .clade .species-background,
-  .edge:hover ~ .clade .species-background,
-  .clade.highlight > .species-background {
-    fill: lighten(@gramene-orange, 20%);
-  }
-
 }

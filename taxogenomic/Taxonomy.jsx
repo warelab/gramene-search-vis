@@ -62,12 +62,10 @@ export default class Taxonomy extends React.Component {
   }
 
   possiblyHandleSelection(newHighlight) {
-    console.log('possibly handle selection!');
     const sel = this.state.inProgressSelection;
 
     if (_.isEmpty(sel) ||
         _.isEmpty(newHighlight) || !sel.genome || !sel.region || !newHighlight.genome) {
-      console.log('not doing anything because no selection or highlight or highlight has no genome');
       return;
     }
 
@@ -77,7 +75,6 @@ export default class Taxonomy extends React.Component {
       // or if the genome differs,
       //   => cancel selection.
       this.setState({inProgressSelection: undefined});
-      console.log('cancelled in progress selection', sel, newHighlight);
       return;
     }
 
@@ -85,7 +82,6 @@ export default class Taxonomy extends React.Component {
     const selFirstBin = sel.region.firstBin();
 
     if (hlFirstBin.idx !== selFirstBin.idx) {
-      console.log('completing in progress selection');
       const selection = _.clone(sel);
 
       // if the region differs,
@@ -104,9 +100,6 @@ export default class Taxonomy extends React.Component {
       }
 
       this.handleSelection(selection);
-    }
-    else{
-      console.log('not doing anything because same region');
     }
   }
 

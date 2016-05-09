@@ -18,8 +18,7 @@ export default class Region extends React.Component {
     const width = this.props.region.size * this.props.baseWidth;
 
     return (
-      <g className="region" 
-         onMouseOut={this.regionLostFocus.bind(this)}>
+      <g className="region">
         <rect x="0"
               y="0"
               className={this.regionClassName()}
@@ -72,7 +71,6 @@ export default class Region extends React.Component {
 
   handleRegionHighlight(e) {
     e.stopPropagation();
-    // console.log("region highlight", this.props.region);
     this.props.onHighlight({
       region: this.props.region,
       genome: this.props.genome,
@@ -85,16 +83,12 @@ export default class Region extends React.Component {
     e.stopPropagation();
     this.setState({hoveredBin: bin});
     if (!this.draggingFromBin()) {
-      // console.log("bin highlighthlight", bin, this.props.region);
       this.props.onHighlight({
         bin: bin,
         region: this.props.region,
         genome: this.props.genome,
         name: `${this.props.genome.system_name} ${this.props.region.name}:${bin.start}-${bin.end} has ${bin.results.count} results`
       });
-    }
-    else {
-      // console.log("dragging");
     }
   }
 
@@ -115,7 +109,6 @@ export default class Region extends React.Component {
 
   handleBinSelectionStart(bin, e) {
     e.stopPropagation();
-    console.log("start dragging at", bin.idx);
 
     this.props.onSelectionStart({
       name: `Selection in progress on ${this.props.genome.name}:${this.props.region.name}`,
@@ -130,8 +123,6 @@ export default class Region extends React.Component {
 
     const dragging = this.draggingFromBin();
     if (dragging) {
-      console.log("done dragging", dragging.idx, bin.idx);
-
       this.props.onSelection({
         name: Math.abs(dragging.idx - bin.idx + 1) + ' bins on ' + this.props.genome.name + ':' + this.props.region.name,
         binFrom: dragging,
@@ -151,23 +142,13 @@ export default class Region extends React.Component {
   }
 
   handleMouseOut(bin, e) {
-    // console.log('bin mouseout', bin, dragging);
     const dragging = this.draggingFromBin();
     if (dragging &&
       dragging.region === bin.region &&
       dragging.taxon_id === bin.taxon_id) {
-
-      console.log('bin mouseout', dragging, this.state.hoveredBin);
       // stopping propagation prevents the Region's onMouseOut handler, regionLostFocus
       // from being called. We don't want to do that if we are dragging and have not strayed to a different region.
       e.stopPropagation();
-    }
-  }
-
-  regionLostFocus() {
-    console.log('focus lost', this.draggingFromBin(), this.state.hoveredBin);
-    if (this.draggingFromBin()) {
-      this.handleBinSelectionEnd(this.state.hoveredBin);
     }
   }
 

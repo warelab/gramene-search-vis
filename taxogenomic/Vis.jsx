@@ -132,7 +132,8 @@ export default class Vis extends React.Component {
     if(this.state.metrics) {
       return (
         <svg width={this.width() + this.margin()}
-             height={this.height() + this.margin()}>
+             height={this.height() + this.margin()}
+             className="gramene-search-vis">
           <g className="margin" transform={this.marginTransform()}>
             <Taxonomy rootNode={this.rootNode()}
                       nodeDisplayInfo={this.state.nodeDisplayInfo}
