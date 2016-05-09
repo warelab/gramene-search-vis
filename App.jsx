@@ -27,7 +27,7 @@ export default class App extends React.Component {
   }
 
   updateTaxonomy(results) {
-    this.props.taxonomy.setResults(results.fixed_1000__bin);
+    this.props.taxonomy.setResults(results.fixed_200__bin);
     return this.props.taxonomy; // simulate immutability
   }
 
