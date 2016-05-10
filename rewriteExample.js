@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import taxonomyGetter from "gramene-taxonomy-with-genomes";
 import {client} from "gramene-search-client";
 import Q from "q";
-import App from './App.jsx';
+import App from "./App.jsx";
 
 // Example query objects.
 // This is usually generated in code by gramoogle.
@@ -22,6 +22,22 @@ var exampleQueries = [
       "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
     }
   },
+
+  {
+    name: 'NB-ARC',
+    filters: {
+      "domains__ancestors:2182": {
+        "category": "InterPro",
+        "display_name": "NB-ARC",
+        "fq": "domains__ancestors:2182"
+      }
+    },
+    "resultTypes": {
+      "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
+      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
+    }
+  },
+
 
   {
     name: 'PAD4',
@@ -78,11 +94,11 @@ Q.all(promises).spread(function (taxonomy) {
   const exampleResults = Array.prototype.slice.call(arguments, 1);
   taxonomy.setBinType('fixed', 200);
   ReactDOM.render(
-    <App taxonomy={taxonomy}
-         exampleQueries={exampleQueries}
-         exampleResults={exampleResults}
-    />,
-    document.getElementById('the-test-vis')
+      <App taxonomy={taxonomy}
+           exampleQueries={exampleQueries}
+           exampleResults={exampleResults}
+      />,
+      document.getElementById('the-test-vis')
   )
 }).catch((e) => console.log(e.message, e.stack));
 
