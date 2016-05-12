@@ -1,5 +1,6 @@
 import React from "react";
 import Clade from "./Clade.jsx";
+import Genomes from "./canvas/Genomes.jsx";
 
 export default class Taxonomy extends React.Component {
 
@@ -103,27 +104,50 @@ export default class Taxonomy extends React.Component {
     }
   }
 
+  marginTransform() {
+    const m = this.props.svgMetrics.layout.margin / 2;
+    return `translate(${m},${m})`;
+  }
+
   render() {
     const propsPassthrough = _.pick(this.props, [
       'nodeDisplayInfo',
       'svgMetrics'
     ]);
 
+    const mtx = this.props.svgMetrics;
+    const svgWidth = mtx.width.speciesTree + mtx.width.text;
+    const style = { minWidth: mtx.width.vis };
+
     return (
-        <g className="taxonomy">
-          <Clade node={this.props.rootNode}
-                 isRoot={true}
+        <div className="gramene-search-vis" style={style}>
+          <svg width={svgWidth}
+               height={this.props.height}>
+            <g className="taxonomy" transform={this.marginTransform()}>
+              <Clade node={this.props.rootNode}
+                     isRoot={true}
+                  {...this.state}
+                     onSelectionStart={this.handleSelectionStart.bind(this)}
+                     onSelection={this.handleSelection.bind(this)}
+                     onHighlight={this.handleHighlight.bind(this)}
+                  {...propsPassthrough} />
+            </g>
+          </svg>
+          <Genomes rootNode={this.props.rootNode}
               {...this.state}
-                 onSelectionStart={this.handleSelectionStart.bind(this)}
-                 onSelection={this.handleSelection.bind(this)}
-                 onHighlight={this.handleHighlight.bind(this)}
+                   onSelectionStart={this.handleSelectionStart.bind(this)}
+                   onSelection={this.handleSelection.bind(this)}
+                   onHighlight={this.handleHighlight.bind(this)}
               {...propsPassthrough} />
-        </g>
+        </div>
     )
   }
 }
 
 Taxonomy.propTypes = {
+  width: React.PropTypes.number.isRequired,
+  height: React.PropTypes.number.isRequired,
+
   rootNode: React.PropTypes.object.isRequired,
   nodeDisplayInfo: React.PropTypes.object.isRequired,
   svgMetrics: React.PropTypes.object.isRequired,

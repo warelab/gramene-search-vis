@@ -62,7 +62,6 @@ export default class Clade extends React.Component {
         {this.renderBackground()}
         {this.renderText()}
         {this.renderSubclades()}
-        {this.renderGenome()}
       </g>
     )
   }
@@ -116,8 +115,9 @@ export default class Clade extends React.Component {
 
   renderResultsCount() {
     if(this.props.svgMetrics.layout.showSpeciesNames) {
+      const x = this.props.svgMetrics.width.text - this.props.svgMetrics.layout.genomePadding;
       return (
-        <text x={this.props.svgMetrics.width.text} y="4.75" className="results-count" textAnchor="end">
+        <text x={x} y="4.75" className="results-count" textAnchor="end">
           {numeral(this.props.node.model.results.count).format('0,0')}
         </text>
       );
