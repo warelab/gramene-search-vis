@@ -1,71 +1,105 @@
 import React from "react";
-import {visibleLeafNodes} from "../util/visibleLeafNodes";
 import {drawGenome} from "./Genome";
+import {drawHighlight, getHighligtedBinsFromMousePosition} from "./Highlight";
+import PropsComparer from "../util/PropsComparer";
 
 export default class Genomes extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      genomes: this.initGenomeState(props)
-    };
+
+    this.doGenomeRedrawProps = new PropsComparer(
+        'globalStats.timesSetResultsHasBeenCalled',
+        'svgMetrics'
+    );
+
+    this.doHighlightRedrawProps = new PropsComparer(
+        'highlight',
+        'selection',
+        'inProgressSelection'
+    );
   }
 
   componentWillReceiveProps(props) {
-    this.setState({
-      genomes: this.initGenomeState(props)
-    });
-  }
-
-  initGenomeState(props) {
-    return visibleLeafNodes(props.rootNode, props.nodeDisplayInfo).map((node) => node.model.genome);
-
+    this.genomeCanvasDirty = this.doGenomeRedrawProps.differ(props, this.props);
+    this.highlightCanvasDirty = this.doHighlightRedrawProps.differ(props, this.props);
   }
 
   componentDidMount() {
     this.drawGenomes();
+    this.drawHighlights();
   }
 
   componentDidUpdate() {
-    this.drawGenomes();
+    if (this.genomeCanvasDirty) {
+      this.drawGenomes();
+      this.genomeCanvasDirty = false;
+    }
+
+    if (this.highlightCanvasDirty) {
+      this.drawHighlights();
+      this.highlightCanvasDirty = false;
+    }
+  }
+  
+  metrics(props = this.props) {
+    const padding = props.svgMetrics.layout.genomePadding;
+    const margin = props.svgMetrics.layout.margin;
+    const width = props.svgMetrics.width.genomes;
+    const height = props.svgMetrics.height.leafNode;
+    const unpaddedHeight = height - padding;
+    
+    return {padding, margin, width, height, unpaddedHeight};
   }
 
   drawGenomes(props = this.props, state = this.state) {
-    const width = props.svgMetrics.width.genomes;
-    const height = props.svgMetrics.height.leafNode;
-    const padding = props.svgMetrics.layout.genomePadding;
-    const ctx = this.refs.genomesCanvas.getContext("2d");
-    const globalStats = props.rootNode.globalResultSetStats();
+    console.log('drawGenomes');
+    const metrics = this.metrics(props);
+    const globalStats = props.globalStats;
 
-    state.genomes.forEach((genome, idx) => {
-      const x = padding;
-      const y = idx * height + padding;
-      drawGenome({genome, ctx, x, y, width, height, globalStats, padding});
+    const ctx = this.refs.genomesCanvas.getContext("2d");
+
+    props.genomes.forEach((genome, idx) => {
+      const x = metrics.padding;
+      const y = idx * metrics.height + metrics.margin;
+      drawGenome({genome, ctx, x, y, globalStats, width: metrics.width, height: metrics.unpaddedHeight});
     });
   }
 
-  drawHighlights(props = this.props) {
-
+  drawHighlights(props = this.props, state = this.state) {
+    const ctx = this.refs.highlightCanvas.getContext("2d");
+    const metrics = this.metrics(props);
+    
+    drawHighlight(props.highlight, ctx, metrics, props.genomes);
+    
   }
 
   handleMouseMove(e) {
     const {offsetX, offsetY} = e.nativeEvent;
-    const genome = this.genomeFromMouseYPosition(offsetY);
-    console.log('move', offsetX, offsetY, this.locationFromMouseXPosition(genome, offsetX));
+    const highlight = getHighligtedBinsFromMousePosition(
+        offsetX,
+        offsetY,
+        this.metrics(),
+        this.props.genomes
+    );
+
+    this.props.onHighlight(highlight);
   }
 
   genomeFromMouseYPosition(y) {
     const height = this.props.svgMetrics.height.leafNode;
     const padding = this.props.svgMetrics.layout.genomePadding;
     const idx = Math.floor((y - padding) / height);
-    return this.state.genomes[idx];
+    return this.props.genomes[idx];
   }
 
-  locationFromMouseXPosition(genome, x) {
+  getHighligtedBinsFromMousePosition(x, y) {
+    const genome = this.genomeFromMouseYPosition(y);
     if (!genome) return;
 
     const width = this.props.svgMetrics.width.genomes;
     const padding = this.props.svgMetrics.layout.genomePadding;
-    const basesPerPx = genome.fullGenomeSize / (width - padding);
+    const margin = this.props.svgMetrics.layout.margin;
+    const basesPerPx = genome.fullGenomeSize / (width - margin);
     const px = x - padding;
     const basePosition = basesPerPx * px;
     const regions = genome._regionsArray;
@@ -80,11 +114,11 @@ export default class Genomes extends React.Component {
           cumulativeBases += binLen;
 
           // if we've got to the mouse position:
-          if(cumulativeBases >= basePosition) {
+          if (cumulativeBases >= basePosition) {
             bins.push(bin);
 
             // keep going til all bins in the pixel are captured.
-            if(cumulativeBases >= basePosition + basesPerPx) {
+            if (cumulativeBases >= basePosition + basesPerPx) {
               break;
             }
           }
@@ -94,31 +128,32 @@ export default class Genomes extends React.Component {
       cumulativeBases += region.size;
     }
 
-    return {bins, region, genome, binIdx: bin.idx, px, basePosition, basesPerPx};
+    return {bins, region, genome, x, y};
   }
 
   render() {
     const metrics = this.props.svgMetrics;
-    const genomes = visibleLeafNodes(this.props.rootNode, this.props.nodeDisplayInfo);
     const dimensions = {
-      height: genomes.length * metrics.height.leafNode + metrics.layout.margin,
+      height: this.props.genomes.length * metrics.height.leafNode + metrics.layout.margin,
       width: metrics.width.genomes
     };
 
-    return <div className="genomes">
-      <canvas ref="genomesCanvas"
-          {...dimensions}
-              onMouseMove={this.handleMouseMove.bind(this)}
-      />
-      <canvas ref="highlightCanvas"
-          {...dimensions} />
-    </div>
+
+    return (
+        <div className="genomes">
+          <canvas ref="genomesCanvas"
+              {...dimensions} />
+          <canvas ref="highlightCanvas"
+              {...dimensions}
+                  onMouseMove={this.handleMouseMove.bind(this)} />
+        </div>
+    )
   }
 }
 
 Genomes.propTypes = {
-  rootNode: React.PropTypes.object.isRequired,
-  nodeDisplayInfo: React.PropTypes.object.isRequired,
+  globalStats: React.PropTypes.object.isRequired,
+  genomes: React.PropTypes.array.isRequired,
   svgMetrics: React.PropTypes.object.isRequired,
 
   highlight: React.PropTypes.object,

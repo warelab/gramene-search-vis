@@ -1,10 +1,13 @@
 import {binColor as calcBinColor} from "../util/colors";
 import _ from 'lodash';
 
-export function drawGenome({genome, ctx, x, y, width, height, globalStats, padding}) {
+export function drawGenome({genome, ctx, x, y, width, height, globalStats}) {
   const basesPerPx = genome.fullGenomeSize / width;
   const regions = genome._regionsArray;
   const maxScore = globalStats.bins.max || 0;
+
+  // ctx.fillStyle = 'black';
+  // ctx.fillRect(x, y, width, height);
 
   let binIdx = 0;
   let basesInBinUsedAlready = 0;
@@ -58,7 +61,7 @@ export function drawGenome({genome, ctx, x, y, width, height, globalStats, paddi
     }
 
     ctx.fillStyle = calcBinColor(regionIdx, pxScore, regionUnanchored);
-    ctx.fillRect(px, y + padding, 1, height - padding);
+    ctx.fillRect(px, y, 1, height);
   }
 }
 
@@ -79,38 +82,3 @@ function updateScore(currentScore, baseCount, binScore, binBasesUsed) {
   }
   return newScore;
 }
-
-
-// return genome.eachRegion((region) => {
-//   regionOffsetPx += drawRegion({region, x: x + regionOffsetPx, y});
-//   regionCounter++;
-// });
-//
-// function drawRegion({region, x, y}) {
-//   const isRegionUnanchored = region.name === 'UNANCHORED';
-//   const regionWidth = region.size * baseWidthPx;
-//
-//   ctx.fillStyle = regionColor(regionCounter, isRegionUnanchored);
-//   ctx.fillRect(x, y + padding, regionWidth, height - padding);
-//
-//   let binOffsetPx = 0;
-//
-//   region.eachBin((bin) => {
-//     binOffsetPx += drawBin({bin, ctx, globalStats, x: x + binOffsetPx, y, isRegionUnanchored});
-//   });
-//
-//   return regionWidth;
-// }
-//
-// function drawBin({bin, x, y, isRegionUnanchored}) {
-//   const binWidth = baseWidthPx * (bin.end - bin.start + 1);
-//   if (bin.results.count) {
-//     const score = bin.results.count / globalStats.bins.max || 0;
-//     ctx.fillStyle = binColor(regionCounter, score, isRegionUnanchored);
-//     ctx.fillRect(x, y + padding, binWidth, height - padding);
-//   }
-//   return binWidth;
-// }
-
-
-

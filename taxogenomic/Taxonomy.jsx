@@ -1,6 +1,7 @@
 import React from "react";
 import Clade from "./Clade.jsx";
 import Genomes from "./canvas/Genomes.jsx";
+import {visibleLeafNodes} from "./util/visibleLeafNodes";
 
 export default class Taxonomy extends React.Component {
 
@@ -57,6 +58,7 @@ export default class Taxonomy extends React.Component {
   }
 
   handleHighlight(highlight) {
+    console.log(highlight);
     this.possiblyHandleSelection(highlight);
     this.setState({highlight: highlight});
     if (this.props.onHighlight) this.props.onHighlight(highlight);
@@ -109,6 +111,10 @@ export default class Taxonomy extends React.Component {
     return `translate(${m},${m})`;
   }
 
+  getGenomes(props = this.props) {
+    return visibleLeafNodes(props.rootNode, props.nodeDisplayInfo).map((node) => node.model.genome);
+  }
+
   render() {
     const propsPassthrough = _.pick(this.props, [
       'nodeDisplayInfo',
@@ -133,7 +139,8 @@ export default class Taxonomy extends React.Component {
                   {...propsPassthrough} />
             </g>
           </svg>
-          <Genomes rootNode={this.props.rootNode}
+          <Genomes genomes={this.getGenomes()}
+                   globalStats={this.props.rootNode.globalResultSetStats()}
               {...this.state}
                    onSelectionStart={this.handleSelectionStart.bind(this)}
                    onSelection={this.handleSelection.bind(this)}

@@ -6,7 +6,7 @@ const regionColorScales = baseColors.map((color) =>
   d3.scale.linear().domain([0, 1]).range(['#FFFFFF', color])
 );
 const binColorScales = regionColorScales.map((scale, idx) =>
-  d3.scale.pow().exponent(0.5).domain([0, 1]).range([scale(0.10), baseColors[idx]])
+  d3.scale.pow().exponent(0.4).domain([0, 1]).range([scale(0.15), baseColors[idx]])
 );
 const regionColors = regionColorScales.map((scale) =>
   scale(0.20)

@@ -13,15 +13,6 @@ import App from "./App.jsx";
 //      of the taxonomy object
 //   3. requests also to get taxonomy facet.
 var exampleQueries = [
-  {
-    name: 'No filters',
-    "q": "",
-    "filters": {},
-    "resultTypes": {
-      "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
-    }
-  },
 
   {
     name: 'NB-ARC',
@@ -32,6 +23,15 @@ var exampleQueries = [
         "fq": "domains__ancestors:2182"
       }
     },
+    "resultTypes": {
+      "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
+      "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
+    }
+  },
+  {
+    name: 'No filters',
+    "q": "",
+    "filters": {},
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
       "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
