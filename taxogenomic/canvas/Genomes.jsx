@@ -1,5 +1,5 @@
 import React from "react";
-import {drawGenome, drawGenomes} from "./Genome";
+import {drawGenomes, getObjectsFromGenomes} from "./Genome";
 import {drawHighlight, getHighligtedBinsFromMousePosition} from "./Highlight";
 import PropsComparer from "../util/PropsComparer";
 
@@ -77,11 +77,14 @@ export default class Genomes extends React.Component {
   handleMouseMove(e) {
     e.preventDefault();
     const {offsetX, offsetY} = e.nativeEvent;
-    const highlight = getHighligtedBinsFromMousePosition(
-        offsetX,
-        offsetY,
+    const ctx = this.refs.genomesCanvas.getContext("2d");
+    const highlight = getObjectsFromGenomes(
+        ctx,
+        this.props.genomes,
         this.metrics(),
-        this.props.genomes
+        this.props.globalStats,
+        offsetX,
+        offsetY
     );
 
     this.props.onHighlight(highlight);

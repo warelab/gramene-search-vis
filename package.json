@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "d3": "^3.5.5",
+    "data-canvas": "^0.1.1",
     "gramene-taxonomy-with-genomes": "^3.0.4",
     "lodash": "^4.11.0",
     "numeral": "^1.5.3",
