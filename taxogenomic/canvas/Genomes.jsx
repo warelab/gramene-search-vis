@@ -1,5 +1,5 @@
 import React from "react";
-import {drawGenome} from "./Genome";
+import {drawGenome, drawGenomes} from "./Genome";
 import {drawHighlight, getHighligtedBinsFromMousePosition} from "./Highlight";
 import PropsComparer from "../util/PropsComparer";
 
@@ -25,13 +25,13 @@ export default class Genomes extends React.Component {
   }
 
   componentDidMount() {
-    this.drawGenomes();
+    this.drawImage();
     this.drawHighlights();
   }
 
   componentDidUpdate() {
     if (this.genomeCanvasDirty) {
-      this.drawGenomes();
+      this.drawImage();
       this.genomeCanvasDirty = false;
     }
 
@@ -51,18 +51,19 @@ export default class Genomes extends React.Component {
     return {padding, margin, width, height, unpaddedHeight};
   }
 
-  drawGenomes(props = this.props, state = this.state) {
-    console.log('drawGenomes');
+  drawImage(props = this.props, state = this.state) {
+    console.log('drawImage');
     const metrics = this.metrics(props);
     const globalStats = props.globalStats;
 
     const ctx = this.refs.genomesCanvas.getContext("2d");
 
-    props.genomes.forEach((genome, idx) => {
-      const x = metrics.padding;
-      const y = idx * metrics.height + metrics.margin;
-      drawGenome({genome, ctx, x, y, globalStats, width: metrics.width, height: metrics.unpaddedHeight});
-    });
+    drawGenomes(ctx, props.genomes, metrics, globalStats);
+    // props.genomes.forEach((genome, idx) => {
+    //   const x = metrics.padding;
+    //   const y = idx * metrics.height + metrics.margin;
+    //   drawGenome({genome, genomeCtx: ctx, x, y, globalStats, width: metrics.width, height: metrics.unpaddedHeight});
+    // });
   }
 
   drawHighlights(props = this.props, state = this.state) {
@@ -74,6 +75,7 @@ export default class Genomes extends React.Component {
   }
 
   handleMouseMove(e) {
+    e.preventDefault();
     const {offsetX, offsetY} = e.nativeEvent;
     const highlight = getHighligtedBinsFromMousePosition(
         offsetX,
@@ -135,7 +137,7 @@ export default class Genomes extends React.Component {
     const metrics = this.props.svgMetrics;
     const dimensions = {
       height: this.props.genomes.length * metrics.height.leafNode + metrics.layout.margin,
-      width: metrics.width.genomes
+      width: metrics.width.genomes + metrics.layout.genomePadding * 2
     };
 
 

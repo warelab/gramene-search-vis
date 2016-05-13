@@ -1,7 +1,15 @@
 import {binColor as calcBinColor} from "../util/colors";
 import _ from 'lodash';
 
-export function drawGenome({genome, ctx, x, y, width, height, globalStats}) {
+export function drawGenomes(ctx, genomes, metrics, globalStats) {
+  genomes.forEach((genome, idx) => {
+    const x = metrics.padding;
+    const y = idx * metrics.height + metrics.margin;
+    drawGenome({genome, genomeCtx: ctx, x, y, globalStats, width: metrics.width, height: metrics.unpaddedHeight});
+  });
+}
+
+export function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
   const basesPerPx = genome.fullGenomeSize / width;
   const regions = genome._regionsArray;
   const maxScore = globalStats.bins.max || 0;
@@ -60,8 +68,8 @@ export function drawGenome({genome, ctx, x, y, width, height, globalStats}) {
       }
     }
 
-    ctx.fillStyle = calcBinColor(regionIdx, pxScore, regionUnanchored);
-    ctx.fillRect(px, y, 1, height);
+    genomeCtx.fillStyle = calcBinColor(regionIdx, pxScore, regionUnanchored);
+    genomeCtx.fillRect(px, y, 1, height);
   }
 }
 
