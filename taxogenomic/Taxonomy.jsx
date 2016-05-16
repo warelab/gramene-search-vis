@@ -38,7 +38,7 @@ export default class Taxonomy extends React.Component {
       const start = Math.min(idxA, idxB);
       const end = Math.max(idxA, idxB);
       const selectedIds = _.clone(this.state.selection) || {};
-      const regionBins = _.keyBy(selectionObj.region._bins, 'idx');
+      const allBins = _.keyBy(selectionObj.region._bins, 'idx');
 
       for (let i = start; i <= end; i++) {
         const curSelection = selectedIds[i];
@@ -59,52 +59,52 @@ export default class Taxonomy extends React.Component {
 
   handleHighlight(highlight) {
     console.log(highlight);
-    this.possiblyHandleSelection(highlight);
+    // this.possiblyHandleSelection(highlight);
     this.setState({highlight: highlight});
     if (this.props.onHighlight) this.props.onHighlight(highlight);
   }
 
-  possiblyHandleSelection(newHighlight) {
-    const sel = this.state.inProgressSelection;
-
-    if (_.isEmpty(sel) ||
-        _.isEmpty(newHighlight) || !sel.genome || !sel.region || !newHighlight.genome) {
-      return;
-    }
-
-    if (!newHighlight.region ||
-        newHighlight.genome.taxon_id !== sel.genome.taxon_id) {
-      // either no region highlighted (e.g. focus on a tree node),
-      // or if the genome differs,
-      //   => cancel selection.
-      this.setState({inProgressSelection: undefined});
-      return;
-    }
-
-    const hlFirstBin = newHighlight.region.firstBin();
-    const selFirstBin = sel.region.firstBin();
-
-    if (hlFirstBin.idx !== selFirstBin.idx) {
-      const selection = _.clone(sel);
-
-      // if the region differs,
-      //    => decide how to complete the selection:
-      //      a. if the highlight region is after the selected region,
-      //        => select from selected bin to last bin in selected region.
-
-      if (hlFirstBin.idx > selFirstBin.idx) {
-        selection.binTo = selection.region.bin(selection.region.binCount() - 1);
-      }
-
-      //      b. if the highlight region is before the selected region,
-      //        => seleect from first bin in selected region to selected bin
-      else { // hlFirstBin < selFirstBin
-        selection.binTo = selection.region.firstBin();
-      }
-
-      this.handleSelection(selection);
-    }
-  }
+  // possiblyHandleSelection(newHighlight) {
+  //   const sel = this.state.inProgressSelection;
+  //
+  //   if (_.isEmpty(sel) ||
+  //       _.isEmpty(newHighlight) || !sel.genome || !sel.region || !newHighlight.genome) {
+  //     return;
+  //   }
+  //
+  //   if (!newHighlight.region ||
+  //       newHighlight.genome.taxon_id !== sel.genome.taxon_id) {
+  //     // either no region highlighted (e.g. focus on a tree node),
+  //     // or if the genome differs,
+  //     //   => cancel selection.
+  //     this.setState({inProgressSelection: undefined});
+  //     return;
+  //   }
+  //
+  //   const hlFirstBin = newHighlight.region.firstBin();
+  //   const selFirstBin = sel.region.firstBin();
+  //
+  //   if (hlFirstBin.idx !== selFirstBin.idx) {
+  //     const selection = _.clone(sel);
+  //
+  //     // if the region differs,
+  //     //    => decide how to complete the selection:
+  //     //      a. if the highlight region is after the selected region,
+  //     //        => select from selected bin to last bin in selected region.
+  //
+  //     if (hlFirstBin.idx > selFirstBin.idx) {
+  //       selection.binTo = selection.region.bin(selection.region.binCount() - 1);
+  //     }
+  //
+  //     //      b. if the highlight region is before the selected region,
+  //     //        => seleect from first bin in selected region to selected bin
+  //     else { // hlFirstBin < selFirstBin
+  //       selection.binTo = selection.region.firstBin();
+  //     }
+  //
+  //     this.handleSelection(selection);
+  //   }
+  // }
 
   marginTransform() {
     const m = this.props.svgMetrics.layout.margin / 2;

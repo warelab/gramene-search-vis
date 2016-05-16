@@ -1,13 +1,15 @@
 import {binColor as calcBinColor} from "../util/colors";
 import dataCanvas from "data-canvas";
 import _ from "lodash";
+import {clear} from "../util/canvas";
 
-export function drawGenomes(ctx, genomes, metrics, globalStats) {
+export function drawGenomes(ctx, genomes, metrics, globalStats, selection) {
+  clear(ctx);
   const dataCtx = dataCanvas.getDataContext(ctx);
-  drawOrGetObjectsFromGenomes(dataCtx, genomes, metrics, globalStats);
+  drawOrGetObjectsFromGenomes(dataCtx, genomes, metrics, globalStats, selection);
 }
 
-export function getObjectsFromGenomes(ctx, genomes, metrics, globalStats, x, y) {
+export function getObjectsFromCoordinates(ctx, genomes, metrics, globalStats, x, y) {
   const trackingContext = new dataCanvas.ClickTrackingContext(ctx, x, y);
   drawOrGetObjectsFromGenomes(trackingContext, genomes, metrics, globalStats);
   const highlight = formatHit(trackingContext.hit, x, y);
@@ -16,13 +18,13 @@ export function getObjectsFromGenomes(ctx, genomes, metrics, globalStats, x, y) 
 }
 
 function nameFor(highlight) {
-  if(!highlight.genome) return 'nothing here';
+  if (!highlight.genome) return 'nothing here';
 
   let name = highlight.genome.system_name;
-  if(!highlight.region) return name;
+  if (!highlight.region) return name;
 
   name += ` ${highlight.region.name}`;
-  if(!highlight.bins) return name;
+  if (!highlight.bins) return name;
 
   const startBase = _.head(highlight.bins).start;
   const endBase = _.last(highlight.bins).end;
@@ -32,42 +34,56 @@ function nameFor(highlight) {
 }
 
 function formatHit(hit, x, y) {
-  if(_.isNull(hit)) return { x, y, name: 'nothing here' };
-  if(!_.isArray(hit)) throw new Error("hit stack must be an array");
-  switch(hit.length) {
-    case 3: return {
-      bins: hit[0],
-      region: hit[1],
-      genome: hit[2],
-      x, y
-    };
+  if (_.isNull(hit)) return {x, y, name: 'nothing here'};
+  if (!_.isArray(hit)) throw new Error("hit stack must be an array");
+  switch (hit.length) {
+    case 3:
+      return {
+        bins: hit[0],
+        region: hit[1],
+        genome: hit[2],
+        x, y
+      };
 
-    case 2: return {
-      region: hit[0],
-      genome: hit[1],
-      x, y
-    };
+    case 2:
+      return {
+        region: hit[0],
+        genome: hit[1],
+        x, y
+      };
 
-    case 1: return {
-      genome: hit[0],
-      x, y
-    };
+    case 1:
+      return {
+        genome: hit[0],
+        x, y
+      };
 
-    case 0: return { x, y };
+    case 0:
+      return {x, y};
 
-    default: throw Error("Expected between 0 and 3 items in the hit stack.");
+    default:
+      throw Error("Expected between 0 and 3 items in the hit stack.");
   }
 }
 
-function drawOrGetObjectsFromGenomes(ctx, genomes, metrics, globalStats) {
+function drawOrGetObjectsFromGenomes(ctx, genomes, metrics, globalStats, selection) {
   genomes.forEach((genome, idx) => {
     const x = metrics.padding;
     const y = idx * metrics.height + metrics.margin;
-    drawGenome({genome, genomeCtx: ctx, x, y, globalStats, width: metrics.width, height: metrics.unpaddedHeight});
+    drawGenome({
+      genome,
+      genomeCtx: ctx,
+      x,
+      y,
+      globalStats,
+      width: metrics.width,
+      height: metrics.unpaddedHeight,
+      selection
+    });
   });
 }
 
-function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
+function drawGenome({genome, genomeCtx, x, y, width, height, globalStats, selection}) {
   genomeCtx.pushObject(genome);
 
   const basesPerPx = genome.fullGenomeSize / width;
@@ -84,11 +100,14 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
   let region = regions[regionIdx];
   let regionUnanchored = region.name === 'UNANCHORED';
 
+  let previousPxHadSelectedBin = false;
+
   genomeCtx.pushObject(region);
 
   for (let px = x; px < width + x; px++) {
     let baseCount = 0;
     let pxScore = undefined;
+    let pxHasSelectedBin = false;
     const bins = [];
     genomeCtx.pushObject(bins);
 
@@ -100,6 +119,8 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
       const basesAvailableInBin = binSize - basesInBinUsedAlready;
       let binBasesUsed;
 
+      pxHasSelectedBin = pxHasSelectedBin || isSelected(bin.idx, selection);
+
       bins.push(bin);
 
       // did we use all the bases in the bin?
@@ -108,6 +129,7 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
         binIdx++;
         basesInBinUsedAlready = 0;
         binBasesUsed = basesAvailableInBin;
+        pxHasSelectedBin = pxHasSelectedBin || isSelected(binIdx, selection);
       }
       else {
         // otherwise, track how many bases we have used.
@@ -139,9 +161,24 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
       }
     }
 
-    genomeCtx.fillStyle = calcBinColor(regionIdx, pxScore, regionUnanchored);
+    if ((previousPxHadSelectedBin && !pxHasSelectedBin) ||
+        (pxHasSelectedBin && !previousPxHadSelectedBin)) {
+      genomeCtx.fillStyle = 'red';
+    }
+    else {
+      genomeCtx.fillStyle = calcBinColor(regionIdx, pxScore, regionUnanchored);
+    }
     genomeCtx.fillRect(px, y, 1, height);
+
+    if (pxHasSelectedBin) {
+      genomeCtx.fillStyle = 'red';
+      genomeCtx.fillRect(px, y, 1, 1);
+      genomeCtx.fillRect(px, y + height - 1, 1, 1);
+    }
+
     genomeCtx.popObject(); // bins;
+
+    previousPxHadSelectedBin = pxHasSelectedBin;
   }
 
   genomeCtx.popObject(); // genome
@@ -163,4 +200,8 @@ function updateScore(currentScore, baseCount, binScore, binBasesUsed) {
     newScore = binScore
   }
   return newScore;
+}
+
+function isSelected(binIdx, selection) {
+  return !!(selection && selection[binIdx]);
 }

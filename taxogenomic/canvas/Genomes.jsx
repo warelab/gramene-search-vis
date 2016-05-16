@@ -1,7 +1,8 @@
 import React from "react";
-import {drawGenomes, getObjectsFromGenomes} from "./Genome";
-import {drawHighlight, getHighligtedBinsFromMousePosition} from "./Highlight";
+import {drawGenomes, getObjectsFromCoordinates} from "./Genome";
+import {drawHighlight, drawInProgressSelection} from "./Highlight";
 import PropsComparer from "../util/PropsComparer";
+import mergeSelections from "../util/mergeSelections";
 
 export default class Genomes extends React.Component {
   constructor(props) {
@@ -9,12 +10,12 @@ export default class Genomes extends React.Component {
 
     this.doGenomeRedrawProps = new PropsComparer(
         'globalStats.timesSetResultsHasBeenCalled',
+        'selection',
         'svgMetrics'
     );
 
     this.doHighlightRedrawProps = new PropsComparer(
         'highlight',
-        'selection',
         'inProgressSelection'
     );
   }
@@ -52,13 +53,12 @@ export default class Genomes extends React.Component {
   }
 
   drawImage(props = this.props, state = this.state) {
-    console.log('drawImage');
     const metrics = this.metrics(props);
     const globalStats = props.globalStats;
 
     const ctx = this.refs.genomesCanvas.getContext("2d");
 
-    drawGenomes(ctx, props.genomes, metrics, globalStats);
+    drawGenomes(ctx, props.genomes, metrics, globalStats, props.selection);
     // props.genomes.forEach((genome, idx) => {
     //   const x = metrics.padding;
     //   const y = idx * metrics.height + metrics.margin;
@@ -69,71 +69,79 @@ export default class Genomes extends React.Component {
   drawHighlights(props = this.props, state = this.state) {
     const ctx = this.refs.highlightCanvas.getContext("2d");
     const metrics = this.metrics(props);
-    
-    drawHighlight(props.highlight, ctx, metrics, props.genomes);
+
+
+    if(!_.isEmpty(props.inProgressSelection)) {
+      drawInProgressSelection(
+          props.highlight,
+          props.inProgressSelection,
+          ctx,
+          metrics,
+          props.genomes
+      );
+    }
+    else {
+      drawHighlight(
+          props.highlight,
+          ctx,
+          metrics,
+          props.genomes
+      );
+    }
     
   }
 
-  handleMouseMove(e) {
-    e.preventDefault();
+  getHighlightFromEventCoordinates(e) {
     const {offsetX, offsetY} = e.nativeEvent;
+
+    // if we have an in-progress selection, then take Y coord from that
+    // in order to maintain selection in same genome.
+    const y = _.get(this.props.inProgressSelection, 'y', offsetY);
+
     const ctx = this.refs.genomesCanvas.getContext("2d");
-    const highlight = getObjectsFromGenomes(
+    return getObjectsFromCoordinates(
         ctx,
         this.props.genomes,
         this.metrics(),
         this.props.globalStats,
         offsetX,
-        offsetY
+        y
     );
-
-    this.props.onHighlight(highlight);
   }
 
-  genomeFromMouseYPosition(y) {
-    const height = this.props.svgMetrics.height.leafNode;
-    const padding = this.props.svgMetrics.layout.genomePadding;
-    const idx = Math.floor((y - padding) / height);
-    return this.props.genomes[idx];
+  getSelectionFromEventCoordinates(e) {
+    const highlight = this.getHighlightFromEventCoordinates(e);
+    const selection = _.omit(highlight, 'bins');
+    selection.binFrom = _.head(highlight.bins);
+    selection.binTo = _.last(highlight.bins);
+    return selection;
   }
 
-  getHighligtedBinsFromMousePosition(x, y) {
-    const genome = this.genomeFromMouseYPosition(y);
-    if (!genome) return;
+  handleMouseMove(e) {
+    e.preventDefault();
+    this.props.onHighlight(this.getHighlightFromEventCoordinates(e));
+  }
 
-    const width = this.props.svgMetrics.width.genomes;
-    const padding = this.props.svgMetrics.layout.genomePadding;
-    const margin = this.props.svgMetrics.layout.margin;
-    const basesPerPx = genome.fullGenomeSize / (width - margin);
-    const px = x - padding;
-    const basePosition = basesPerPx * px;
-    const regions = genome._regionsArray;
-    let region, bin, bins = [];
-    let cumulativeBases = 0;
-    for (let regionIdx = 0; regionIdx < regions.length; regionIdx++) {
-      region = regions[regionIdx];
-      if (cumulativeBases + region.size >= basePosition) {
-        for (let binIdx = 0; binIdx < region.binCount(); binIdx++) {
-          bin = region.bin(binIdx);
-          const binLen = bin.end - bin.start + 1;
-          cumulativeBases += binLen;
+  handleSelectionStart(e) {
+    this.props.onSelectionStart(this.getSelectionFromEventCoordinates(e));
+  }
 
-          // if we've got to the mouse position:
-          if (cumulativeBases >= basePosition) {
-            bins.push(bin);
-
-            // keep going til all bins in the pixel are captured.
-            if (cumulativeBases >= basePosition + basesPerPx) {
-              break;
-            }
-          }
-        }
-        break;
-      }
-      cumulativeBases += region.size;
+  handleSelection(e) {
+    const selectionStart = this.props.inProgressSelection;
+    if(selectionStart) {
+      // Lock Y coordinate like this in order to allow contiguous selection
+      // *within a genome*
+      const fakeEvent = {nativeEvent: {
+        offsetX: e.nativeEvent.offsetX, 
+        offsetY: selectionStart.y
+      }};
+      const selectionEnd = this.getSelectionFromEventCoordinates(fakeEvent);
+      this.props.onSelection(mergeSelections(selectionStart, selectionEnd));
     }
+  }
 
-    return {bins, region, genome, x, y};
+  cancelSelection(e) {
+
   }
 
   render() {
@@ -143,14 +151,16 @@ export default class Genomes extends React.Component {
       width: metrics.width.genomes + metrics.layout.genomePadding * 2
     };
 
-
     return (
         <div className="genomes">
           <canvas ref="genomesCanvas"
               {...dimensions} />
           <canvas ref="highlightCanvas"
               {...dimensions}
-                  onMouseMove={this.handleMouseMove.bind(this)} />
+                  onMouseMove={this.handleMouseMove.bind(this)}
+                  onMouseDown={this.handleSelectionStart.bind(this)}
+                  onMouseUp={this.handleSelection.bind(this)}
+                  onMouseOut={this.cancelSelection.bind(this)} />
         </div>
     )
   }
