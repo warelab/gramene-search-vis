@@ -38,7 +38,7 @@ export default class Taxonomy extends React.Component {
       const start = Math.min(idxA, idxB);
       const end = Math.max(idxA, idxB);
       const selectedIds = _.clone(this.state.selection) || {};
-      const allBins = _.keyBy(selectionObj.region._bins, 'idx');
+      const regionBins = _.keyBy(selectionObj.region._bins, 'idx');
 
       for (let i = start; i <= end; i++) {
         const curSelection = selectedIds[i];
