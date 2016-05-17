@@ -40,14 +40,16 @@ function formatHit(hit, x, y) {
     case 3:
       return {
         bins: hit[0],
-        region: hit[1],
+        region: hit[1].region,
+        displayRegion: hit[1],
         genome: hit[2],
         x, y
       };
 
     case 2:
       return {
-        region: hit[0],
+        region: hit[1].region,
+        displayRegion: hit[0],
         genome: hit[1],
         x, y
       };
@@ -89,9 +91,6 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
   const regions = genome._regionsArray;
   const maxScore = globalStats.bins.max || 0;
 
-  // genomeCtx.fillStyle = 'black';
-  // genomeCtx.fillRect(x, y, width, height);
-
   let binIdx = 0;
   let basesInBinUsedAlready = 0;
 
@@ -99,9 +98,7 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
   let region = regions[regionIdx];
   let regionUnanchored = region.name === 'UNANCHORED';
 
-  let previousPxHadSelectedBin = false;
-
-  genomeCtx.pushObject(region);
+  genomeCtx.pushObject({region, x, width: region.size * basesPerPx});
 
   for (let px = x; px < width + x; px++) {
     let baseCount = 0;
@@ -151,7 +148,7 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
         region = regions[regionIdx];
         regionUnanchored = region.name === 'UNANCHORED';
 
-        genomeCtx.pushObject(region);
+        genomeCtx.pushObject({region, x:px, width: region.size / basesPerPx});
         genomeCtx.pushObject(bins);
       }
     }

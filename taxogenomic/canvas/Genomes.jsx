@@ -136,35 +136,38 @@ export default class Genomes extends React.Component {
     if(selection.region) {
       switch (numberOfClicks) {
         case 2:
-          this.selectRegion(e, selection);
+          this.selectRegion(selection);
           break;
         case 3:
-          this.selectGenome(e, selection);
+          this.selectGenome(selection);
           break;
       }
     }
   }
 
-  selectRegion(e, selection) {
-    console.log('select region', selection.region, selection.genome);
-    
+  selectRegion(selection) {
+    const region = selection.region;
+    const displayRegion = selection.displayRegion;
+    selection.binFrom = region.firstBin();
+    selection.binTo = region.bin(region.binCount() - 1);
+    selection.x = displayRegion.x;
+    selection.width = displayRegion.width;
+    this.props.onSelection(selection);
   }
 
-  selectGenome(e, selection) {
+  selectGenome(selection) {
     const rootNode = this.props.rootNode;
     const genome = selection.genome;
     const metrics = this.metrics();
-    console.log('select genome', genome);
     selection.binFrom = rootNode.getBin(genome.startBin);
     selection.binTo = rootNode.getBin(genome.startBin + genome.nbins - 1);
     selection.x = metrics.padding;
     selection.width = metrics.width;
-    selection.select = !selection.select;
     this.props.onSelection(selection);
   }
 
   cancelSelection(e) {
-
+    this.props.onSelectionStart();
   }
 
   render() {
