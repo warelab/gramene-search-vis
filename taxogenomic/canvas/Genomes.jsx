@@ -10,12 +10,12 @@ export default class Genomes extends React.Component {
 
     this.doGenomeRedrawProps = new PropsComparer(
         'globalStats.timesSetResultsHasBeenCalled',
-        'selection',
         'svgMetrics'
     );
 
     this.doHighlightRedrawProps = new PropsComparer(
         'highlight',
+        'selection',
         'inProgressSelection'
     );
   }
@@ -128,6 +128,40 @@ export default class Genomes extends React.Component {
       this.props.onSelection(mergeSelections(selectionStart, selectionEnd));
     }
   }
+  
+  handleClicks(e) {
+    const numberOfClicks = e.nativeEvent.detail;
+    const selection = this.getSelectionFromEventCoordinates(e);
+
+    if(selection.region) {
+      switch (numberOfClicks) {
+        case 2:
+          this.selectRegion(e, selection);
+          break;
+        case 3:
+          this.selectGenome(e, selection);
+          break;
+      }
+    }
+  }
+
+  selectRegion(e, selection) {
+    console.log('select region', selection.region, selection.genome);
+    
+  }
+
+  selectGenome(e, selection) {
+    const rootNode = this.props.rootNode;
+    const genome = selection.genome;
+    const metrics = this.metrics();
+    console.log('select genome', genome);
+    selection.binFrom = rootNode.getBin(genome.startBin);
+    selection.binTo = rootNode.getBin(genome.startBin + genome.nbins - 1);
+    selection.x = metrics.padding;
+    selection.width = metrics.width;
+    selection.select = !selection.select;
+    this.props.onSelection(selection);
+  }
 
   cancelSelection(e) {
 
@@ -149,6 +183,7 @@ export default class Genomes extends React.Component {
                   onMouseMove={this.handleMouseMove.bind(this)}
                   onMouseDown={this.handleSelectionStart.bind(this)}
                   onMouseUp={this.handleSelection.bind(this)}
+                  onClick={this.handleClicks.bind(this)}
                   onMouseOut={this.cancelSelection.bind(this)} />
         </div>
     )
@@ -156,6 +191,7 @@ export default class Genomes extends React.Component {
 }
 
 Genomes.propTypes = {
+  rootNode: React.PropTypes.object.isRequired,
   globalStats: React.PropTypes.object.isRequired,
   genomes: React.PropTypes.array.isRequired,
   svgMetrics: React.PropTypes.object.isRequired,

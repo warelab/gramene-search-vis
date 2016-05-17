@@ -76,6 +76,7 @@ export default class Taxonomy extends React.Component {
             </g>
           </svg>
           <Genomes genomes={this.getGenomes()}
+                   rootNode={this.props.rootNode}
                    globalStats={this.props.rootNode.globalResultSetStats()}
               {...this.state}
                    onSelectionStart={this.handleSelectionStart.bind(this)}
