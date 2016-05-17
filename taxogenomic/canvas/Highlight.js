@@ -1,9 +1,49 @@
 import _ from 'lodash';
 import {clear} from "../util/canvas";
 
-export function drawHighlight(highlight, ctx, metrics, genomes) {
+export function drawHighlightsAndSelections(
+    highlight, selection, inProgressSelection, 
+    ctx, metrics, genomes) {
   clear(ctx);
   
+  if(!_.isEmpty(selection)) {
+    drawSelections(selection.selections, ctx, metrics, genomes);
+  }
+  
+  if(!_.isEmpty(inProgressSelection)) {
+    drawInProgressSelection(
+        highlight,
+        inProgressSelection,
+        ctx,
+        metrics,
+        genomes
+    );
+  }
+  else {
+    drawHighlight(
+        highlight,
+        ctx,
+        metrics,
+        genomes
+    );
+  }
+}
+
+function drawSelections(selections, ctx, metrics, genomes) {
+  _(selections)
+      .filter((selection) => selection.select)
+      .forEach((selection)=> {
+    if (isSelectionBad(selection)) return;
+
+    const {genome, binFrom, binTo, x, width} = selection;
+    const yRange = getGenomeYRange(genome, genomes, metrics);
+
+    ctx.strokeStyle = 'red';
+    ctx.strokeRect(x - 1, yRange.y - 1, width + 1, yRange.height + 1);
+  });
+}
+
+function drawHighlight(highlight, ctx, metrics, genomes) {
   if (isHighlightBad(highlight)) return;
 
   const {genome, bins, x} = highlight;
@@ -16,10 +56,9 @@ export function drawHighlight(highlight, ctx, metrics, genomes) {
   ctx.strokeRect(xRange.x - 1, yRange.y - 1, xRange.width + 1, yRange.height + 1);
 }
 
-export function drawInProgressSelection(highlight, inProgressSelection, ctx, metrics, genomes) {
-  clear(ctx);
+function drawInProgressSelection(highlight, inProgressSelection, ctx, metrics, genomes) {
   if (isHighlightBad(highlight)) return;
-  if (isInProgressSelectionBad(inProgressSelection)) return;
+  if (isSelectionBad(inProgressSelection)) return;
 
   const yRange = getGenomeYRange(highlight.genome, genomes, metrics);
   const xRange = { 
@@ -64,6 +103,6 @@ function isHighlightBad(highlight) {
   return !highlight || !highlight.genome || !highlight.bins || !highlight.bins.length;
 }
 
-function isInProgressSelectionBad(iss) {
-  return !iss || !iss.genome || !iss.binTo || !iss.binFrom;
+function isSelectionBad(sel) {
+  return !sel || !sel.genome || !sel.binTo || !sel.binFrom;
 }

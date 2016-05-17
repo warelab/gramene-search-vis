@@ -3,10 +3,10 @@ import dataCanvas from "data-canvas";
 import _ from "lodash";
 import {clear} from "../util/canvas";
 
-export function drawGenomes(ctx, genomes, metrics, globalStats, selection) {
+export function drawGenomes(ctx, genomes, metrics, globalStats) {
   clear(ctx);
   const dataCtx = dataCanvas.getDataContext(ctx);
-  drawOrGetObjectsFromGenomes(dataCtx, genomes, metrics, globalStats, selection);
+  drawOrGetObjectsFromGenomes(dataCtx, genomes, metrics, globalStats);
 }
 
 export function getObjectsFromCoordinates(ctx, genomes, metrics, globalStats, x, y) {
@@ -66,7 +66,7 @@ function formatHit(hit, x, y) {
   }
 }
 
-function drawOrGetObjectsFromGenomes(ctx, genomes, metrics, globalStats, selection) {
+function drawOrGetObjectsFromGenomes(ctx, genomes, metrics, globalStats) {
   genomes.forEach((genome, idx) => {
     const x = metrics.padding;
     const y = idx * metrics.height + metrics.margin;
@@ -77,13 +77,12 @@ function drawOrGetObjectsFromGenomes(ctx, genomes, metrics, globalStats, selecti
       y,
       globalStats,
       width: metrics.width,
-      height: metrics.unpaddedHeight,
-      selection
+      height: metrics.unpaddedHeight
     });
   });
 }
 
-function drawGenome({genome, genomeCtx, x, y, width, height, globalStats, selection}) {
+function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
   genomeCtx.pushObject(genome);
 
   const basesPerPx = genome.fullGenomeSize / width;
@@ -107,7 +106,6 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats, select
   for (let px = x; px < width + x; px++) {
     let baseCount = 0;
     let pxScore = undefined;
-    let pxHasSelectedBin = false;
     const bins = [];
     genomeCtx.pushObject(bins);
 
@@ -119,8 +117,6 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats, select
       const basesAvailableInBin = binSize - basesInBinUsedAlready;
       let binBasesUsed;
 
-      pxHasSelectedBin = pxHasSelectedBin || isSelected(bin.idx, selection);
-
       bins.push(bin);
 
       // did we use all the bases in the bin?
@@ -129,7 +125,6 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats, select
         binIdx++;
         basesInBinUsedAlready = 0;
         binBasesUsed = basesAvailableInBin;
-        pxHasSelectedBin = pxHasSelectedBin || isSelected(binIdx, selection);
       }
       else {
         // otherwise, track how many bases we have used.
@@ -161,24 +156,10 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats, select
       }
     }
 
-    if ((previousPxHadSelectedBin && !pxHasSelectedBin) ||
-        (pxHasSelectedBin && !previousPxHadSelectedBin)) {
-      genomeCtx.fillStyle = 'red';
-    }
-    else {
-      genomeCtx.fillStyle = calcBinColor(regionIdx, pxScore, regionUnanchored);
-    }
+    genomeCtx.fillStyle = calcBinColor(regionIdx, pxScore, regionUnanchored);
     genomeCtx.fillRect(px, y, 1, height);
 
-    if (pxHasSelectedBin) {
-      genomeCtx.fillStyle = 'red';
-      genomeCtx.fillRect(px, y, 1, 1);
-      genomeCtx.fillRect(px, y + height - 1, 1, 1);
-    }
-
     genomeCtx.popObject(); // bins;
-
-    previousPxHadSelectedBin = pxHasSelectedBin;
   }
 
   genomeCtx.popObject(); // genome
@@ -200,8 +181,4 @@ function updateScore(currentScore, baseCount, binScore, binBasesUsed) {
     newScore = binScore
   }
   return newScore;
-}
-
-function isSelected(binIdx, selection) {
-  return !!(selection && selection[binIdx]);
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import {drawGenomes, getObjectsFromCoordinates} from "./Genome";
-import {drawHighlight, drawInProgressSelection} from "./Highlight";
+import {drawHighlightsAndSelections} from "./Highlight";
 import PropsComparer from "../util/PropsComparer";
 import mergeSelections from "../util/mergeSelections";
 
@@ -27,7 +27,7 @@ export default class Genomes extends React.Component {
 
   componentDidMount() {
     this.drawImage();
-    this.drawHighlights();
+    this.drawHighlightsAndSelections();
   }
 
   componentDidUpdate() {
@@ -37,7 +37,7 @@ export default class Genomes extends React.Component {
     }
 
     if (this.highlightCanvasDirty) {
-      this.drawHighlights();
+      this.drawHighlightsAndSelections();
       this.highlightCanvasDirty = false;
     }
   }
@@ -52,43 +52,26 @@ export default class Genomes extends React.Component {
     return {padding, margin, width, height, unpaddedHeight};
   }
 
-  drawImage(props = this.props, state = this.state) {
+  drawImage(props = this.props) {
     const metrics = this.metrics(props);
     const globalStats = props.globalStats;
-
     const ctx = this.refs.genomesCanvas.getContext("2d");
 
-    drawGenomes(ctx, props.genomes, metrics, globalStats, props.selection);
-    // props.genomes.forEach((genome, idx) => {
-    //   const x = metrics.padding;
-    //   const y = idx * metrics.height + metrics.margin;
-    //   drawGenome({genome, genomeCtx: ctx, x, y, globalStats, width: metrics.width, height: metrics.unpaddedHeight});
-    // });
+    drawGenomes(ctx, props.genomes, metrics, globalStats);
   }
 
-  drawHighlights(props = this.props, state = this.state) {
+  drawHighlightsAndSelections(props = this.props) {
     const ctx = this.refs.highlightCanvas.getContext("2d");
     const metrics = this.metrics(props);
 
-
-    if(!_.isEmpty(props.inProgressSelection)) {
-      drawInProgressSelection(
-          props.highlight,
-          props.inProgressSelection,
-          ctx,
-          metrics,
-          props.genomes
-      );
-    }
-    else {
-      drawHighlight(
-          props.highlight,
-          ctx,
-          metrics,
-          props.genomes
-      );
-    }
-    
+    drawHighlightsAndSelections(
+        props.highlight,
+        props.selection,
+        props.inProgressSelection,
+        ctx,
+        metrics,
+        props.genomes
+    );
   }
 
   getHighlightFromEventCoordinates(e) {
@@ -114,7 +97,13 @@ export default class Genomes extends React.Component {
     const selection = _.omit(highlight, 'bins');
     selection.binFrom = _.head(highlight.bins);
     selection.binTo = _.last(highlight.bins);
+    // if the first bin is already selected, we will be deselecting.
+    selection.select = !this.isBinAlreadySelected(selection.binFrom); 
     return selection;
+  }
+  
+  isBinAlreadySelected(bin) {
+    return _.get(this.props.selection.bins[bin.idx], 'select', false);
   }
 
   handleMouseMove(e) {

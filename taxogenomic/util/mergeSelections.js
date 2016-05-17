@@ -4,16 +4,26 @@ export default function mergeSelections(start, end) {
   checkSelection(start);
   checkSelection(end);
   checkSelectionsOnSameGenome(start, end);
-  
-  const selection = _.omit(start, ['binFrom', 'binTo']);
-  if(start.binFrom.idx < end.binFrom.idx) {
-    selection.binFrom = start.binFrom;
-    selection.binTo = end.binTo;
+  let first, last;
+
+  if (start.binFrom.idx < end.binFrom.idx) {
+    first = start;
+    last = end;
   }
   else {
-    selection.binFrom = end.binFrom;
-    selection.binTo = start.binTo;
+    first = end;
+    last = start;
   }
+
+  const selection = _.omit(first, ['binFrom', 'binTo', 'x', 'y']);
+
+  selection.binFrom = first.binFrom;
+  selection.binTo = last.binTo;
+  selection.x = first.x;
+  selection.width = last.x - first.x;
+  selection.y = first.y;
+  selection.height = last.y - first.y;
+
   return selection;
 }
 
