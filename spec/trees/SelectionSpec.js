@@ -4,11 +4,14 @@ describe('selection.js', () => {
 
   // simple mocks:
   const bin = (idx) => ({idx: idx});
+  const PX_PER_BIN_EXAMPLE = 2;
   const sel = (fromIdx, toIdx, name, state) => ({
     select: _.isUndefined(state) ? true : state,
-    name: name,
+    name,
     binFrom: bin(fromIdx),
-    binTo: bin(toIdx)
+    binTo: bin(toIdx),
+    x: (fromIdx - 1) * PX_PER_BIN_EXAMPLE, // assuming 1 px per bin for these tests
+    width: (toIdx - fromIdx + 1) * PX_PER_BIN_EXAMPLE
   });
 
   let initialSelectionState;
@@ -156,6 +159,26 @@ describe('selection.js', () => {
     expect(state3.bins[4]).toEqual(sel3);
     expect(_.size(state3.selections)).toEqual(1);
     expect(_.last(state3.selections)).toEqual(sel3);
+  });
+
+  it('should merge two selections that are adjacent', function () {
+    // given
+    var sel1 = sel(1, 4, 'simple');
+    var state1 = updateSelections(sel1, initialSelectionState, rootNode);
+
+    // when
+    var sel2 = sel(5, 8, 'simple2');
+    var state2 = updateSelections(sel2, state1, rootNode);
+
+    // then
+    var expected = sel(1,8,'simple2');
+    expect(_.size(state2.bins)).toEqual(8);
+    expect(state2.bins[1]).toEqual(expected);
+    expect(state2.bins[2]).toEqual(expected);
+    expect(state2.bins[3]).toEqual(expected);
+    expect(state2.bins[4]).toEqual(expected);
+    expect(_.size(state2.selections)).toEqual(1);
+    expect(_.last(state2.selections)).toEqual(expected);
   });
 });
 
