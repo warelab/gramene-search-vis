@@ -3,10 +3,13 @@ import {drawGenomes, getObjectsFromCoordinates} from "./Genome";
 import {drawHighlightsAndSelections} from "./Highlight";
 import PropsComparer from "../util/PropsComparer";
 import mergeSelections from "../util/mergeSelections";
+import _ from "lodash";
 
 export default class Genomes extends React.Component {
   constructor(props) {
     super(props);
+
+    this.state = {events: []};
 
     this.doGenomeRedrawProps = new PropsComparer(
         'globalStats.timesSetResultsHasBeenCalled',
@@ -41,14 +44,14 @@ export default class Genomes extends React.Component {
       this.highlightCanvasDirty = false;
     }
   }
-  
+
   metrics(props = this.props) {
     const padding = props.svgMetrics.layout.genomePadding;
     const margin = props.svgMetrics.layout.margin;
     const width = props.svgMetrics.width.genomes;
     const height = props.svgMetrics.height.leafNode;
     const unpaddedHeight = height - padding;
-    
+
     return {padding, margin, width, height, unpaddedHeight};
   }
 
@@ -74,8 +77,8 @@ export default class Genomes extends React.Component {
     );
   }
 
-  getHighlightFromEventCoordinates(e) {
-    const {offsetX, offsetY} = e.nativeEvent;
+  getHighlightFromEventCoordinates(coords) {
+    const {offsetX, offsetY} = coords;
 
     // if we have an in-progress selection, then take Y coord from that
     // in order to maintain selection in same genome.
@@ -92,57 +95,110 @@ export default class Genomes extends React.Component {
     );
   }
 
-  getSelectionFromEventCoordinates(e) {
-    const highlight = this.getHighlightFromEventCoordinates(e);
+  getSelectionFromEventCoordinates(coords) {
+    const highlight = this.getHighlightFromEventCoordinates(coords);
     const selection = _.omit(highlight, 'bins');
     selection.binFrom = _.head(highlight.bins);
     selection.binTo = _.last(highlight.bins);
     // if the first bin is already selected, we will be deselecting.
-    selection.select = !this.isBinAlreadySelected(selection.binFrom); 
+    selection.select = !this.isBinAlreadySelected(selection.binFrom);
     return selection;
   }
-  
+
   isBinAlreadySelected(bin) {
-    return _.get(this.props.selection.bins[bin.idx], 'select', false);
+    return !!_.find(this.props.selection.selections,
+                    (selection) => selection.binFrom && selection.binFrom.idx <= bin.idx && selection.binTo.idx >= bin.idx
+    );
   }
 
-  handleMouseMove(e) {
+  getOffsetCoordsForTouchEvent(e) {
+    const firstTouch = _.get(e.nativeEvent, 'touches[0]');
+    if (!firstTouch) {
+      throw new Error("No touch information in event", e);
+    }
+
+    const offsetX = firstTouch.pageX - firstTouch.target.offsetLeft;
+    const offsetY = firstTouch.pageY - firstTouch.target.offsetTop;
+    return {offsetX, offsetY};
+  }
+
+  onMouseMove(e) {
+    this.logEvent(e);
     e.preventDefault();
-    this.props.onHighlight(this.getHighlightFromEventCoordinates(e));
+    this.handleMove(e.nativeEvent);
   }
 
-  handleSelectionStart(e) {
-    this.props.onSelectionStart(this.getSelectionFromEventCoordinates(e));
+  onTouchMove(e) {
+    this.logEvent(e);
+    e.preventDefault();
+    e.stopPropagation();
+    this.handleMove(this.getOffsetCoordsForTouchEvent(e));
   }
 
-  handleSelection(e) {
+  handleMove(coords) {
+    this.props.onHighlight(this.getHighlightFromEventCoordinates(coords));
+  }
+
+  onMouseDown(e) {
+    this.logEvent(e);
+    this.handleSelectionStart(e.nativeEvent);
+  }
+
+  onTouchStart(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    this.logEvent(e);
+    this.handleSelectionStart(this.getOffsetCoordsForTouchEvent(e));
+  }
+
+  handleSelectionStart(coords) {
+    this.props.onSelectionStart(this.getSelectionFromEventCoordinates(coords));
+  }
+
+  onTouchEnd(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    this.logEvent(e);
+    this.handleSelection(this.getOffsetCoordsForTouchEvent(e));
+  }
+
+  handleSelection(coords) {
     const selectionStart = this.props.inProgressSelection;
-    if(selectionStart) {
+    if (selectionStart) {
       // Lock Y coordinate like this in order to allow contiguous selection
       // *within a genome*
-      const fakeEvent = {nativeEvent: {
-        offsetX: e.nativeEvent.offsetX, 
+      const fakeCoords = {
+        offsetX: coords.offsetX,
         offsetY: selectionStart.y
-      }};
-      const selectionEnd = this.getSelectionFromEventCoordinates(fakeEvent);
+      };
+      const selectionEnd = this.getSelectionFromEventCoordinates(fakeCoords);
       this.props.onSelection(mergeSelections(selectionStart, selectionEnd));
     }
   }
-  
-  handleClicks(e) {
-    const numberOfClicks = e.nativeEvent.detail;
-    const selection = this.getSelectionFromEventCoordinates(e);
 
-    if(selection.region) {
-      switch (numberOfClicks) {
-        case 2:
-          this.selectRegion(selection);
-          break;
-        case 3:
-          this.selectGenome(selection);
-          break;
-      }
+  onClick(e) {
+    this.logEvent(e);
+    e.preventDefault();
+    e.stopPropagation();
+    const numberOfClicks = e.nativeEvent.detail;
+    const ne = e.nativeEvent;
+    if (numberOfClicks === 1) {
+      this.handleSelection(ne);
+      return;
     }
+
+    const selection = this.getSelectionFromEventCoordinates(ne);
+    switch (numberOfClicks) {
+      case 2:
+        this.selectRegion(selection);
+        break;
+      case 3:
+        this.selectGenome(selection);
+        break;
+    }
+
   }
 
   selectRegion(selection) {
@@ -152,6 +208,7 @@ export default class Genomes extends React.Component {
     selection.binTo = region.bin(region.binCount() - 1);
     selection.x = displayRegion.x;
     selection.width = displayRegion.width;
+    selection.select = !selection.select; // it's state was changed on the first click.
     this.props.onSelection(selection);
   }
 
@@ -163,11 +220,27 @@ export default class Genomes extends React.Component {
     selection.binTo = rootNode.getBin(genome.startBin + genome.nbins - 1);
     selection.x = metrics.padding;
     selection.width = metrics.width;
+    selection.select = !selection.select; // it's state was changed on the previous two clicks
     this.props.onSelection(selection);
   }
 
   cancelSelection(e) {
+    this.logEvent(e);
     this.props.onSelectionStart();
+  }
+
+  logEvent(e) {
+    const {type, nativeEvent: {offsetX, offsetY, detail, touches}} = e;
+    const info = detail || (touches && touches.length);
+    const time = new Date();
+    this.setState({events: _.concat([], {type, offsetX, offsetY, info, time}, this.state.events)});
+  }
+
+  eventLog() {
+    return this.state.events.map(
+        (e) => <li key={e.time.getTime()}>{String(e.time.getTime()).substr(8)} {e.type}: ({e.offsetX}, {e.offsetY})
+          detail: {e.detail}</li>
+    );
   }
 
   render() {
@@ -178,17 +251,23 @@ export default class Genomes extends React.Component {
     };
 
     return (
+
         <div className="genomes">
           <canvas ref="genomesCanvas"
               {...dimensions} />
           <canvas ref="highlightCanvas"
               {...dimensions}
-                  onMouseMove={this.handleMouseMove.bind(this)}
-                  onMouseDown={this.handleSelectionStart.bind(this)}
-                  onMouseUp={this.handleSelection.bind(this)}
-                  onClick={this.handleClicks.bind(this)}
-                  onMouseOut={this.cancelSelection.bind(this)} />
+                  onClick={this.onClick.bind(this)}
+                  onMouseDown={this.onMouseDown.bind(this)}
+                  onMouseMove={this.onMouseMove.bind(this)}
+                  onMouseOut={this.cancelSelection.bind(this)}
+                  onTouchStart={this.onTouchStart.bind(this)}
+                  onTouchMove={this.onTouchMove.bind(this)}
+                  onTouchEnd={this.onTouchEnd.bind(this)}
+                  onTouchCancel={this.cancelSelection.bind(this)}/>
+          <ul style={{display: 'block'}}>{this.eventLog()}</ul>
         </div>
+
     )
   }
 }

@@ -36,8 +36,6 @@ export default class Taxonomy extends React.Component {
   }
 
   handleHighlight(highlight) {
-    console.log(highlight);
-    // this.possiblyHandleSelection(highlight);
     this.setState({highlight: highlight});
     if (this.props.onHighlight) this.props.onHighlight(highlight);
   }

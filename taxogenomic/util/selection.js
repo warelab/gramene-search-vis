@@ -11,10 +11,10 @@ export function updateSelections(newSelection, currentSelectionState, rootNode) 
 
   checkForObviousErrors(newSelection, start, end);
 
-  const bins = _.clone(currentSelectionState.bins) || {};
+  const selections = currentSelectionState.selections;
 
   // find any existing selections that will be affected by the new one.
-  const existingSelectionsToUpdate = getSelectionsThatMayNeedUpdating(bins, start, end);
+  const existingSelectionsToUpdate = getSelectionsThatMayNeedUpdating(selections, start, end);
   const existingSelectionsToKeep = _.difference(
       currentSelectionState.selections,
       existingSelectionsToUpdate
@@ -23,18 +23,20 @@ export function updateSelections(newSelection, currentSelectionState, rootNode) 
   // modify the new selection and any existing ones that overlap
   // in order to remove overlaps
   const {updatedNewSelection, updatedSelections} =
-      getUpdatedExistingSelections(existingSelectionsToUpdate, bins, start, end, rootNode, newSelection);
+      getUpdatedExistingSelections(existingSelectionsToUpdate, start, end, rootNode, newSelection);
 
-  // fill the selected area
-  fillBins(bins, updatedNewSelection);
 
-  const selections = [
+  const newSelections = [
     ...existingSelectionsToKeep,
-    ...updatedSelections,
-    updatedNewSelection
+    ...updatedSelections
   ];
 
-  return {selections, bins};
+  // only add the new selection if it is a selection and not a deselection.
+  if (updatedNewSelection.select) {
+    newSelections.push(updatedNewSelection);
+  }
+
+  return {selections: newSelections};
 }
 
 function checkForObviousErrors(newSelection, start, end) {
@@ -46,22 +48,23 @@ function checkForObviousErrors(newSelection, start, end) {
     throw new Error("Selection must specify binFrom and binTo");
   }
 
-  if(end < start) {
+  if (end < start) {
     throw new Error("Malformed selection: binTo is before binFrom");
   }
 }
 
-function getSelectionsThatMayNeedUpdating(bins, start, end) {
-  return _(bins).pickBy((selection, binIdx)=> binIdx >= start && binIdx <= end)
-                .values()
-                .uniq()
-                .value();
+function getSelectionsThatMayNeedUpdating(selections, start, end) {
+  return _.filter(selections, (selection) => {
+    const from = _.get(selection.binFrom, 'idx');
+    const to = _.get(selection.binTo, 'idx');
+    return (from >= start && from <= end) || (to >= start && to <= end);
+  });
 }
 
-function getUpdatedExistingSelections(existingSelectionsToUpdate, bins, start, end, rootNode, newSelection) {
+function getUpdatedExistingSelections(existingSelectionsToUpdate, start, end, rootNode, newSelection) {
   return existingSelectionsToUpdate
       .reduce((acc, oldSelection) => updateExistingSelection(acc, oldSelection,
-                                                             bins,
+                                                             // bins,
                                                              start,
                                                              end,
                                                              rootNode),
@@ -69,7 +72,7 @@ function getUpdatedExistingSelections(existingSelectionsToUpdate, bins, start, e
       );
 }
 
-function updateExistingSelection(acc, oldSelection, bins, start, end, rootNode) {
+function updateExistingSelection(acc, oldSelection, start, end, rootNode) {
   const newSelection = acc.updatedNewSelection;
   const {binFrom: {idx: oldStartIdx}, binTo: {idx: oldEndIdx}} = oldSelection;
   const {binFrom: {idx: newStartIdx}, binTo: {idx: newEndIdx}} = newSelection;
@@ -122,8 +125,6 @@ function updateExistingSelection(acc, oldSelection, bins, start, end, rootNode) 
       updatedSelectionBefore.width = newSelection.x - oldSelection.x;
 
       acc.updatedSelections.push(updatedSelectionBefore);
-
-      fillBins(bins, updatedSelectionBefore);
     }
 
     /* case 3: newSelection overwrites start of oldSelection
@@ -140,16 +141,8 @@ function updateExistingSelection(acc, oldSelection, bins, start, end, rootNode) 
       updatedSelectionAfter.width = (oldSelection.x + oldSelection.width) - updatedSelectionAfter.x;
 
       acc.updatedSelections.push(updatedSelectionAfter);
-
-      fillBins(bins, updatedSelectionAfter);
     }
   }
 
   return acc;
-}
-
-function fillBins(bins, obj, start = obj.binFrom.idx, end = obj.binTo.idx) {
-  for (let i = start; i <= end; i++) {
-    bins[i] = obj;
-  }
 }
