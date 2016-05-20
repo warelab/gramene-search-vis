@@ -75,7 +75,8 @@ function getGenomeYRange(genome, genomes, metrics) {
   if (genome) {
     const height = metrics.height - metrics.padding;
     let y = metrics.margin;
-    for (let g of genomes) {
+    for (let i = 0; i < genomes.length; i++) {
+      const g = genomes[i];
       if (g.taxon_id === genome.taxon_id) {
         return {y: y, height: height};
       }
