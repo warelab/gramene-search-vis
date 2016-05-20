@@ -1,24 +1,9 @@
 import _ from "lodash";
+import { sel, rootNode } from '../support/simpleMocks';
 
 describe('selection.js', () => {
 
-  // simple mocks:
-  const bin = (idx) => ({idx: idx});
-  const PX_PER_BIN_EXAMPLE = 2;
-  const sel = (fromIdx, toIdx, name, state) => ({
-    select: _.isUndefined(state) ? true : state,
-    name,
-    binFrom: bin(fromIdx),
-    binTo: bin(toIdx),
-    x: (fromIdx - 1) * PX_PER_BIN_EXAMPLE,
-    width: (toIdx - fromIdx + 1) * PX_PER_BIN_EXAMPLE
-  });
-
   let initialSelectionState;
-  let rootNode = {
-    getBin: bin,
-    binCount: () => 100
-  };
   let updateSelections;
 
   beforeEach(() => {
@@ -54,14 +39,14 @@ describe('selection.js', () => {
 
   it('should correctly add a second completely overlapping selection', function () {
     // given
-    var sel1 = sel(1, 4, 'simple');
+    var sel1 = sel(1, 10, 'simple');
     var state1 = updateSelections(sel1, initialSelectionState, rootNode);
 
     // when
-    var sel2 = sel(2, 3, 'simple2');
+    var sel2 = sel(4, 5, 'simple2');
     var state2 = updateSelections(sel2, state1, rootNode);
 
-    var resultingSelection = sel(1, 4, 'simple2');
+    var resultingSelection = sel(1, 10, 'simple2');
 
     // then
     expect(_.size(state2.selections)).toEqual(1);
