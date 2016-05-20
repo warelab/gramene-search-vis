@@ -13,15 +13,6 @@ import App from "./App.jsx";
 //      of the taxonomy object
 //   3. requests also to get taxonomy facet.
 var exampleQueries = [
-  {
-    name: 'No filters',
-    "q": "",
-    "filters": {},
-    "resultTypes": {
-      "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
-    }
-  },
 
   {
     name: 'NB-ARC',
@@ -34,7 +25,16 @@ var exampleQueries = [
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
+      "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
+    }
+  },
+  {
+    name: 'No filters',
+    "q": "",
+    "filters": {},
+    "resultTypes": {
+      "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
+      "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
     }
   },
 
@@ -49,7 +49,7 @@ var exampleQueries = [
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
+      "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
     }
   },
 
@@ -63,7 +63,7 @@ var exampleQueries = [
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
+      "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
     }
   },
 
@@ -80,7 +80,7 @@ var exampleQueries = [
     },
     "resultTypes": {
       "taxon_id": {"facet.field": "{!facet.limit='50' facet.mincount='0' key='taxon_id'}taxon_id"},
-      "fixed_200__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_200__bin'}fixed_200__bin"}
+      "fixed_1000__bin": {"facet.field": "{!facet.limit='-1' facet.mincount='1' key='fixed_1000__bin'}fixed_1000__bin"}
     }
   }
 ];
@@ -92,7 +92,7 @@ promises.unshift(taxonomyGetter.get());
 
 Q.all(promises).spread(function (taxonomy) {
   const exampleResults = Array.prototype.slice.call(arguments, 1);
-  taxonomy.setBinType('fixed', 200);
+  taxonomy.setBinType('fixed', 1000);
   ReactDOM.render(
       <App taxonomy={taxonomy}
            exampleQueries={exampleQueries}

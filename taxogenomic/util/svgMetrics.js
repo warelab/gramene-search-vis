@@ -13,6 +13,8 @@ const SPECIES_TREE_PROPORTION = 0.18;
 const LEAF_NODE_HEIGHT_DEFAULT_PX = 12;
 const LEAF_NODE_HEIGHT_SMALL_PX = 6.5;
 
+const MARGIN_PX = 6;
+
 export default function metrics(width) {
   const visWidth = width;
 
@@ -52,7 +54,8 @@ export default function metrics(width) {
       genomePadding: genomePadding,
       showSpeciesNames: showSpeciesNames,
       circleRadius: circleRadius,
-      strokeWidth: strokeWidth
+      strokeWidth: strokeWidth,
+      margin: MARGIN_PX
     },
     proportion: {
       text: textProportion,

@@ -1,7 +1,16 @@
 @import 'colors';
 
-svg.gramene-search-vis {
+.gramene-search-vis {
+  -webkit-user-select: none;
   cursor: pointer;
+
+  canvas {
+    position: absolute;
+  }
+
+  > * {
+    display: inline;
+  }
 
   text {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;

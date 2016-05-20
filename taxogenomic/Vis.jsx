@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from 'react-dom';
 import _ from "lodash";
 import layoutNodes from "./util/layout";
-import visibleLeafCount from "./util/visibleLeafCount";
+import {visibleLeafNodeCount} from "./util/visibleLeafNodes";
 import svgMetrics from './util/svgMetrics';
 import Taxonomy from "./Taxonomy.jsx";
 
@@ -111,7 +111,7 @@ export default class Vis extends React.Component {
 
   height(metrics = this.state.metrics) {
     if(!metrics) throw new Error("No svg metrics available for call to height()");
-    return visibleLeafCount(this.props.taxonomy, this.state.nodeDisplayInfo) * metrics.height.leafNode;
+    return visibleLeafNodeCount(this.props.taxonomy, this.state.nodeDisplayInfo) * metrics.height.leafNode;
   }
 
   width() {
@@ -120,36 +120,29 @@ export default class Vis extends React.Component {
   }
 
   margin() {
-    return 10;
+    if(!this.state.metrics) throw new Error("No svg metrics available for call to width()");
+    return this.state.metrics.layout.margin;
   }
 
-  marginTransform() {
-    const m = this.margin() / 2;
-    return `translate(${m},${m})`;
-  }
-
-  renderSvg() {
+  renderTaxonomy() {
     if(this.state.metrics) {
       return (
-        <svg width={this.width() + this.margin()}
-             height={this.height() + this.margin()}
-             className="gramene-search-vis">
-          <g className="margin" transform={this.marginTransform()}>
-            <Taxonomy rootNode={this.rootNode()}
-                      nodeDisplayInfo={this.state.nodeDisplayInfo}
-                      onHighlight={this.props.onHighlight}
-                      onSelection={this.props.onSelection}
-                      svgMetrics={this.state.metrics} />
-          </g>
-        </svg>
-      );
+          <Taxonomy width={this.width() + this.margin()}
+                    height={this.height() + this.margin()}
+
+                    rootNode={this.rootNode()}
+                    nodeDisplayInfo={this.state.nodeDisplayInfo}
+                    onHighlight={this.props.onHighlight}
+                    onSelection={this.props.onSelection}
+                    svgMetrics={this.state.metrics}/>
+      )
     }
   }
 
   render() {
     return (
       <div className="taxogenomic-vis">
-        {this.renderSvg()}
+        {this.renderTaxonomy()}
       </div>
     )
   }
