@@ -3,7 +3,7 @@ import numeral from 'numeral';
 
 import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
-import Genome from "./Genome.jsx";
+// import Genome from "./Genome.jsx";
 
 import transform from './util/transform';
 import pickNumericKeys from "./util/pickNumericKeys";
@@ -162,71 +162,6 @@ export default class Clade extends React.Component {
         );
       });
     }
-  }
-
-  renderGenome() {
-    if (this.props.node.model.genome) {
-      return (
-        <g className="genome-padding" {...this.genomeTranslate()}>
-          <Genome {...this.genomeProps()} />
-        </g>
-      )
-    }
-  }
-
-  genomeProps() {
-    const genome = this.props.node.model.genome;
-    const metrics = this.props.svgMetrics;
-    const genomePadding = metrics.layout.genomePadding;
-    const globalStats = this.props.node.globalResultSetStats();
-    const width = metrics.width.genomes - genomePadding;
-    const height = metrics.height.leafNode - genomePadding;
-    const highlight = this.highlightForGenome(genome, this.props.highlight);
-    const selection = this.selectionForGenome(genome, this.props.selection);
-    const inProgressSelection = _.get(this.props.inProgressSelection, 'genome.taxon_id') === genome.taxon_id
-                                  ? this.props.inProgressSelection : undefined;
-
-    const globalProps = _.pick(this.props, [
-      'svgMetrics',
-      'onSelection',
-      'onSelectionStart',
-      'onHighlight'
-    ]);
-
-    return _.assign(globalProps, {
-      genome,
-      globalStats,
-      selection,
-      highlight,
-      inProgressSelection,
-      width,
-      height
-    });
-  }
-
-  genomeTranslate() {
-    const genome = this.props.node.model.genome;
-    const metrics = this.props.svgMetrics;
-    const genomePadding = metrics.layout.genomePadding;
-
-    if (genome) {
-      const translateX = metrics.width.text + genomePadding;
-      const translateY = (metrics.height.leafNode + (2 * genomePadding)) / 4;
-      return transform(translateX, -translateY);
-    }
-  }
-
-  highlightForGenome(genome, highlight) {
-    const hlStart = _.get(highlight, 'genome.startBin');
-    if(_.isNumber(hlStart) && hlStart === genome.startBin) {
-      return highlight;
-    }
-  }
-  
-  selectionForGenome(genome, selection) {
-    const firstBin = genome.startBin;
-    const lastBin = firstBin + genome.nbins - 1;
-    return pickNumericKeys(selection, firstBin, lastBin);
   }
 
   gProps() {

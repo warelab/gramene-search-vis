@@ -1,98 +1,108 @@
 import _ from 'lodash';
+import {clear} from "../util/canvas";
 
-export function drawHighlight(highlight, ctx, metrics, genomes) {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+export function drawHighlightsAndSelections(
+    highlight, selection, inProgressSelection, 
+    ctx, metrics, genomes) {
+  clear(ctx);
+  
+  if(!_.isEmpty(selection)) {
+    drawSelections(selection.selections, ctx, metrics, genomes);
+  }
+  
+  if(!_.isEmpty(inProgressSelection)) {
+    drawInProgressSelection(
+        highlight,
+        inProgressSelection,
+        ctx,
+        metrics,
+        genomes
+    );
+  }
+  else {
+    drawHighlight(
+        highlight,
+        ctx,
+        metrics,
+        genomes
+    );
+  }
+}
 
-  if (!highlight || !highlight.genome || !highlight.bins || !highlight.bins.length) return;
+function drawSelections(selections, ctx, metrics, genomes) {
+  _(selections)
+      .filter((selection) => selection.select)
+      .forEach((selection)=> {
+    if (isSelectionBad(selection)) return;
 
-  const {x, y, genome, region, bins} = highlight;
-  const height = metrics.height - metrics.padding;
+    const {genome, binFrom, binTo, x, width} = selection;
+    const yRange = getGenomeYRange(genome, genomes, metrics);
 
-  const xRange = getBinXRange();
-  const yRange = getGenomeYRange();
+    ctx.strokeStyle = 'red';
+    ctx.strokeRect(x - 1, yRange.y - 1, width + 1, yRange.height + 1);
+  });
+}
 
+function drawHighlight(highlight, ctx, metrics, genomes) {
+  if (isHighlightBad(highlight)) return;
+
+  const {genome, bins, x} = highlight;
+
+  const xRange = getBinXRange(genome, bins, metrics, x);
+  const yRange = getGenomeYRange(genome, genomes, metrics);
+
+  // ctx.strokeStyle = '#ea8e75';
   ctx.strokeStyle = 'red';
   ctx.strokeRect(xRange.x - 1, yRange.y - 1, xRange.width + 1, yRange.height + 1);
-
-  function getGenomeYRange() {
-    if (genome) {
-      let y = metrics.margin;
-      for (let g of genomes) {
-        if (g.taxon_id === genome.taxon_id) {
-          return {y: y, height: height};
-        }
-        y += metrics.height;
-      }
-    }
-    return undefined;
-  }
-
-  function getBinXRange() {
-    const pixelsPerBase = metrics.width / genome.fullGenomeSize;
-    const lengthInPx = bins.reduce(((len, bin)=>len + (bin.end - bin.start + 1) * pixelsPerBase), 0);
-    const width = Math.ceil(lengthInPx);
-    let start;
-    if(_.find(bins, (bin)=>bin.region === 'UNANCHORED')) {
-      start = metrics.width - lengthInPx + metrics.padding;
-    }
-    else {
-      start = Math.floor(x - lengthInPx/2);
-    }
-    return {x: start, width};
-  }
 }
 
+function drawInProgressSelection(highlight, inProgressSelection, ctx, metrics, genomes) {
+  if (isHighlightBad(highlight)) return;
+  if (isSelectionBad(inProgressSelection)) return;
 
-export function getHighligtedBinsFromMousePosition(x, y, metrics, genomes) {
-  const genome = getGenomeFromMouseYPosition();
-  if (genome) return getBinAndRegionFromMouseXPosition();
+  const yRange = getGenomeYRange(highlight.genome, genomes, metrics);
+  const xRange = { 
+    x: Math.min(highlight.x, inProgressSelection.x) - 1,
+    width: Math.abs(highlight.x - inProgressSelection.x) + 2
+  };
 
-  
-  function getBinAndRegionFromMouseXPosition() {
-    const width = metrics.width;
-    const padding = metrics.padding;
-    const margin = metrics.margin;
-    const basesPerPx = genome.fullGenomeSize / (width - margin);
-    const px = x - padding;
-    const basePosition = basesPerPx * px;
-    const regions = genome._regionsArray;
-    let region, bin, bins = [];
-    let cumulativeBases = 0;
-    for (let regionIdx = 0; regionIdx < regions.length; regionIdx++) {
-      region = regions[regionIdx];
-      if (cumulativeBases + region.size >= basePosition) {
-        for (let binIdx = 0; binIdx < region.binCount(); binIdx++) {
-          bin = region.bin(binIdx);
-          const binLen = bin.end - bin.start + 1;
-          cumulativeBases += binLen;
-
-          // if we've got to the mouse position:
-          if (cumulativeBases >= basePosition) {
-            bins.push(bin);
-
-            // keep going til all bins in the pixel are captured.
-            if (cumulativeBases >= basePosition + basesPerPx) {
-              break;
-            }
-          }
-        }
-        break;
-      }
-      cumulativeBases += region.size;
-    }
-
-    const startBase = _.head(bins).start;
-    const endBase = _.last(bins).end;
-    const name = `${genome.system_name} ${region.name}:${startBase}-${endBase}`;
-
-    return {bins, region, genome, x, y, name};
-  }
-
-  function getGenomeFromMouseYPosition() {
-    const height = metrics.height;
-    const padding = metrics.padding;
-    const idx = Math.floor((y - padding) / height);
-    return genomes[idx];
-  }
+  // ctx.strokeStyle = '#ea8e75';
+  ctx.strokeStyle = 'red';
+  ctx.strokeRect(xRange.x - 1, yRange.y - 1, xRange.width + 1, yRange.height + 1);
 }
 
+function getGenomeYRange(genome, genomes, metrics) {
+  if (genome) {
+    const height = metrics.height - metrics.padding;
+    let y = metrics.margin;
+    for (let g of genomes) {
+      if (g.taxon_id === genome.taxon_id) {
+        return {y: y, height: height};
+      }
+      y += metrics.height;
+    }
+  }
+  return undefined;
+}
+
+function getBinXRange(genome, bins, metrics, x) {
+  const pixelsPerBase = metrics.width / genome.fullGenomeSize;
+  const lengthInPx = bins.reduce(((len, bin)=>len + (bin.end - bin.start + 1) * pixelsPerBase), 0);
+  const width = Math.ceil(lengthInPx);
+  let start;
+  if(_.find(bins, (bin)=>bin.region === 'UNANCHORED')) {
+    start = metrics.width - lengthInPx + metrics.padding;
+  }
+  else {
+    start = Math.floor(x - lengthInPx/2);
+  }
+  return {x: start, width};
+}
+
+function isHighlightBad(highlight) {
+  return !highlight || !highlight.genome || !highlight.bins || !highlight.bins.length;
+}
+
+function isSelectionBad(sel) {
+  return !sel || !sel.genome || !sel.binTo || !sel.binFrom;
+}
