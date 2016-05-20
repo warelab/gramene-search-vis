@@ -15,14 +15,12 @@ export default function mergeSelections(start, end) {
     last = start;
   }
 
-  const selection = _.omit(first, ['binFrom', 'binTo', 'x', 'y']);
+  const selection = _.omit(first, ['binFrom', 'binTo', 'x']);
 
   selection.binFrom = first.binFrom;
   selection.binTo = last.binTo;
   selection.x = first.x;
-  selection.width = last.x - first.x;
-  selection.y = first.y;
-  selection.height = last.y - first.y;
+  selection.width = last.x - first.x + last.width + 1;
 
   return selection;
 }

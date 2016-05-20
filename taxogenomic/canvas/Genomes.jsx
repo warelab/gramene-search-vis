@@ -1,5 +1,5 @@
 import React from "react";
-import {drawGenomes, getObjectsFromCoordinates} from "./Genome";
+import {drawGenomes, nameFor} from "./Genome";
 import {drawHighlightsAndSelections} from "./Highlight";
 import PropsComparer from "../util/PropsComparer";
 import mergeSelections from "../util/mergeSelections";
@@ -60,39 +60,52 @@ export default class Genomes extends React.Component {
     const globalStats = props.globalStats;
     const ctx = this.refs.genomesCanvas.getContext("2d");
 
-    drawGenomes(ctx, props.genomes, metrics, globalStats);
+    const objectLocations = drawGenomes(ctx, props.genomes, metrics, globalStats);
+    this.setState({objectLocations});
   }
 
   drawHighlightsAndSelections(props = this.props) {
     const ctx = this.refs.highlightCanvas.getContext("2d");
-    const metrics = this.metrics(props);
 
     drawHighlightsAndSelections(
         props.highlight,
         props.selection,
         props.inProgressSelection,
-        ctx,
-        metrics,
-        props.genomes
+        ctx
     );
   }
 
   getHighlightFromEventCoordinates(coords) {
+    let highlight = this.getHighlightCoords(coords);
+
+    if(this.state.objectLocations) {
+      const objectLocations = this.state.objectLocations[highlight.y];
+      if(objectLocations && objectLocations.xPixels) {
+        _.assign(
+            highlight,
+            objectLocations.xPixels[highlight.x]
+        );
+      }
+    }
+
+    highlight.name = nameFor(highlight);
+
+    return highlight;
+  }
+
+  getHighlightCoords(coords) {
     const {offsetX, offsetY} = coords;
+    const {margin, height} = this.metrics();
 
     // if we have an in-progress selection, then take Y coord from that
     // in order to maintain selection in same genome.
     const y = _.get(this.props.inProgressSelection, 'y', offsetY);
 
-    const ctx = this.refs.genomesCanvas.getContext("2d");
-    return getObjectsFromCoordinates(
-        ctx,
-        this.props.genomes,
-        this.metrics(),
-        this.props.globalStats,
-        offsetX,
-        y
-    );
+    return {
+      x: offsetX,
+      y: y - ( (y - margin) % height),
+      height
+    };
   }
 
   getSelectionFromEventCoordinates(coords) {
@@ -202,12 +215,11 @@ export default class Genomes extends React.Component {
   }
 
   selectRegion(selection) {
-    const region = selection.region;
-    const displayRegion = selection.displayRegion;
+    const {region, regionDims} = selection;
     selection.binFrom = region.firstBin();
     selection.binTo = region.bin(region.binCount() - 1);
-    selection.x = displayRegion.x;
-    selection.width = displayRegion.width;
+    selection.x = regionDims.x;
+    selection.width = regionDims.width;
     selection.select = !selection.select; // it's state was changed on the first click.
     this.props.onSelection(selection);
   }
@@ -254,9 +266,9 @@ export default class Genomes extends React.Component {
 
         <div className="genomes">
           <canvas ref="genomesCanvas"
-              {...dimensions} />
+                  {...dimensions} />
           <canvas ref="highlightCanvas"
-              {...dimensions}
+                  {...dimensions}
                   onClick={this.onClick.bind(this)}
                   onMouseDown={this.onMouseDown.bind(this)}
                   onMouseMove={this.onMouseMove.bind(this)}

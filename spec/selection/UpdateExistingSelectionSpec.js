@@ -106,4 +106,21 @@ describe('updateExistingSelection', () => {
 
     expect(updateFn).toThrow(new Error("Selections don't overlap/are not adjacent"));
   });
+
+  it('should correctly chop of the last bin', () => {
+    // given
+    const accumulator = acc(10, 10, 'new', false);
+    const oldSelection = sel(1, 10, 'old');
+
+    // when
+    updateExistingSelection(
+        accumulator,
+        oldSelection,
+        rootNode
+    );
+    const updatedSelection = _.head(accumulator.updatedSelections);
+
+    // then
+    expect(updatedSelection).toEqual(sel(1, 9, 'old'));
+  })
 });

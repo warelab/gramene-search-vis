@@ -52,7 +52,7 @@ export default function updateExistingSelection(acc, oldSelection, rootNode) {
      newSelection:       ...-----------|
      updatedSelections:                 |-----|
      */
-    if (oldStartIdx < newEndIdx && oldEndIdx >= newEndIdx) {
+    if (oldStartIdx <= newEndIdx && oldEndIdx > newEndIdx) {
       acc.updatedSelections.push(
           trimStartOfExistingSelection(newSelection, oldSelection, rootNode)
       );
