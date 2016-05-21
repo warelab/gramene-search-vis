@@ -62,8 +62,8 @@ function drawInProgressSelection(highlight, inProgressSelection, ctx) {
 
   const {y, height} = highlight;
   const xRange = {
-    x: Math.min(start.x, end.x) - 1,
-    width: end.x - start.x + end.width + 2
+    x: Math.min(start.x, end.x),
+    width: end.x - start.x + end.width
   };
 
   ctx.strokeStyle = 'green';

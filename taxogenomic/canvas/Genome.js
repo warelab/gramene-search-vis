@@ -60,7 +60,7 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
 
   let regionIdx = 0;
   let region = regions[regionIdx];
-  let regionDims = {x, width: region.size / basesPerPx};
+  let regionDims = {x, width: Math.floor(region.size / basesPerPx)};
   let regionUnanchored = region.name === 'UNANCHORED';
 
   for (let px = x; px < width + x; px++) {
@@ -113,7 +113,7 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
         }
 
         region = pxInfo.region = regions[regionIdx];
-        regionDims = pxInfo.regionDims = {x:px, width: region.size / basesPerPx};
+        regionDims = pxInfo.regionDims = {x:px, width: Math.ceil(region.size / basesPerPx)};
         regionUnanchored = region.name === 'UNANCHORED';
       }
     }
@@ -121,7 +121,7 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
     genomeCtx.fillStyle = calcBinColor(regionIdx, pxInfo.score, regionUnanchored);
     genomeCtx.fillRect(px, y, 1, height);
 
-    pxInfo.width = px - pxInfo.x + Math.ceil(basesAvailableInBin / basesPerPx);
+    pxInfo.width = px - pxInfo.x + Math.floor(basesAvailableInBin / basesPerPx);
     pixelInfo[px] = pxInfo;
   }
 

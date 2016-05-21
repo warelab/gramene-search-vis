@@ -4,6 +4,11 @@ export default function mergeSelections(start, end) {
   checkSelection(start);
   checkSelection(end);
   checkSelectionsOnSameGenome(start, end);
+
+  if(start === end) {
+    return start;
+  }
+
   let first, last;
 
   if (start.binFrom.idx < end.binFrom.idx) {
@@ -20,7 +25,7 @@ export default function mergeSelections(start, end) {
   selection.binFrom = first.binFrom;
   selection.binTo = last.binTo;
   selection.x = first.x;
-  selection.width = last.x - first.x + last.width + 1;
+  selection.width = last.x - first.x + last.width;
 
   return selection;
 }
