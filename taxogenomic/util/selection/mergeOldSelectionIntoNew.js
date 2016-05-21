@@ -5,8 +5,12 @@ export default function mergeOldSelectionIntoNew(newSelection, oldSelection) {
     throw new Error("Can only merge selections if they are both the same type");
   }
   
-  const {binFrom: {idx: oldStartIdx}, binTo: {idx: oldEndIdx}} = oldSelection;
-  const {binFrom: {idx: newStartIdx}, binTo: {idx: newEndIdx}} = newSelection;
+  const {genome: {taxon_id: oldTaxonId}, binFrom: {idx: oldStartIdx}, binTo: {idx: oldEndIdx}} = oldSelection;
+  const {genome: {taxon_id: newTaxonId}, binFrom: {idx: newStartIdx}, binTo: {idx: newEndIdx}} = newSelection;
+
+  if( oldTaxonId !== newTaxonId ) {
+    throw new Error("Adjacent bins on different genomes. Will not merge.");
+  }
 
   const updatedNewSelection = _.clone(newSelection);
 

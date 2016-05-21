@@ -3,18 +3,20 @@ import {trimEndOfExistingSelection, trimStartOfExistingSelection} from "./trimEx
 
 export default function updateExistingSelection(acc, oldSelection, rootNode) {
   const newSelection = acc.updatedNewSelection;
-  const {binFrom: {idx: oldStartIdx}, binTo: {idx: oldEndIdx}} = oldSelection;
-  const {binFrom: {idx: newStartIdx}, binTo: {idx: newEndIdx}} = newSelection;
+  const {genome: {taxon_id: oldTaxonId}, binFrom: {idx: oldStartIdx}, binTo: {idx: oldEndIdx}} = oldSelection;
+  const {genome: {taxon_id: newTaxonId}, binFrom: {idx: newStartIdx}, binTo: {idx: newEndIdx}} = newSelection;
 
-  if((oldEndIdx + 1 < newStartIdx && oldStartIdx < newStartIdx)
+  if( oldTaxonId !== newTaxonId
+      || (oldEndIdx + 1 < newStartIdx && oldStartIdx < newStartIdx)
       || (oldStartIdx - 1 > newEndIdx && oldEndIdx > newEndIdx)) {
     throw new Error("Selections don't overlap/are not adjacent");
   }
-
-
+  
   /*
-   If overlapping or adjacent selections are the same type (e.g. both have "select" === true)
-   Then we should merge them into the new selection.
+   If overlapping or adjacent selections are the same
+   type (e.g. both have "select" === true) and are on
+   the same genome, then we should merge them into the
+   new selection.
    */
   if (oldSelection.select === newSelection.select) {
     acc.updatedNewSelection =

@@ -111,6 +111,21 @@ describe('selection.js', () => {
     expect(_.size(state2.selections)).toEqual(1);
     expect(_.last(state2.selections)).toEqual(expected);
   });
+
+  it('should not merge two selections that are adjacent but on different genomes', function () {
+    // given
+    var sel1 = sel(1, 4, 'simple', true, 1);
+    var state1 = updateSelections(sel1, initialSelectionState, rootNode);
+
+    // when
+    var sel2 = sel(5, 8, 'simple2', true, 2);
+    var state2 = updateSelections(sel2, state1, rootNode);
+
+    // then
+    expect(_.size(state2.selections)).toEqual(2);
+    expect(_.head(state2.selections)).toEqual(sel1);
+    expect(_.last(state2.selections)).toEqual(sel2);
+  });
 });
 
 

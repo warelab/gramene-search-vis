@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from "lodash";
 import updateExistingSelection from "../../taxogenomic/util/selection/updateExistingSelection";
 import {sel, rootNode, acc} from "../support/simpleMocks";
 
@@ -91,6 +91,19 @@ describe('updateExistingSelection', () => {
         rootNode
     );
 
+    expect(updateFn).toThrow(new Error("Selections don't overlap/are not adjacent"));
+  });
+
+  it('should not merge if selections are adjacent but on different genomes', () => {
+    // given
+    const accumulator = acc(1, 19, 'new');
+    const oldSelection = sel(20, 30, 'old', true, 2);
+    const updateFn = () => updateExistingSelection(
+        accumulator,
+        oldSelection,
+        rootNode
+    );
+    
     expect(updateFn).toThrow(new Error("Selections don't overlap/are not adjacent"));
   });
 

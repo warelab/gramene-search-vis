@@ -3,9 +3,10 @@ import _ from 'lodash';
 const PX_PER_BIN_EXAMPLE = 2;
 
 const bin = (idx) => ({idx: idx});
-const sel = (fromIdx, toIdx, name, state) => ({
-  select: _.isUndefined(state) ? true : state,
+const sel = (fromIdx, toIdx, name, select = true, taxon_id = 1) => ({
+  select,
   name,
+  genome: { taxon_id },
   binFrom: bin(fromIdx),
   binTo: bin(toIdx),
   x: (fromIdx - 1) * PX_PER_BIN_EXAMPLE,

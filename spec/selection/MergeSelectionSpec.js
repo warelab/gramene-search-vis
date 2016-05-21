@@ -107,4 +107,16 @@ describe('mergeOldSelectionIntoNew', () => {
     // then
     expect(mergeSel).toEqual(sel(1, 42, 'new'));
   });
+
+  it('should not merge adjacent selections on different genomes', () => {
+    // given
+    const oldSel = sel(1, 30, 'old', true, 2);
+    const newSel = sel(31, 42, 'new', true, 1);
+
+    // when
+    const mergeSelFn = () => mergeOldSelectionIntoNew(newSel, oldSel);
+
+    // then
+    expect(mergeSelFn).toThrow(new Error("Adjacent bins on different genomes. Will not merge."));
+  });
 });
