@@ -69,7 +69,7 @@ export default class Genomes extends React.Component {
 
     drawHighlightsAndSelections(
         props.highlight,
-        props.selection,
+        props.selections,
         props.inProgressSelection,
         ctx
     );
@@ -119,7 +119,7 @@ export default class Genomes extends React.Component {
   }
 
   isBinAlreadySelected(bin) {
-    return !!_.find(this.props.selection,
+    return !!_.find(this.props.selections,
                     (selection) => selection.binFrom && selection.binFrom.idx <= bin.idx && selection.binTo.idx >= bin.idx
     );
   }
@@ -291,7 +291,7 @@ Genomes.propTypes = {
   svgMetrics: React.PropTypes.object.isRequired,
 
   highlight: React.PropTypes.object,
-  selection: React.PropTypes.array,
+  selections: React.PropTypes.array,
   inProgressSelection: React.PropTypes.object,
   onSelection: React.PropTypes.func.isRequired,
   onSelectionStart: React.PropTypes.func.isRequired,

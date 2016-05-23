@@ -3,10 +3,8 @@ import numeral from 'numeral';
 
 import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
-// import Genome from "./Genome.jsx";
 
 import transform from './util/transform';
-import pickNumericKeys from "./util/pickNumericKeys";
 
 export default class Clade extends React.Component {
   constructor(props) {
@@ -194,7 +192,7 @@ Clade.propTypes = {
   svgMetrics: React.PropTypes.object.isRequired,
 
   highlight: React.PropTypes.object,
-  selection: React.PropTypes.array,
+  selections: React.PropTypes.array,
   inProgressSelection: React.PropTypes.object,
   onSelection: React.PropTypes.func.isRequired,
   onSelectionStart: React.PropTypes.func.isRequired,

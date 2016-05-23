@@ -11,7 +11,7 @@ export default class Taxonomy extends React.Component {
     super(props);
     this.state = {
       inProgressSelection: {},
-      selection: [],
+      selections: [],
       highlight: {}
     };
   }
@@ -21,18 +21,18 @@ export default class Taxonomy extends React.Component {
   }
 
   handleSelection(selection) {
-    const newSelection = this.updateSelection(selection);
-    if (newSelection) {
+    const newSelections = this.updateSelection(selection);
+    if (newSelections) {
       this.setState({
-        selection: newSelection,
+        selections: newSelections,
         inProgressSelection: undefined
       });
-      if (this.props.onSelection) this.props.onSelection(newSelection);
+      if (this.props.onSelection) this.props.onSelection(newSelections);
     }
   }
 
   updateSelection(selectionObj) {
-    return updateSelections(selectionObj, this.state.selection, this.props.rootNode);
+    return updateSelections(selectionObj, this.state.selections, this.props.rootNode);
   }
 
   handleHighlight(highlight) {
