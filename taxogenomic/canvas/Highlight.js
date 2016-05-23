@@ -6,7 +6,7 @@ export function drawHighlightsAndSelections(highlight, selection,
   clear(ctx);
 
   if (!_.isEmpty(selection)) {
-    drawSelections(selection.selections, ctx);
+    drawSelections(selection, ctx);
   }
 
   if (!_.isEmpty(inProgressSelection)) {

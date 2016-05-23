@@ -11,7 +11,7 @@ export default class Taxonomy extends React.Component {
     super(props);
     this.state = {
       inProgressSelection: {},
-      selection: { bins: {}, selections: [] },
+      selection: [],
       highlight: {}
     };
   }

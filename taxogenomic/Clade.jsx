@@ -194,7 +194,7 @@ Clade.propTypes = {
   svgMetrics: React.PropTypes.object.isRequired,
 
   highlight: React.PropTypes.object,
-  selection: React.PropTypes.object,
+  selection: React.PropTypes.array,
   inProgressSelection: React.PropTypes.object,
   onSelection: React.PropTypes.func.isRequired,
   onSelectionStart: React.PropTypes.func.isRequired,
