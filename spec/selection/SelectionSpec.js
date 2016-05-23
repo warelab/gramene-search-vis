@@ -8,7 +8,7 @@ describe('selection.js', () => {
 
   beforeEach(() => {
     updateSelections = require('../../taxogenomic/util/selection').updateSelections;
-    initialSelectionState = {selections: []};
+    initialSelectionState = [];
   });
 
   it('should correctly add a single selection', () => {
@@ -19,8 +19,8 @@ describe('selection.js', () => {
     var newState = updateSelections(newSel, initialSelectionState, rootNode);
 
     // then
-    expect(_.size(newState.selections)).toEqual(1);
-    expect(newState.selections[0]).toEqual(newSel);
+    expect(_.size(newState)).toEqual(1);
+    expect(newState[0]).toEqual(newSel);
   });
 
   it('should correctly add a second non-overlapping selection', () => {
@@ -33,8 +33,8 @@ describe('selection.js', () => {
     var state2 = updateSelections(sel2, state1, rootNode);
 
     // then
-    expect(_.size(state2.selections)).toEqual(2);
-    expect(state2.selections[0]).toEqual(sel1);
+    expect(_.size(state2)).toEqual(2);
+    expect(state2[0]).toEqual(sel1);
   });
 
   it('should correctly add a second completely overlapping selection', function () {
@@ -49,8 +49,8 @@ describe('selection.js', () => {
     var resultingSelection = sel(1, 10, 'simple2');
 
     // then
-    expect(_.size(state2.selections)).toEqual(1);
-    expect(state2.selections[0]).toEqual(resultingSelection);
+    expect(_.size(state2)).toEqual(1);
+    expect(state2[0]).toEqual(resultingSelection);
   });
 
   it('should correctly add a selection that completely overlaps an inverse one.', function () {
@@ -63,9 +63,9 @@ describe('selection.js', () => {
     var state2 = updateSelections(sel2, state1, rootNode);
 
     // then
-    expect(_.size(state2.selections)).toEqual(2);
-    expect(_.head(state2.selections)).toEqual(sel(1, 1, 'simple'));
-    expect(_.last(state2.selections)).toEqual(sel(4, 4, 'simple'));
+    expect(_.size(state2)).toEqual(2);
+    expect(_.head(state2)).toEqual(sel(1, 1, 'simple'));
+    expect(_.last(state2)).toEqual(sel(4, 4, 'simple'));
   });
 
   it('should correctly add a selection that overlaps the end of an inverse one.', function () {
@@ -79,8 +79,8 @@ describe('selection.js', () => {
 
     // then
     const expected = sel(1, 2, 'simple');
-    expect(_.size(state2.selections)).toEqual(1);
-    expect(_.last(state2.selections)).toEqual(expected);
+    expect(_.size(state2)).toEqual(1);
+    expect(_.last(state2)).toEqual(expected);
   });
 
   it('should correctly add a selection that completely overlaps all previous selections', function () {
@@ -93,8 +93,8 @@ describe('selection.js', () => {
     var state3 = updateSelections(sel3, state2, rootNode);
 
     // then
-    expect(_.size(state3.selections)).toEqual(1);
-    expect(_.last(state3.selections)).toEqual(sel3);
+    expect(_.size(state3)).toEqual(1);
+    expect(_.last(state3)).toEqual(sel3);
   });
 
   it('should merge two selections that are adjacent', function () {
@@ -108,8 +108,8 @@ describe('selection.js', () => {
 
     // then
     var expected = sel(1,8,'simple2');
-    expect(_.size(state2.selections)).toEqual(1);
-    expect(_.last(state2.selections)).toEqual(expected);
+    expect(_.size(state2)).toEqual(1);
+    expect(_.last(state2)).toEqual(expected);
   });
 
   it('should not merge two selections that are adjacent but on different genomes', function () {
@@ -122,9 +122,9 @@ describe('selection.js', () => {
     var state2 = updateSelections(sel2, state1, rootNode);
 
     // then
-    expect(_.size(state2.selections)).toEqual(2);
-    expect(_.head(state2.selections)).toEqual(sel1);
-    expect(_.last(state2.selections)).toEqual(sel2);
+    expect(_.size(state2)).toEqual(2);
+    expect(_.head(state2)).toEqual(sel1);
+    expect(_.last(state2)).toEqual(sel2);
   });
 });
 

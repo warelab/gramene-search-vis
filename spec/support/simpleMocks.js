@@ -16,8 +16,8 @@ const rootNode = {
   getBin: bin
 };
 const acc = (fromIdx, toIdx, name, state) => ({
-  updatedNewSelection: sel(fromIdx, toIdx, name, state), 
-  updatedSelections: []
+  modifiedNewSelection: sel(fromIdx, toIdx, name, state), 
+  updated: []
 });
 
 export { bin, sel, rootNode, acc }; 

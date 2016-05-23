@@ -6,10 +6,15 @@ export default function getSelectionsThatMayNeedUpdating(selections, newSelectio
   const end = newSelection.binTo.idx + 1;
   const taxonId = newSelection.genome.taxon_id;
 
-  return _.filter(selections, (selection) => {
+  const partitioned = _.partition(selections, (selection) => {
     const from = _.get(selection.binFrom, 'idx');
     const to = _.get(selection.binTo, 'idx');
     return taxonId === _.get(selection.genome, 'taxon_id')
         && !(from > end || to < start);
   });
+
+  return { 
+    toUpdate: partitioned[0], 
+    toLeave: partitioned[1] 
+  };
 }

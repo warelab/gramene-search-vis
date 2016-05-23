@@ -28,9 +28,9 @@ describe('updateExistingSelection', () => {
     );
 
     // then
-    const {updatedNewSelection} = accumulator;
-    const updatedSelection = _.head(accumulator.updatedSelections);
-    expect(updatedNewSelection).toEqual(sel(10, 20, 'new', false));
+    const {modifiedNewSelection} = accumulator;
+    const updatedSelection = _.head(accumulator.updated);
+    expect(modifiedNewSelection).toEqual(sel(10, 20, 'new', false));
     expect(updatedSelection).toEqual(sel(1, 9, 'old'));
     expect(trimExistingSelection.trimEndOfExistingSelection).toHaveBeenCalled();
     expect(trimExistingSelection.trimStartOfExistingSelection).not.toHaveBeenCalled();
@@ -50,10 +50,10 @@ describe('updateExistingSelection', () => {
     );
 
     // then
-    const {updatedNewSelection} = accumulator;
-    const updatedSelection = _.head(accumulator.updatedSelections);
+    const {modifiedNewSelection} = accumulator;
+    const updatedSelection = _.head(accumulator.updated);
     expect(updatedSelection).toEqual(sel(21, 42, 'old'));
-    expect(updatedNewSelection).toEqual(sel(1, 20, 'new', false));
+    expect(modifiedNewSelection).toEqual(sel(1, 20, 'new', false));
     expect(trimExistingSelection.trimEndOfExistingSelection).not.toHaveBeenCalled();
     expect(trimExistingSelection.trimStartOfExistingSelection).toHaveBeenCalled();
     expect(mergeOldSelectionIntoNew.default).not.toHaveBeenCalled();
@@ -72,10 +72,10 @@ describe('updateExistingSelection', () => {
     );
 
     // then
-    const {updatedNewSelection} = accumulator;
-    const updatedSelection = _.head(accumulator.updatedSelections);
+    const {modifiedNewSelection} = accumulator;
+    const updatedSelection = _.head(accumulator.updated);
     expect(updatedSelection).toBeUndefined();
-    expect(updatedNewSelection).toEqual(sel(1, 20, 'new'));
+    expect(modifiedNewSelection).toEqual(sel(1, 20, 'new'));
     expect(trimExistingSelection.trimEndOfExistingSelection).not.toHaveBeenCalled();
     expect(trimExistingSelection.trimStartOfExistingSelection).not.toHaveBeenCalled();
     expect(mergeOldSelectionIntoNew.default).toHaveBeenCalled();
@@ -131,7 +131,7 @@ describe('updateExistingSelection', () => {
         oldSelection,
         rootNode
     );
-    const updatedSelection = _.head(accumulator.updatedSelections);
+    const updatedSelection = _.head(accumulator.updated);
 
     // then
     expect(updatedSelection).toEqual(sel(1, 9, 'old'));

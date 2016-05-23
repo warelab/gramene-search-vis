@@ -4,6 +4,6 @@ export default function getUpdatedExistingSelections(existingSelectionsToUpdate,
   return existingSelectionsToUpdate
       .reduce((acc, oldSelection) => updateExistingSelection(acc, oldSelection,
                                                              rootNode),
-              {updatedNewSelection: newSelection, updatedSelections: []}
+              {modifiedNewSelection: newSelection, updated: []}
       );
 }

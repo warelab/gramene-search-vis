@@ -2,7 +2,7 @@ import mergeOldSelectionIntoNew from "./mergeOldSelectionIntoNew";
 import {trimEndOfExistingSelection, trimStartOfExistingSelection} from "./trimExistingSelection";
 
 export default function updateExistingSelection(acc, oldSelection, rootNode) {
-  const newSelection = acc.updatedNewSelection;
+  const newSelection = acc.modifiedNewSelection;
   const {genome: {taxon_id: oldTaxonId}, binFrom: {idx: oldStartIdx}, binTo: {idx: oldEndIdx}} = oldSelection;
   const {genome: {taxon_id: newTaxonId}, binFrom: {idx: newStartIdx}, binTo: {idx: newEndIdx}} = newSelection;
 
@@ -19,7 +19,7 @@ export default function updateExistingSelection(acc, oldSelection, rootNode) {
    new selection.
    */
   if (oldSelection.select === newSelection.select) {
-    acc.updatedNewSelection =
+    acc.modifiedNewSelection =
         mergeOldSelectionIntoNew(newSelection, oldSelection);
   }
 
@@ -44,7 +44,7 @@ export default function updateExistingSelection(acc, oldSelection, rootNode) {
      updatedSelections:  |------|
      */
     if (oldStartIdx < newStartIdx && oldEndIdx >= newStartIdx) {
-      acc.updatedSelections.push(
+      acc.updated.push(
           trimEndOfExistingSelection(newSelection, oldSelection, rootNode)
       );
     }
@@ -55,7 +55,7 @@ export default function updateExistingSelection(acc, oldSelection, rootNode) {
      updatedSelections:                 |-----|
      */
     if (oldStartIdx <= newEndIdx && oldEndIdx > newEndIdx) {
-      acc.updatedSelections.push(
+      acc.updated.push(
           trimStartOfExistingSelection(newSelection, oldSelection, rootNode)
       );
     }

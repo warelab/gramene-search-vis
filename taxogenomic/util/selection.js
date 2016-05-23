@@ -7,29 +7,24 @@ import getUpdatedExistingSelections from "./selection/getUpdatedExistingSelectio
  */
 
 export function updateSelections(newSelection, currentSelectionState, rootNode) {
-  const selections = currentSelectionState.selections;
 
   // find any existing selections that will be affected by the new one.
-  const selectionsToUpdate = getSelectionsThatMayNeedUpdating(selections, newSelection);
-  const selectionsToLeaveUnchanged = _.difference(
-      selections,
-      selectionsToUpdate
-  );
-
+  const {toUpdate, toLeave} = getSelectionsThatMayNeedUpdating(currentSelectionState, newSelection);
+  
   // modify the new selection and any existing ones that overlap
   // in order to remove overlaps
-  const {updatedNewSelection, updatedSelections} =
-      getUpdatedExistingSelections(selectionsToUpdate, rootNode, newSelection);
+  const {modifiedNewSelection, updated} =
+      getUpdatedExistingSelections(toUpdate, rootNode, newSelection);
   
   const newSelections = [
-    ...selectionsToLeaveUnchanged,
-    ...updatedSelections
+    ...toLeave,
+    ...updated
   ];
 
   // add the new selection if it is a selection (i.e. not a deselection).
-  if (updatedNewSelection.select) {
-    newSelections.push(updatedNewSelection);
+  if (modifiedNewSelection.select) {
+    newSelections.push(modifiedNewSelection);
   }
 
-  return {selections: newSelections};
+  return newSelections;
 }
