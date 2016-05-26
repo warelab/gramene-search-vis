@@ -16,9 +16,17 @@ export default class Taxonomy extends React.Component {
     };
   }
 
+  expandedNodesWillChange(newNodeDisplayInfo) {
+    return !_.isEqualWith(
+        newNodeDisplayInfo,
+        this.props.nodeDisplayInfo,
+        (a,b) => a.expanded == b.expanded
+    );
+  }
+
   componentWillReceiveProps(newProps) {
-    if(!_.isEqual(newProps.nodeDisplayInfo, this.props.nodeDisplayInfo)) {
-      console.log("Clearing selection state because node display changed");
+    if(this.expandedNodesWillChange(newProps.nodeDisplayInfo)) {
+      console.log("Clearing selection state because expanded nodes will change");
       this.setState({selections: []});
     }
   }
