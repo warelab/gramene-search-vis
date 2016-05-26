@@ -5,8 +5,8 @@ import Vis from './taxogenomic/Vis.jsx';
 export default class App extends React.Component {
   constructor(props) {
     super(props);
-    this.numQueries = this.props.exampleQueries.length;
-    this.state = {qs: this.updateQueryState()};
+    this.numQueries = props.exampleQueries.length;
+    this.state = {qs: this.updateQueryState(), selectedTaxa: props.selectedTaxa};
   }
 
   updateQueryState() {
@@ -35,6 +35,11 @@ export default class App extends React.Component {
     this.setState({qs: this.updateQueryState()});
   }
 
+  changeSpecies() {
+    const newSelectedTaxa = _.size(this.state.selectedTaxa) === 0 ? this.props.selectedTaxa : {};
+    this.setState({selectedTaxa: newSelectedTaxa});
+  }
+
   logFactory(name) {
     return () => console.log(`Event ${name}`, arguments);
   }
@@ -44,8 +49,9 @@ export default class App extends React.Component {
       <div className="app">
         <p>{this.state.qs.queryIndex} {this.state.qs.queryName}</p>
         <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
+        <button type="button" onClick={this.changeSpecies.bind(this)}>Change Species</button>
         <Vis taxonomy={this.state.qs.taxonomy}
-             parentWidth={this.state.elementWidthPx}
+             selectedTaxa={this.state.selectedTaxa}
              onSelection={(s)=>this.setState({selection:s})}
              onHighlight={(h)=>this.setState({highlight:h})}
         />
@@ -74,6 +80,7 @@ export default class App extends React.Component {
 
 App.propTypes = {
   taxonomy: React.PropTypes.object.isRequired,
+  selectedTaxa: React.PropTypes.object.isRequired,
   exampleQueries: React.PropTypes.array.isRequired,
   exampleResults: React.PropTypes.array.isRequired
 };

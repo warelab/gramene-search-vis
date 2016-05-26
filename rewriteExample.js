@@ -90,11 +90,14 @@ var promises = exampleQueries.map(function (eg) {
 });
 promises.unshift(taxonomyGetter.get());
 
+const selectedTaxa = { 3702: true, 4577: true, 4558: true };
+
 Q.all(promises).spread(function (taxonomy) {
   const exampleResults = Array.prototype.slice.call(arguments, 1);
   taxonomy.setBinType('fixed', 1000);
   ReactDOM.render(
       <App taxonomy={taxonomy}
+           selectedTaxa={selectedTaxa}
            exampleQueries={exampleQueries}
            exampleResults={exampleResults}
       />,

@@ -1,10 +1,8 @@
 import React from "react";
-import numeral from 'numeral';
-
+import numeral from "numeral";
 import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
-
-import transform from './util/transform';
+import transform from "./util/transform";
 
 export default class Clade extends React.Component {
   constructor(props) {
@@ -23,17 +21,17 @@ export default class Clade extends React.Component {
   notifyOfHover(e) {
     e.stopPropagation();
     this.props.onHighlight({
-      name: `${this.props.node.model.name} has ${this.props.node.model.results.count} results`,
-      taxon: this.props.node.model
-    });
+                             name: `${this.props.node.model.name} has ${this.props.node.model.results.count} results`,
+                             taxon: this.props.node.model
+                           });
   }
 
   handleCladeSelection(e) {
     e.stopPropagation();
     this.props.onSelection({
-      name: this.props.node.model.name,
-      taxon: this.props.node.model
-    });
+                             name: this.props.node.model.name,
+                             taxon: this.props.node.model
+                           });
   }
 
   setClassNameState(className) {
@@ -44,23 +42,23 @@ export default class Clade extends React.Component {
 
   render() {
     return (
-      <g className={this.state.className}
-        {...this.gProps()}
+        <g className={this.state.className}
+           {...this.gProps()}
 
-        // use mouse enter/leave to set class for coloring path
-         onMouseEnter={this.addHighlightClass.bind(this)}
-         onMouseLeave={this.removeHighlightClass.bind(this)}
+            // use mouse enter/leave to set class for coloring path
+           onMouseEnter={this.addHighlightClass.bind(this)}
+           onMouseLeave={this.removeHighlightClass.bind(this)}
 
-        // mouse over (with propagation stopped) for notifying others
-        // of mouse over.
-         onMouseOver={this.notifyOfHover.bind(this)}
-         onSelect={this.handleCladeSelection.bind(this)}>
-        {this.renderEdge()}
-        {this.renderNode()}
-        {this.renderBackground()}
-        {this.renderText()}
-        {this.renderSubclades()}
-      </g>
+            // mouse over (with propagation stopped) for notifying others
+            // of mouse over.
+           onMouseOver={this.notifyOfHover.bind(this)}
+           onSelect={this.handleCladeSelection.bind(this)}>
+           {this.renderEdge()}
+           {this.renderNode()}
+           {this.renderBackground()}
+           {this.renderText()}
+           {this.renderSubclades()}
+        </g>
     )
   }
 
@@ -69,55 +67,57 @@ export default class Clade extends React.Component {
       return <Edge node={this.props.node}
                    displayInfo={this.displayInfo()}
                    nodeRadius={this.props.svgMetrics.layout.circleRadius}
-                   strokeWidth={this.props.svgMetrics.layout.strokeWidth} />
+                   strokeWidth={this.props.svgMetrics.layout.strokeWidth}/>
     }
   }
 
   renderNode() {
     return <Node node={this.props.node}
                  displayInfo={this.displayInfo()}
-                 radius={this.props.svgMetrics.layout.circleRadius} />
+                 radius={this.props.svgMetrics.layout.circleRadius}/>
   }
 
   renderText() {
     if (!this.props.node.hasChildren()) {
       return (
-        <g className="node-label">
-          {this.renderSpeciesName()}
-          {this.renderResultsCount()}
-        </g>
+          <g className="node-label">
+             {this.renderSpeciesName()}
+             {this.renderResultsCount()}
+          </g>
       );
     }
   }
 
   renderSpeciesName() {
-    if(this.props.svgMetrics.layout.showSpeciesNames) {
+    if (this.props.svgMetrics.layout.showSpeciesNames) {
       return (
-        <text x="10" y="4.75" className="species-name">
-          {this.speciesName()}
-        </text>
+          <text x="10" y="4.75" className="species-name">
+                {this.speciesName()}
+          </text>
       );
     }
   }
 
   renderBackground() {
-    if(this.props.node.model.genome) {
+    if (this.props.node.model.genome) {
       const {width, height} = this.props.svgMetrics;
       const y = 1 - height.leafNode / 2;
 
       return (
-        <rect className="species-background" x="10" y={y} width={width.text + width.genomes} height={height.leafNode} />
+          <rect className="species-background" x="10" y={y} width={width.text + width.genomes}
+                height={height.leafNode}/>
       )
     }
   }
 
   renderResultsCount() {
-    if(this.props.svgMetrics.layout.showSpeciesNames) {
-      const x = this.props.svgMetrics.width.text - this.props.svgMetrics.layout.genomePadding;
+    if (this.props.svgMetrics.layout.showSpeciesNames) {
+      const x = this.props.svgMetrics.width.text
+          - 2 * this.props.svgMetrics.layout.genomePadding;
       return (
-        <text x={x} y="4.75" className="results-count" textAnchor="end">
-          {numeral(this.props.node.model.results.count).format('0,0')}
-        </text>
+          <text x={x} y="4.75" className="results-count" textAnchor="end">
+                {numeral(this.props.node.model.results.count).format('0,0')}
+          </text>
       );
     }
   }
@@ -137,29 +137,36 @@ export default class Clade extends React.Component {
   }
 
   renderSubclades() {
-    if (this.showChildren()) {
-      const propsPassthrough = _.pick(this.props, [
-        'nodeDisplayInfo',
-        'svgMetrics',
-        'highlight',
-        'selection',
-        'inProgressSelection',
-        'onSelection',
-        'onSelectionStart',
-        'onHighlight'
-      ]);
-      return this.props.node.children.map((child) => {
-        const key = _.get(child, 'model.id');
-        if (!_.isNumber(key)) {
-          throw new Error("No node id for child!");
-        }
-        return (
-          <Clade key={key}
-                 node={child}
-                 {...propsPassthrough} />
-        );
-      });
-    }
+    // if (this.showChildren()) {
+    const propsPassthrough = _.pick(this.props, [
+      'nodeDisplayInfo',
+      'svgMetrics',
+      'highlight',
+      'selection',
+      'inProgressSelection',
+      'onSelection',
+      'onSelectionStart',
+      'onHighlight'
+    ]);
+    const nodeDisplayInfo = this.props.nodeDisplayInfo;
+    return _(this.props.node.children)
+        .filter((child) => {
+          const childInfo = nodeDisplayInfo[child.model.id];
+          return _.get(childInfo, 'expanded', false);
+        })
+        .map((child) => {
+          const key = _.get(child, 'model.id');
+          if (!_.isNumber(key)) {
+            throw new Error("No node id for child!");
+          }
+          return (
+              <Clade key={key}
+                     node={child}
+                     {...propsPassthrough} />
+          );
+        })
+        .value();
+    // }
   }
 
   gProps() {
@@ -178,11 +185,11 @@ export default class Clade extends React.Component {
     return this.props.nodeDisplayInfo[this.nodeId];
   }
 
-  showChildren() {
-    const children = this.props.node.children;
-    const nodeExpanded = this.displayInfo().expanded;
-    return children && children.length && nodeExpanded;
-  }
+  // showChildren() {
+  //   const children = this.props.node.children;
+  //   const nodeExpanded = this.displayInfo().expanded;
+  //   return children && children.length && nodeExpanded;
+  // }
 }
 
 Clade.propTypes = {

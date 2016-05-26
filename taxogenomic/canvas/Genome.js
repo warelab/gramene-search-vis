@@ -45,7 +45,7 @@ export function drawGenomes(ctx, genomes, metrics, globalStats) {
 function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
   const basesPerPx = genome.fullGenomeSize / width;
   const regions = genome._regionsArray;
-  const maxScore = globalStats.bins.max || 0;
+  const maxScore = globalStats.bins.max;
 
   const pixelInfo = {};
 
@@ -78,7 +78,7 @@ function drawGenome({genome, genomeCtx, x, y, width, height, globalStats}) {
       basesNeededByThisPixel = basesPerPx - pxInfo.baseCount;
       bin = region.bin(binIdx);
       binSize = bin.end - bin.start + 1;
-      binScore = bin.results.count / maxScore;
+      binScore = maxScore ? bin.results.count / maxScore : 0;
       basesAvailableInBin = binSize - basesInBinUsedAlready;
 
       pxInfo.bins.push(bin);

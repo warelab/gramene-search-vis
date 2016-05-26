@@ -13,7 +13,8 @@ export default class Genomes extends React.Component {
 
     this.doGenomeRedrawProps = new PropsComparer(
         'globalStats.timesSetResultsHasBeenCalled',
-        'svgMetrics'
+        'svgMetrics',
+        'nodeDisplayInfo'
     );
 
     this.doHighlightRedrawProps = new PropsComparer(
@@ -287,6 +288,7 @@ export default class Genomes extends React.Component {
 Genomes.propTypes = {
   rootNode: React.PropTypes.object.isRequired,
   globalStats: React.PropTypes.object.isRequired,
+  nodeDisplayInfo: React.PropTypes.object.isRequired,
   genomes: React.PropTypes.array.isRequired,
   svgMetrics: React.PropTypes.object.isRequired,
 

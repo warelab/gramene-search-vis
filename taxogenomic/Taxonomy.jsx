@@ -16,6 +16,13 @@ export default class Taxonomy extends React.Component {
     };
   }
 
+  componentWillReceiveProps(newProps) {
+    if(!_.isEqual(newProps.nodeDisplayInfo, this.props.nodeDisplayInfo)) {
+      console.log("Clearing selection state because node display changed");
+      this.setState({selections: []});
+    }
+  }
+
   handleSelectionStart(selection) {
     this.setState({inProgressSelection: selection});
   }

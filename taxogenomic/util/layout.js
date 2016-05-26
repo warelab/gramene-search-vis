@@ -1,9 +1,9 @@
-import _ from 'lodash';
-import d3 from 'd3';
+import _ from "lodash";
+import d3 from "d3";
 
-const UNSIZED_LAYOUT = d3.layout.cluster().separation(function(a,b){return 1});
+const UNSIZED_LAYOUT = d3.layout.cluster().separation(()=>1);
 
-export default function layoutNodes(width, height, taxonomy, currentDisplayInfo, rootNodeId) {
+export default function layoutNodes(width, height, taxonomy, currentDisplayInfo, rootNodeId, selectedTaxa) {
   const rootNode = taxonomy.indices.id[rootNodeId];
   return updateNodeCoordinates();
 
@@ -13,7 +13,7 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
     // clear out any existing position information in readiness of calculating
     // it again.
     const incompleteNodeDisplayInfo = _.mapValues(currentDisplayInfo,
-      (v)=>_.omit(v, ['x', 'y', 'offsetX', 'offsetY', 'lineThickness'])
+      (val) => _.omit(val, ['x', 'y', 'offsetX', 'offsetY', 'lineThickness'])
     );
 
     const layout = UNSIZED_LAYOUT.size([height, width]);
@@ -41,13 +41,18 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
 
   // get data structure of currently visible nodes
   function d3data(nodeDisplayInfo) {
+    const isNodeExpanded = (node) =>
+        _.get(nodeDisplayInfo[node.model.id], 'expanded', false);
+
     const d3dataRecursive = (node) => {
       const id = node.model.id;
       const proportion = node.model.results.proportion;
-      const isExpanded = nodeDisplayInfo[id].expanded;
       const datum = {id: id, proportion: proportion};
-      if(isExpanded && node.hasChildren()) {
-        datum.children = node.children.map(d3dataRecursive);
+      if(node.hasChildren()) {
+        datum.children = _(node.children)
+            .filter(isNodeExpanded)
+            .map(d3dataRecursive)
+            .value();
       }
       return datum;
     };
@@ -65,8 +70,13 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
       if(!displayInfo) {
         throw new Error(`No displayInfo for ${node.model.id}`);
       }
-      displayInfo.offsetX = displayInfo.x - parentX;
-      displayInfo.offsetY = displayInfo.y - parentY;
+      if(!_.isNumber(displayInfo.x)) {
+        console.log(`No coordinates for ${node.model.id}`);
+      }
+      else {
+        displayInfo.offsetX = displayInfo.x - parentX;
+        displayInfo.offsetY = displayInfo.y - parentY;
+      }
 
       if(displayInfo.expanded && node.hasChildren()) {
         node.children.map((child)=>updateRecursive(
@@ -80,7 +90,7 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
       return result;
     };
 
-    return updateRecursive(taxonomy);
+    return _.assign(incompleteNodeDisplayInfo, updateRecursive(taxonomy));
   }
 };
 
