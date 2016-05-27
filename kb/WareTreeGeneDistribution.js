@@ -5,9 +5,30 @@
 */
 
 var $ = require('jquery');
+var React = require('react');
 
-var jqElem = require('./jqElem');
-var KBWidget = require('./kbwidget');
+var internalVisId = 0;
+
+var WTG = React.createClass({
+  componentWillMount: function () {
+    this.visId = "wtg" + internalVisId++;
+    //this.updateVis = debounce(this.undebouncedUpdateVis, 200);
+  },
+  render: function () {
+    if(this.weCalledRenderAlready) {
+      console.warn("We called Vis.render already for this instance. Why is it being called again?");
+    }
+    this.weCalledRenderAlready = true;
+    return React.DOM.div(
+      {className: "ware-tree-gene " + this.visId}
+    );
+  }
+});
+
+module.exports = WTG;
+
+
+if (0) {
 var KbaseTreechart = require('./kbaseTreechart.js');
 var GeneDistribution = require('./GeneDistribution.js');
 var d3 = require('d3');
@@ -494,3 +515,4 @@ module.exports = new KBWidget({
 
 
     });
+}
