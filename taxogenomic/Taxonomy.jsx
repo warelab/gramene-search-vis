@@ -52,7 +52,17 @@ export default class Taxonomy extends React.Component {
 
   handleHighlight(highlight) {
     this.setState({highlight: highlight});
-    if (this.props.onHighlight) this.props.onHighlight(highlight);
+
+    if (this.props.onHighlight) {
+      // need to expose highlight with modified coordinates, taking into account the x offset
+      // caused by the species tree
+      const mtx = this.props.svgMetrics;
+      const modifiedHighlight = _.cloneDeep(highlight);
+      const xOffset = mtx.width.speciesTree + mtx.width.text;
+      modifiedHighlight.x += xOffset;
+      modifiedHighlight.regionDims.x += xOffset;
+      this.props.onHighlight(modifiedHighlight);
+    }
   }
 
   marginTransform() {
