@@ -1,6 +1,18 @@
-import React from 'react';
-import _ from 'lodash';
-import Vis from './taxogenomic/Vis.jsx';
+import React from "react";
+import _ from "lodash";
+import Vis from "./taxogenomic/Vis.jsx";
+
+
+const Highlight = ({visData, selection, highlight}) => <div className="highlight" style={style(highlight)}>
+  Highlight</div>;
+
+function style(highlight) {
+  return {
+    position: 'absolute',
+    top: highlight.y,
+    left: highlight.x
+  };
+}
 
 export default class App extends React.Component {
   constructor(props) {
@@ -46,33 +58,43 @@ export default class App extends React.Component {
 
   render() {
     return (
-      <div className="app">
-        <p>{this.state.qs.queryIndex} {this.state.qs.queryName}</p>
-        <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
-        <button type="button" onClick={this.changeSpecies.bind(this)}>Change Species</button>
-        <Vis taxonomy={this.state.qs.taxonomy}
-             selectedTaxa={this.state.selectedTaxa}
-             onSelection={(s)=>this.setState({selection:s})}
-             onHighlight={(h)=>this.setState({highlight:h})}
-        />
-        {this.renderSelectedTaxa()}
-      </div>
+        <div className="app">
+          <p>{this.state.qs.queryIndex} {this.state.qs.queryName}</p>
+          <button type="button" onClick={this.changeQuery.bind(this)}>Change Query</button>
+          <button type="button" onClick={this.changeSpecies.bind(this)}>Change Species</button>
+          <div style={{position: 'relative'}}>
+            <Vis taxonomy={this.state.qs.taxonomy}
+                 selectedTaxa={this.state.selectedTaxa}
+                 onSelection={(s)=>this.setState({selection: s})}
+                 onHighlight={(h)=>this.setState({highlight: h})}
+            />
+               {this.renderHighlight()}
+          </div>
+             {this.renderSelectedTaxa()}
+        </div>
     );
   }
 
+
+  renderHighlight() {
+    if (this.state.highlight) {
+      return <Highlight {...this.state} />
+    }
+  }
+
   renderSelectedTaxa() {
-    if(this.state.highlight) {
+    if (this.state.highlight) {
       const Selection = ({selection})=><li>{selection.name}</li>;
       const state = [];
-      if(this.state.highlight) {
+      if (this.state.highlight) {
         state.push(<Selection key="highlight"
-                         selection={this.state.highlight} />)
+                              selection={this.state.highlight}/>)
       }
 
       return (
-        <ul>
-          {state}
-        </ul>
+          <ul>
+            {state}
+          </ul>
       )
     }
   }
