@@ -3,6 +3,7 @@ import numeral from "numeral";
 import Edge from "./Edge.jsx";
 import Node from "./Node.jsx";
 import transform from "./util/transform";
+import _ from "lodash";
 
 export default class Clade extends React.Component {
   constructor(props) {
