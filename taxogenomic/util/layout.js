@@ -71,7 +71,7 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
         throw new Error(`No displayInfo for ${node.model.id}`);
       }
       if(!_.isNumber(displayInfo.x)) {
-        console.log(`No coordinates for ${node.model.id}`);
+        // console.log(`No coordinates for ${node.model.id}`);
       }
       else {
         displayInfo.offsetX = displayInfo.x - parentX;
