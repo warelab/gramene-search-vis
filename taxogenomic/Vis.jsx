@@ -7,16 +7,19 @@ import svgMetrics from "./util/svgMetrics";
 import Taxonomy from "./Taxonomy.jsx";
 import PropsComparer from "./util/PropsComparer";
 
-const EUKARYOTA = 2759;
 const windowResizeDebounceMs = 250;
 
 export default class Vis extends React.Component {
   constructor(props) {
     super(props);
     this.updateProps = new PropsComparer('selectedTaxa');
+    var rootNode = props.taxonomy;
+    while (rootNode.children.length === 1) {
+      rootNode = rootNode.children[0];
+    }
     this.state = {
       nodeDisplayInfo: this.initNodeState(props.taxonomy, props.selectedTaxa),
-      rootNodeId: EUKARYOTA
+      rootNodeId: rootNode.model.id
     };
 
     if (!_.isUndefined(global.addEventListener)) {
