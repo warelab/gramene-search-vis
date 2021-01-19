@@ -8,7 +8,8 @@ import _ from "lodash";
 export default class Genomes extends React.Component {
   constructor(props) {
     super(props);
-
+    this.genomesCanvasRef = React.createRef();
+    this.highlightCanvasRef = React.createRef();
     this.state = {events: []};
 
     this.doGenomeRedrawProps = new PropsComparer(
@@ -59,14 +60,14 @@ export default class Genomes extends React.Component {
   drawImage(props = this.props) {
     const metrics = this.metrics(props);
     const globalStats = props.globalStats;
-    const ctx = this.refs.genomesCanvas.getContext("2d");
+    const ctx = this.genomesCanvasRef.current.getContext("2d");
 
     const objectLocations = drawGenomes(ctx, props.genomes, metrics, globalStats);
     this.setState({objectLocations});
   }
 
   drawHighlightsAndSelections(props = this.props) {
-    const ctx = this.refs.highlightCanvas.getContext("2d");
+    const ctx = this.highlightCanvasRef.current.getContext("2d");
 
     drawHighlightsAndSelections(
         props.highlight,
@@ -266,9 +267,9 @@ export default class Genomes extends React.Component {
     return (
 
         <div className="genomes">
-          <canvas ref="genomesCanvas"
+          <canvas ref={this.genomesCanvasRef}
                   {...dimensions} />
-          <canvas ref="highlightCanvas"
+          <canvas ref={this.highlightCanvasRef}
                   {...dimensions}
                   onClick={this.onClick.bind(this)}
                   onMouseDown={this.onMouseDown.bind(this)}
