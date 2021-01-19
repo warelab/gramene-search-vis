@@ -99,10 +99,3 @@ export default class App extends React.Component {
     }
   }
 }
-
-App.propTypes = {
-  taxonomy: React.PropTypes.object.isRequired,
-  selectedTaxa: React.PropTypes.object.isRequired,
-  exampleQueries: React.PropTypes.array.isRequired,
-  exampleResults: React.PropTypes.array.isRequired
-};

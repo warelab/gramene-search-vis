@@ -53,9 +53,3 @@ export default class Edge extends React.Component {
   }
 }
 
-Edge.propTypes = {
-  node: React.PropTypes.object.isRequired,
-  nodeRadius: React.PropTypes.number.isRequired,
-  strokeWidth: React.PropTypes.number.isRequired,
-  displayInfo: React.PropTypes.object.isRequired
-};

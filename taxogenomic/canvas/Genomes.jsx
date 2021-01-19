@@ -284,18 +284,3 @@ export default class Genomes extends React.Component {
     )
   }
 }
-
-Genomes.propTypes = {
-  rootNode: React.PropTypes.object.isRequired,
-  globalStats: React.PropTypes.object.isRequired,
-  nodeDisplayInfo: React.PropTypes.object.isRequired,
-  genomes: React.PropTypes.array.isRequired,
-  svgMetrics: React.PropTypes.object.isRequired,
-
-  highlight: React.PropTypes.object,
-  selections: React.PropTypes.array,
-  inProgressSelection: React.PropTypes.object,
-  onSelection: React.PropTypes.func.isRequired,
-  onSelectionStart: React.PropTypes.func.isRequired,
-  onHighlight: React.PropTypes.func.isRequired
-};

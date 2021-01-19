@@ -179,10 +179,3 @@ export default class Vis extends React.Component {
   }
 }
 
-Vis.propTypes = {
-  taxonomy: React.PropTypes.object.isRequired,
-  selectedTaxa: React.PropTypes.object.isRequired,
-
-  onSelection: React.PropTypes.func,
-  onHighlight: React.PropTypes.func
-};

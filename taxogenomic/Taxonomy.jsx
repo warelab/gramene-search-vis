@@ -113,14 +113,3 @@ export default class Taxonomy extends React.Component {
   }
 }
 
-Taxonomy.propTypes = {
-  width: React.PropTypes.number.isRequired,
-  height: React.PropTypes.number.isRequired,
-
-  rootNode: React.PropTypes.object.isRequired,
-  nodeDisplayInfo: React.PropTypes.object.isRequired,
-  svgMetrics: React.PropTypes.object.isRequired,
-
-  onSelection: React.PropTypes.func,
-  onHighlight: React.PropTypes.func
-};

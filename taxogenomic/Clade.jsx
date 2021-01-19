@@ -193,16 +193,3 @@ export default class Clade extends React.Component {
   // }
 }
 
-Clade.propTypes = {
-  node: React.PropTypes.object.isRequired,
-  nodeDisplayInfo: React.PropTypes.object.isRequired,
-  isRoot: React.PropTypes.bool,
-  svgMetrics: React.PropTypes.object.isRequired,
-
-  highlight: React.PropTypes.object,
-  selections: React.PropTypes.array,
-  inProgressSelection: React.PropTypes.object,
-  onSelection: React.PropTypes.func.isRequired,
-  onSelectionStart: React.PropTypes.func.isRequired,
-  onHighlight: React.PropTypes.func.isRequired
-};
