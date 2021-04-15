@@ -279,7 +279,7 @@ export default class Genomes extends React.Component {
                   onTouchMove={this.onTouchMove.bind(this)}
                   onTouchEnd={this.onTouchEnd.bind(this)}
                   onTouchCancel={this.cancelSelection.bind(this)}/>
-          <ul style={{display: 'block'}}>{this.eventLog()}</ul>
+          {/*<ul style={{display: 'block'}}>{this.eventLog()}</ul>*/}
         </div>
 
     )

@@ -16,7 +16,7 @@ const LEAF_NODE_HEIGHT_SMALL_PX = 6.5;
 const MARGIN_PX = 6;
 
 export default function metrics(width) {
-  const visWidth = width;
+  const visWidth = width - MARGIN_PX;
 
   const showSpeciesNames = visWidth > SMALL_SCREEN_WIDTH_PX;
 
