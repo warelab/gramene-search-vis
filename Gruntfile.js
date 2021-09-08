@@ -12,7 +12,7 @@ module.exports = function (grunt) {
           debug: true
         },
         transform: [
-          ['babelify', {presets: ["es2015", "react"]}]
+          ['babelify', {presets: ["env", "react"]}]
         ]
       },
       dev: {
