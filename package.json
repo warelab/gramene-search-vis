@@ -3,6 +3,7 @@
   "version": "4.1.5",
   "description": "Visualization used by Gramene search",
   "main": "index.js",
+  "source": true,
   "scripts": {
     "test": "node node_modules/jasmine/bin/jasmine.js"
   },
