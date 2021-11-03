@@ -125,7 +125,7 @@ export default class Clade extends React.Component {
 
   speciesName() {
     const fullName = this.props.node.model.name;
-    const removedExtraineousWords = fullName.replace(/( Group$| subsp\.| | ssp\.| var\.| strain)/, '');
+    const removedExtraineousWords = fullName.replace(/( Group$| subsp\.| ssp\.| var\.| strain)/, '');
     let finalVersion;
     if (removedExtraineousWords.length > 20) {
       let words = removedExtraineousWords.split(' ');
