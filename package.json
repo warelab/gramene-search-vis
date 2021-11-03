@@ -1,6 +1,6 @@
 {
   "name": "gramene-search-vis",
-  "version": "4.1.6",
+  "version": "4.1.7",
   "description": "Visualization used by Gramene search",
   "main": "index.js",
   "source": true,
