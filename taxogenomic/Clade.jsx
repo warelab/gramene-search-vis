@@ -128,8 +128,14 @@ export default class Clade extends React.Component {
     const removedExtraineousWords = fullName.replace(/( Group$| subsp\.| var\.| strain)/, '');
     let finalVersion;
     if (removedExtraineousWords.length > 20) {
-      // abrreviate first word.
-      finalVersion = removedExtraineousWords.replace(/^([A-Z])[a-z]+/, '$1.')
+      let words = removedExtraineousWords.split(' ');
+      if (words.length === 2) {
+        // abrreviate first word.
+        finalVersion = removedExtraineousWords.replace(/^([A-Z])[a-z]+/, '$1.')
+      }
+      if (words.length > 2) {
+        finalVersion = removedExtraineousWords.replace(/^([A-Z])[a-z]+\s([a-z])[a-z]+/, '$1$2.')
+      }
     }
     else {
       finalVersion = removedExtraineousWords;
