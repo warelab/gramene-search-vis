@@ -4,7 +4,7 @@ import _ from "lodash";
 import layoutNodes from "./util/layout";
 import {visibleLeafNodeCount} from "./util/visibleLeafNodes";
 import svgMetrics from "./util/svgMetrics";
-import Taxonomy from "./Taxonomy.jsx";
+import Taxonomy from "./Taxonomy.js";
 import PropsComparer from "./util/PropsComparer";
 
 const windowResizeDebounceMs = 250;

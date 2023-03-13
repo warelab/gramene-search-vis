@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import taxonomyGetter from "gramene-taxonomy-with-genomes";
 import {client} from "gramene-search-client";
 import Q from "q";
-import App from "./App.jsx";
+import App from "./App.js";
 
 // Example query objects.
 // This is usually generated in code by gramoogle.

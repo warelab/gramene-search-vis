@@ -1,6 +1,6 @@
 import React from "react";
 import _ from "lodash";
-import Vis from "./taxogenomic/Vis.jsx";
+import Vis from "./taxogenomic/Vis.js";
 
 
 const Highlight = ({visData, selection, highlight}) => <div className="highlight" style={style(highlight)}>

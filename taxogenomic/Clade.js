@@ -1,7 +1,7 @@
 import React from "react";
 import numeral from "numeral";
-import Edge from "./Edge.jsx";
-import Node from "./Node.jsx";
+import Edge from "./Edge.js";
+import Node from "./Node.js";
 import transform from "./util/transform";
 import _ from "lodash";
 
