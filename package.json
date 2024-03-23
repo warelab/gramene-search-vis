@@ -2,16 +2,18 @@
   "name": "gramene-search-vis",
   "version": "4.1.12",
   "description": "Visualization used by Gramene search",
-  "main": "index.js",
-  "source": true,
+  "main": "dist/index.js",
+  "source": "index.js",
   "scripts": {
+    "build": "parcel build index.js",
     "test": "node node_modules/jasmine/bin/jasmine.js"
   },
   "author": "thomasoniii, mycrobe, ajo2995",
   "license": "MIT",
   "dependencies": {
     "d3": "^3.5.5",
-    "gramene-taxonomy-with-genomes": "^3.0.5",
+    "gramene-search-client": "^2.6.3",
+    "gramene-taxonomy-with-genomes": "^3.0.10",
     "lodash": "^4.11.0",
     "numeral": "^1.5.3",
     "platform": "^1.3.1",
@@ -19,32 +21,14 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.5",
-    "babel-core": "latest",
-    "babel-preset-env": "latest",
-    "babel-preset-react": "latest",
-    "babelify": "^7.2.0",
-    "gramene-search-client": "^2.6.3",
-    "gramene-taxonomy-with-genomes": "^3.0.10",
-    "grunt": "^1.4.1",
-    "grunt-browserify": "^6.0.0",
-    "grunt-contrib-less": "^1.3.0",
-    "grunt-contrib-watch": "^1.1.0",
+    "@babel/core": "latest",
+    "@babel/preset-env": "latest",
+    "@babel/preset-react": "latest",
+    "@parcel/transformer-image": "latest",
+    "@parcel/transformer-js": "latest",
+    "@parcel/transformer-less": "latest",
     "jasmine": "^2.4.1",
     "jit-grunt": "^0.10.0",
     "q": "^1.4.1"
-  },
-  "browserify": {
-    "transform": [
-      [
-        "babelify",
-        {
-          "presets": [
-            "env",
-            "react"
-          ]
-        }
-      ]
-    ]
   }
 }
