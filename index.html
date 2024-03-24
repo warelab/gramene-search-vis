@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <title>Tree test</title>
     <link rel="stylesheet" href="build/styles.css">
-    <script>
+    <script module>
       window.gramene = {};
-      gramene.defaultServer = 'https://data.gramene.org/oryza_v5/swagger';
+      gramene.defaultServer = 'https://data.gramene.org/oryza_v7/swagger';
     </script>
 </head>
 <body>
 <div id="the-test-vis"></div>
-<script src="build/bundle.js"></script>
+<script type="module" src="./rewriteExample.js"></script>
 </body>
 </html>

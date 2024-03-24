@@ -11,7 +11,8 @@
   "author": "thomasoniii, mycrobe, ajo2995",
   "license": "MIT",
   "dependencies": {
-    "d3": "^3.5.5",
+    "d3": "^7.9.0",
+    "d3-hierarchy": "^3.1.2",
     "gramene-search-client": "^2.6.3",
     "gramene-taxonomy-with-genomes": "^3.0.10",
     "lodash": "^4.11.0",
@@ -27,8 +28,10 @@
     "@parcel/transformer-image": "latest",
     "@parcel/transformer-js": "latest",
     "@parcel/transformer-less": "latest",
+    "buffer": "^6.0.3",
     "jasmine": "^2.4.1",
     "jit-grunt": "^0.10.0",
+    "process": "^0.11.10",
     "q": "^1.4.1"
   }
 }

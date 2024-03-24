@@ -1,7 +1,8 @@
 import _ from "lodash";
-import d3 from "d3";
+import * as d3 from "d3-hierarchy";
+import * as d3scale from "d3-scale";
 
-const UNSIZED_LAYOUT = d3.layout.cluster().separation(()=>1);
+const UNSIZED_LAYOUT = d3.cluster().separation(()=>1);
 
 export default function layoutNodes(width, height, taxonomy, currentDisplayInfo, rootNodeId, selectedTaxa) {
   const rootNode = taxonomy.indices.id[rootNodeId];
@@ -17,15 +18,17 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
     );
 
     const layout = UNSIZED_LAYOUT.size([height, width]);
-    const nodes = layout.nodes(d3data(incompleteNodeDisplayInfo));
+    const myNodes = d3data(incompleteNodeDisplayInfo);
+    const myRoot = d3.hierarchy(myNodes);
+    const nodes = layout(myRoot).descendants();
     const strokeScale = getStrokeScale();
 
     for(let i = 0; i < nodes.length; i++) {
       const node = nodes[i];
-      const displayInfo = incompleteNodeDisplayInfo[node.id];
+      const displayInfo = incompleteNodeDisplayInfo[node.data.id];
       displayInfo.x = node.x;
       displayInfo.y = node.y;
-      displayInfo.lineThickness = strokeScale(node.proportion);
+      displayInfo.lineThickness = strokeScale(node.data.proportion);
     }
 
     return updateRelativeNodeCoordinates(incompleteNodeDisplayInfo);
@@ -34,7 +37,7 @@ export default function layoutNodes(width, height, taxonomy, currentDisplayInfo,
   function getStrokeScale() {
     const maxScore = taxonomy.globalResultSetStats().maxProportion;
     const maxRange = maxScore >= 1 ? 2 : 5;
-    return d3.scale.linear()
+    return d3scale.scaleLinear()
       .domain([0, maxScore])
       .range([.5, maxRange]);
   }
