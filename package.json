@@ -3,7 +3,7 @@
   "version": "4.2.2",
   "description": "Visualization used by Gramene search",
   "main": "dist/index.js",
-  "source": "index.js",
+  "source": "taxogenomic/Vis.js",
   "scripts": {
     "build": "parcel build index.js",
     "start": "parcel index.html",

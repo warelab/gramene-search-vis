@@ -9,7 +9,7 @@ import PropsComparer from "./util/PropsComparer";
 
 const windowResizeDebounceMs = 250;
 
-export default class Vis extends React.Component {
+class Vis extends React.Component {
   constructor(props) {
     super(props);
     this.updateProps = new PropsComparer('selectedTaxa');
@@ -179,3 +179,4 @@ export default class Vis extends React.Component {
   }
 }
 
+export default Vis;
