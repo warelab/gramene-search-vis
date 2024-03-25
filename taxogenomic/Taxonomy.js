@@ -59,7 +59,7 @@ export default class Taxonomy extends React.Component {
       const mtx = this.props.svgMetrics;
       const modifiedHighlight = _.cloneDeep(highlight);
       const xOffset = mtx.width.speciesTree + mtx.width.text;
-      if (modifiedHighlight.hasOwnProperty('x')) {
+      if (modifiedHighlight.hasOwnProperty('x') && modifiedHighlight.hasOwnProperty('regionDims')) {
         modifiedHighlight.x += xOffset;
         modifiedHighlight.regionDims.x += xOffset;
         this.props.onHighlight(modifiedHighlight);
